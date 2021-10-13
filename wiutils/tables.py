@@ -1,5 +1,5 @@
 """
-Functions to create new tables from WI data.
+Functions to create new tables or modify existing ones from WI data.
 """
 from typing import Union
 
@@ -159,7 +159,7 @@ def compute_hill_numbers(
     Returns
     -------
     DataFrame
-        Computed Hill numbers by site.
+        Computed Hill numbers by deployment.
 
     """
     if isinstance(q_values, int):
@@ -219,7 +219,7 @@ def remove_duplicates(
     Returns
     -------
     DataFrame
-        Copy of df with removed duplicates.
+        Copy of images with removed duplicates.
 
     """
     images = images.copy()
