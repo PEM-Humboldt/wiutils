@@ -9,8 +9,8 @@ import pandas as pd
 
 def read_project(folder: Union[str, pathlib.Path]) -> tuple:
     """
-    Reads images and related deployment information for a specific
-    Wildlife Insights project bundle.
+    Reads images and deployments tables for a specific Wildlife Insights
+    project bundle.
 
     Parameters
     ----------
@@ -19,8 +19,8 @@ def read_project(folder: Union[str, pathlib.Path]) -> tuple:
 
     Returns
     -------
-    DataFrame
-        DataFrame with images and related deployment information.
+    tuple
+        tuple with the images and the deployments DataFrames.
 
     """
     if isinstance(folder, str):
