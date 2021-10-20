@@ -225,10 +225,9 @@ def get_scientific_name(
 
     if keep_genus:
         mask = has_genus & ~has_epithet
+        names.loc[mask] = images.loc[mask, genus_col]
         if add_qualifier:
-            names.loc[mask] = images.loc[mask, genus_col] + " sp."
-        else:
-            names.loc[mask] = images.loc[mask, genus_col]
+            names.loc[mask] += " sp."
 
     return names
 
