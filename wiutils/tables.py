@@ -31,10 +31,6 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
         return np.sum(p ** q) ** (1 / (1 - q))
 
 
-def add_scientific_name():
-    pass
-
-
 def compute_abundance_by_deployment():
     pass
 
@@ -50,7 +46,7 @@ def compute_detection_history(
     compute_abundance: bool = True,
     interval: int = 1,
     unit: str = "days",
-    pivot: bool = False
+    pivot: bool = False,
 ) -> pd.DataFrame:
     """
 
@@ -94,7 +90,7 @@ def compute_detection_history(
     groupers = [
         pd.Grouper(key=species_col),
         pd.Grouper(key=site_col),
-        pd.Grouper(key=date_col, freq=freq)
+        pd.Grouper(key=date_col, freq=freq),
     ]
     result = images.groupby(groupers).size()
 
@@ -116,7 +112,7 @@ def compute_detection_history(
         result.loc[presence, "value"] = 1
 
     result = pd.merge(
-        result, deployments[[site_col, start_col, end_col]], on=site_col, how="outer"
+        result, deployments[[site_col, start_col, end_col]], on=site_col, how="left"
     )
     inside_range = result[date_col].between(result[start_col], result[end_col])
     result.loc[~inside_range, "value"] = pd.NA
@@ -174,7 +170,7 @@ def compute_hill_numbers(
             row = {
                 "site": site,
                 "q": q,
-                "D": _compute_q_diversity_index(group.to_numpy(), q)
+                "D": _compute_q_diversity_index(group.to_numpy(), q),
             }
             result = result.append(row, ignore_index=True)
 
@@ -182,6 +178,10 @@ def compute_hill_numbers(
         result = result.pivot(index=site_col, columns="q", values="D")
 
     return result
+
+
+def get_scientific_name():
+    pass
 
 
 def remove_duplicates(
@@ -231,5 +231,118 @@ def remove_duplicates(
     return images[mask]
 
 
-def remove_unidentified(df: pd.DataFrame) -> pd.DataFrame:
-    pass
+def remove_inconsistent_dates(
+    images: pd.DataFrame,
+    deployments: pd.DataFrame,
+    date_col: str = "timestamp",
+    site_col: str = "deployment_id",
+    start_col: str = "start_date",
+    end_col: str = "end_date",
+) -> pd.DataFrame:
+    """
+    Removes images where the timestamp is outside the date range of the
+    corresponding camera.
+
+    Parameters
+    ----------
+    images : pd.DataFrame
+        DataFrame with the project's images.
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments.
+    date_col : str
+        Label of the date column in the images DataFrame.
+    site_col : str
+        Label of the site column in the images DataFrame.
+    start_col : str
+        Label of the start date in the deployments DataFrame.
+    end_col : str
+        Label of the end date in the deployments DataFrame.
+
+    Returns
+    -------
+    DataFrame
+        Images DataFrame with removed inconsistent images.
+
+    """
+    images = images.copy()
+
+    images[date_col] = pd.to_datetime(images[date_col].dt.date)
+    images = pd.merge(
+        images, deployments[[site_col, start_col, end_col]], on=site_col, how="left"
+    )
+    images["__is_between"] = images[date_col].between(
+        images[start_col], images[end_col]
+    )
+    images = images[images["__is_between"]]
+    images = images.drop(columns=["__is_between", start_col, end_col])
+
+    return images
+
+
+def remove_unidentified(
+    images: pd.DataFrame,
+    rank: str = "genus",
+    class_col: str = "class",
+    order_col: str = "order",
+    family_col: str = "family",
+    genus_col: str = "genus",
+    epithet_col: str = "species",
+) -> pd.DataFrame:
+    """
+    Removes unidentified (up to a specific taxonomic rank) images .
+
+    Parameters
+    ----------
+    images : pd.DataFrame
+        DataFrame with the project's images.
+    rank : str
+        Taxonomic rank for which images that do not have an identification
+        will be removed. Possible values are:
+            * 'epithet'
+            * 'genus'
+            * 'family'
+            * 'order'
+            * 'class'
+        For example, if rank is 'family', all images where the family
+        (and therefore the inferior ranks - genus and epithet -) were
+        not identified will be removed.
+    class_col : str
+        Label of the class column in the images DataFrame.
+    order_col : str
+        Label of the order column in the images DataFrame.
+    family_col : str
+        Label of the family column in the images DataFrame.
+    genus_col : str
+        Label of the genus column in the images DataFrame.
+    epithet_col : str
+        Label of the epithet column in the images DataFrame.
+
+    Returns
+    -------
+    DataFrame
+        Images DataFrame with removed unidentified images.
+
+    """
+    images = images.copy()
+
+    if rank == "epithet":
+        taxonomy_columns = [epithet_col]
+    elif rank == "genus":
+        taxonomy_columns = [genus_col, epithet_col]
+    elif rank == "family":
+        taxonomy_columns = [family_col, genus_col, epithet_col]
+    elif rank == "order":
+        taxonomy_columns = [order_col, family_col, genus_col, epithet_col]
+    elif rank == "class":
+        taxonomy_columns = [class_col, order_col, family_col, genus_col, epithet_col]
+    else:
+        raise ValueError(
+            "min_rank must be one of: ['epithet', 'genus', 'family', 'order', 'class']."
+        )
+
+    images[taxonomy_columns] = images[taxonomy_columns].replace(
+        ["No CV Result", "Unknown"], np.nan
+    )
+    images = images.dropna(subset=taxonomy_columns, how="all")
+
+    return images
