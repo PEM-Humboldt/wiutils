@@ -335,6 +335,7 @@ def remove_unidentified(
     family_col: str = "family",
     genus_col: str = "genus",
     epithet_col: str = "species",
+    reset_index: bool = True
 ) -> pd.DataFrame:
     """
     Removes unidentified (up to a specific taxonomic rank) images .
@@ -364,6 +365,9 @@ def remove_unidentified(
         Label of the genus column in the images DataFrame.
     epithet_col : str
         Label of the epithet column in the images DataFrame.
+    reset_index : bool
+        Whether to reset the index of the resulting DataFrame. If True,
+        the index will be numeric from 0 to the length of the result.
 
     Returns
     -------
@@ -391,5 +395,8 @@ def remove_unidentified(
     exclude = ["No CV Result", "Unknown"]
     images[taxonomy_columns] = images[taxonomy_columns].replace(exclude, np.nan)
     images = images.dropna(subset=taxonomy_columns, how="all")
+
+    if reset_index:
+        images = images.reset_index(drop=True)
 
     return images
