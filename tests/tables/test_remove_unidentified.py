@@ -77,15 +77,6 @@ def column_names():
     }
 
 
-def test_rank_value_error(images):
-    with pytest.raises(ValueError):
-        remove_unidentified(images, rank="kingdom")
-    with pytest.raises(ValueError):
-        remove_unidentified(images, rank="species")
-    with pytest.raises(ValueError):
-        remove_unidentified(images, rank="other_rank")
-
-
 def test_rank_class(images, column_names):
     result = remove_unidentified(images, rank="class", reset_index=True, **column_names)
     expected = pd.DataFrame(
@@ -162,3 +153,10 @@ def test_keep_index(images, column_names):
     )
     expected_index = pd.Index([0, 1, 2, 5], dtype='int64')
     pd.testing.assert_index_equal(result.index, expected_index)
+
+
+def test_intact_input(images, column_names):
+    remove_unidentified(
+        images, rank="order", reset_index=False, **column_names
+    )
+    pd.testing.assert_frame_equal(images, images)
