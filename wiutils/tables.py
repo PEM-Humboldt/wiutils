@@ -239,6 +239,7 @@ def remove_inconsistent_dates(
     site_col: str = "deployment_id",
     start_col: str = "start_date",
     end_col: str = "end_date",
+    reset_index: bool = True
 ) -> pd.DataFrame:
     """
     Removes images where the timestamp is outside the date range of the
@@ -258,6 +259,9 @@ def remove_inconsistent_dates(
         Label of the start date in the deployments DataFrame.
     end_col : str
         Label of the end date in the deployments DataFrame.
+    reset_index : bool
+        Whether to reset the index of the resulting DataFrame. If True,
+        the index will be numeric from 0 to the length of the result.
 
     Returns
     -------
@@ -265,19 +269,29 @@ def remove_inconsistent_dates(
         Images DataFrame with removed inconsistent images.
 
     """
-    images = images.copy()
+    df = images.copy()
+    deployments = deployments.copy()
 
-    images[date_col] = pd.to_datetime(images[date_col].dt.date)
-    images = pd.merge(
-        images, deployments[[site_col, start_col, end_col]], on=site_col, how="left"
-    )
-    images["__is_between"] = images[date_col].between(
-        images[start_col], images[end_col]
-    )
-    images = images[images["__is_between"]]
-    images = images.drop(columns=["__is_between", start_col, end_col])
+    if not pd.api.types.is_datetime64_any_dtype(df[date_col]):
+        df[date_col] = pd.to_datetime(df[date_col])
 
-    return images
+    if not pd.api.types.is_datetime64_any_dtype(deployments[start_col]):
+        deployments[start_col] = pd.to_datetime(deployments[start_col])
+
+    if not pd.api.types.is_datetime64_any_dtype(deployments[end_col]):
+        deployments[end_col] = pd.to_datetime(deployments[end_col])
+
+    df[date_col] = pd.to_datetime(df[date_col].dt.date)
+    df = pd.merge(
+        df, deployments[[site_col, start_col, end_col]], on=site_col, how="left"
+    )
+    df["__is_between"] = df[date_col].between(df[start_col], df[end_col])
+    df = images[df["__is_between"]]
+
+    if reset_index:
+        df = df.reset_index(drop=True)
+
+    return df
 
 
 def remove_duplicates(
