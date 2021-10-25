@@ -161,20 +161,24 @@ def compute_hill_numbers(
     if isinstance(q_values, int):
         q_values = [q_values]
 
-    result = pd.DataFrame(columns=["site", "q", "D"])
+    result = pd.DataFrame(columns=[site_col, "q", "D"])
 
     abundance = images.groupby([site_col, species_col]).size()
     relative_abundance = abundance / abundance.groupby(level=0).sum()
     for site, group in relative_abundance.groupby(level=0):
         for q in q_values:
             row = {
-                "site": site,
+                site_col: site,
                 "q": q,
                 "D": _compute_q_diversity_index(group.to_numpy(), q),
             }
             result = result.append(row, ignore_index=True)
 
+    result["q"] = result["q"].astype(int)
+
     if pivot:
+        result["q"] = result["q"].astype(str)
         result = result.pivot(index=site_col, columns="q", values="D")
+        result = result.rename_axis(None, axis=1).reset_index()
 
     return result
