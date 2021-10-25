@@ -7,7 +7,7 @@ import pytest
 from wiutils.tables import remove_duplicates
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def images():
     return pd.DataFrame(
         {
@@ -229,5 +229,6 @@ def test_keep_index(images, column_names):
 
 
 def test_intact_input(images, column_names):
-    remove_duplicates(images, reset_index=False, **column_names)
-    pd.testing.assert_frame_equal(images, images)
+    images_original = images.copy()
+    remove_duplicates(images, **column_names)
+    pd.testing.assert_frame_equal(images_original, images)
