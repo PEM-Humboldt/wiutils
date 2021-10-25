@@ -31,6 +31,36 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
         return np.sum(p ** q) ** (1 / (1 - q))
 
 
+def _convert_to_datetime(
+        df: pd.DataFrame, columns: Union[list, str, tuple]
+) -> pd.DataFrame:
+    """
+    Converts specific columns of a DataFrame to datetime dtype (if they
+    are not datetime already).
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame to convert columns from.
+    columns : list, str or tuple
+        Column names to convert to datetime.
+
+    Returns
+    -------
+    DataFrame
+        DataFrame with converted columns.
+
+    """
+    if isinstance(columns, str):
+        columns = [columns]
+
+    for column in columns:
+        if not pd.api.types.is_datetime64_any_dtype(df[column]):
+            df[column] = pd.to_datetime(df[column])
+
+    return df
+
+
 def compute_abundance_by_deployment():
     pass
 
@@ -272,14 +302,8 @@ def remove_inconsistent_dates(
     df = images.copy()
     deployments = deployments.copy()
 
-    if not pd.api.types.is_datetime64_any_dtype(df[date_col]):
-        df[date_col] = pd.to_datetime(df[date_col])
-
-    if not pd.api.types.is_datetime64_any_dtype(deployments[start_col]):
-        deployments[start_col] = pd.to_datetime(deployments[start_col])
-
-    if not pd.api.types.is_datetime64_any_dtype(deployments[end_col]):
-        deployments[end_col] = pd.to_datetime(deployments[end_col])
+    df = _convert_to_datetime(df, date_col)
+    deployments = _convert_to_datetime(deployments, [start_col, end_col])
 
     df[date_col] = pd.to_datetime(df[date_col].dt.date)
     df = pd.merge(
@@ -344,9 +368,7 @@ def remove_duplicates(
         )
 
     df = images.copy()
-
-    if not pd.api.types.is_datetime64_any_dtype(df[date_col]):
-        df[date_col] = pd.to_datetime(df[date_col])
+    df = _convert_to_datetime(df, date_col)
 
     df = df.sort_values([site_col, species_col, date_col])
     delta = df.groupby([site_col, species_col])[date_col].diff()
