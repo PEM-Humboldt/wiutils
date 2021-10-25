@@ -1,11 +1,11 @@
 """
-Test cases for the wiutils.tables.remove_unidentified function.
+Test cases for the wiutils.filters.remove_unidentified function.
 """
 import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.tables import remove_unidentified
+from wiutils.filters import remove_unidentified
 
 
 @pytest.fixture(scope="function")

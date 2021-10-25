@@ -1,10 +1,10 @@
 """
-Test cases for the wiutils.tables.remove_duplicates function.
+Test cases for the wiutils.filters.remove_duplicates function.
 """
 import pandas as pd
 import pytest
 
-from wiutils.tables import remove_duplicates
+from wiutils.filters import remove_duplicates
 
 
 @pytest.fixture(scope="function")

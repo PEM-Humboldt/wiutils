@@ -1,5 +1,5 @@
 """
-I/O common functions.
+Functions to read information from WI projects.
 """
 import pathlib
 from typing import Union
