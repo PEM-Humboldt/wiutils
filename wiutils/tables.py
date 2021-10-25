@@ -185,7 +185,7 @@ def get_scientific_name(
     genus_col: str = "genus",
     epithet_col: str = "species",
     keep_genus: bool = True,
-    add_qualifier: bool = False
+    add_qualifier: bool = False,
 ) -> pd.Series:
     """
     Gets the scientific name of each image by concatenating their
@@ -230,53 +230,6 @@ def get_scientific_name(
             names.loc[mask] += " sp."
 
     return names
-
-
-def remove_duplicates(
-    images: pd.DataFrame,
-    date_col: str = "timestamp",
-    site_col: str = "deployment_id",
-    species_col: str = "scientific_name",
-    interval: int = 30,
-    unit: str = "minutes",
-) -> pd.DataFrame:
-    """
-    Removes duplicate records (images) from a same species in the same
-    site given a time interval.
-
-    Parameters
-    ----------
-    images : pd.DataFrame
-        DataFrame with the project's images.
-    date_col : str
-        Label of the date column in the images DataFrame.
-    site_col : str
-        Label of the site column in the images DataFrame.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
-    interval : int
-        Time interval (for a specific time unit).
-    unit : str
-        Time unit. Possible values are:
-            * 'weeks'
-            * 'days'
-            * 'hours'
-            * 'minutes'
-            * 'seconds'
-
-    Returns
-    -------
-    DataFrame
-        Copy of images with removed duplicates.
-
-    """
-    images = images.copy()
-
-    images = images.sort_values([site_col, species_col, date_col])
-    delta = images.groupby([site_col, species_col])[date_col].diff()
-    mask = (delta >= pd.Timedelta(**{unit: interval})) | (delta.isna())
-
-    return images[mask]
 
 
 def remove_inconsistent_dates(
@@ -327,6 +280,72 @@ def remove_inconsistent_dates(
     return images
 
 
+def remove_duplicates(
+    images: pd.DataFrame,
+    site_col: str = "deployment_id",
+    species_col: str = "scientific_name",
+    date_col: str = "timestamp",
+    interval: int = 30,
+    unit: str = "minutes",
+    reset_index: bool = True
+) -> pd.DataFrame:
+    """
+    Removes duplicate records (images) from a same species in the same
+    site given a time interval.
+
+    Parameters
+    ----------
+    images : pd.DataFrame
+        DataFrame with the project's images.
+
+    site_col : str
+        Label of the site column in the images DataFrame.
+    species_col : str
+        Label of the scientific name column in the images DataFrame.
+    date_col : str
+        Label of the date column in the images DataFrame.
+    interval : int
+        Time interval (for a specific time unit).
+    unit : str
+        Time unit. Possible values are:
+            * 'weeks'
+            * 'days'
+            * 'hours'
+            * 'minutes'
+            * 'seconds'
+    reset_index : bool
+        Whether to reset the index of the resulting DataFrame. If True,
+        the index will be numeric from 0 to the length of the result.
+
+
+    Returns
+    -------
+    DataFrame
+        Copy of images with removed duplicates.
+
+    """
+    if unit not in ("weeks", "days", "hours", "minutes", "seconds"):
+        raise ValueError(
+            "unit must be one of ['weeks', 'days', 'hours', 'minutes', 'seconds']"
+        )
+
+    df = images.copy()
+
+    if not pd.api.types.is_datetime64_any_dtype(df[date_col]):
+        df[date_col] = pd.to_datetime(df[date_col])
+
+    df = df.sort_values([site_col, species_col, date_col])
+    delta = df.groupby([site_col, species_col])[date_col].diff()
+    mask = (delta >= pd.Timedelta(**{unit: interval})) | (delta.isna())
+    df = images.sort_values([site_col, species_col, date_col])[mask]
+    df = df.sort_index()
+
+    if reset_index:
+        df = df.reset_index(drop=True)
+
+    return df
+
+
 def remove_unidentified(
     images: pd.DataFrame,
     rank: str = "genus",
@@ -335,7 +354,7 @@ def remove_unidentified(
     family_col: str = "family",
     genus_col: str = "genus",
     epithet_col: str = "species",
-    reset_index: bool = True
+    reset_index: bool = True,
 ) -> pd.DataFrame:
     """
     Removes unidentified (up to a specific taxonomic rank) images .
@@ -375,7 +394,7 @@ def remove_unidentified(
         Images DataFrame with removed unidentified images.
 
     """
-    images = images.copy()
+    df = images.copy()
 
     if rank == "epithet":
         taxonomy_columns = [epithet_col]
@@ -393,10 +412,10 @@ def remove_unidentified(
         )
 
     exclude = ["No CV Result", "Unknown"]
-    images[taxonomy_columns] = images[taxonomy_columns].replace(exclude, np.nan)
-    images = images.dropna(subset=taxonomy_columns, how="all")
+    df[taxonomy_columns] = df[taxonomy_columns].replace(exclude, np.nan)
+    df = df.dropna(subset=taxonomy_columns, how="all")
 
     if reset_index:
-        images = images.reset_index(drop=True)
+        df = df.reset_index(drop=True)
 
-    return images
+    return df
