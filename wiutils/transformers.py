@@ -33,8 +33,58 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
         return np.sum(p ** q) ** (1 / (1 - q))
 
 
-def compute_abundance_by_deployment():
-    pass
+def compute_detection_by_deployment(
+    images: pd.DataFrame,
+    site_col: str = "deployment_id",
+    species_col: str = "scientific_name",
+    compute_abundance: bool = True,
+    pivot: bool = False,
+):
+    """
+    Computes the detection (in terms of abundance or presence) of each
+    species by deployment.
+
+    Parameters
+    ----------
+    images : pd.DataFrame
+        DataFrame with the project's images.
+    site_col : str
+        Label of the site column in the images DataFrame.
+    species_col : str
+        Label of the scientific name column in the images DataFrame.
+    compute_abundance : bool
+        Whether to compute the abundance for each deployment. If False,
+        returns presence/absence for the deployments.
+    pivot : bool
+        Whether to pivot (reshape from long to wide format) the resulting
+        DataFrame.
+
+    Returns
+    -------
+    DataFrame
+        DataFrame with the detection of each species by deployment.
+
+    """
+    result = images.groupby([species_col, site_col]).size()
+
+    species = images[species_col].unique()
+    sites = images[site_col].unique()
+    idx = pd.MultiIndex.from_product([species, sites], names=[species_col, site_col])
+    result = result.reindex(idx, fill_value=0)
+    result.name = "value"
+    result = result.reset_index()
+
+    if not compute_abundance:
+        has_observations = result["value"] > 0
+        result.loc[has_observations, "value"] = 1
+
+    result = result.sort_values([species_col, site_col], ignore_index=True)
+
+    if pivot:
+        result = result.pivot(index=species_col, columns=site_col, values="value")
+        result = result.rename_axis(None, axis=1).reset_index()
+
+    return result
 
 
 def compute_detection_history(
@@ -127,8 +177,8 @@ def compute_detection_history(
     result = result.reset_index()
 
     if not compute_abundance:
-        has = result["value"] > 0
-        result.loc[has, "value"] = 1
+        has_observations = result["value"] > 0
+        result.loc[has_observations, "value"] = 1
 
     # Groups (i.e. days intervals) where the corresponding camera was not
     # deployed at the time are assigned NaNs.
@@ -151,7 +201,6 @@ def compute_detection_history(
             index=[species_col, site_col], columns=date_col, values="value"
         )
         result = result.rename_axis(None, axis=1).reset_index()
-        result = result.sort_values([species_col, site_col], ignore_index=True)
 
     return result
 
