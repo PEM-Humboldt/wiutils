@@ -6,6 +6,8 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
+from ._converters import _convert_to_datetime
+
 
 def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> float:
     """
@@ -43,12 +45,15 @@ def compute_detection_history(
     species_col: str = "scientific_name",
     start_col: str = "start_date",
     end_col: str = "end_date",
+    date_range: str = "deployments",
+    days: int = 1,
     compute_abundance: bool = True,
-    interval: int = 1,
-    unit: str = "days",
     pivot: bool = False,
 ) -> pd.DataFrame:
     """
+    Computes the detection history (in terms of abundance or presence) by
+    species and deployment, grouping observations into specific days-long
+    intervals.
 
     Parameters
     ----------
@@ -66,40 +71,54 @@ def compute_detection_history(
         Label of the start date in the deployments DataFrame.
     end_col : str
         Label of the end date in the deployments DataFrame.
+    date_range : str
+        Table to compute the date range from. Possible values are:
+            * 'deployments'
+            * 'images'
+    days : int
+        Days interval to group observations into.
     compute_abundance : bool
         Whether to compute the abundance for each interval. If False,
         returns presence/absence for the intervals.
-    interval : int
-        Time interval (for a specific time unit) to group observations
-        into.
-    unit : str
-        Time unit. Possible values are:
-            * 'weeks'
-            * 'days'
-            * 'hours'
-            * 'minutes'
     pivot : bool
         Whether to pivot (reshape from long to wide format) the resulting
         DataFrame.
 
     Returns
     -------
+    DataFrame
+        Detection history.
 
     """
-    freq = pd.Timedelta(**{unit: interval})
+    df = images.copy()
+    deployments = deployments.copy()
+
+    df = _convert_to_datetime(df, date_col)
+    df[date_col] = pd.to_datetime(df[date_col].dt.date)
+    if date_range == "deployments":
+        deployments = _convert_to_datetime(deployments, [start_col, end_col])
+        start = deployments[start_col].min()
+        end = deployments[end_col].max()
+    elif date_range == "images":
+        start = df[date_col].min()
+        end = df[date_col].max()
+    else:
+        raise ValueError("date_range must be one of ['deployments', 'images'].")
+
+    freq = pd.Timedelta(days=days)
     groupers = [
         pd.Grouper(key=species_col),
         pd.Grouper(key=site_col),
-        pd.Grouper(key=date_col, freq=freq),
+        pd.Grouper(key=date_col, freq=freq, origin=start),
     ]
-    result = images.groupby(groupers).size()
+    result = df.groupby(groupers).size()
 
-    # TODO explain why we need to reindex (hint: fill all the dates)
-    species = images[species_col].unique()
-    sites = images[site_col].unique()
-    dates = pd.date_range(
-        deployments[start_col].min(), deployments[end_col].max(), freq=freq
-    )
+    # A new index with all the combinations of species, sites and dates
+    # is created to reindex the result and to assign zeros where there
+    # were no observations.
+    species = df[species_col].unique()
+    sites = df[site_col].unique()
+    dates = pd.date_range(start, end, freq=freq)
     idx = pd.MultiIndex.from_product(
         [species, sites, dates], names=[species_col, site_col, date_col]
     )
@@ -108,21 +127,31 @@ def compute_detection_history(
     result = result.reset_index()
 
     if not compute_abundance:
-        presence = result["value"] > 0
-        result.loc[presence, "value"] = 1
+        has = result["value"] > 0
+        result.loc[has, "value"] = 1
 
+    # Groups (i.e. days intervals) where the corresponding camera was not
+    # deployed at the time are assigned NaNs.
     result = pd.merge(
         result, deployments[[site_col, start_col, end_col]], on=site_col, how="left"
     )
-    inside_range = result[date_col].between(result[start_col], result[end_col])
-    result.loc[~inside_range, "value"] = pd.NA
+    group_start = result[date_col]
+    group_end = result[date_col] + pd.Timedelta(days=days-1)
+    inside_range_left = group_start.between(result[start_col], result[end_col])
+    inside_range_right = group_end.between(result[start_col], result[end_col])
+    inside_range = inside_range_left | inside_range_right
+    result.loc[~inside_range, "value"] = np.nan
     result = result.drop(columns=[start_col, end_col])
 
+    result = result.sort_values([species_col, site_col, date_col], ignore_index=True)
+
     if pivot:
+        result[date_col] = result[date_col].astype(str)
         result = result.pivot(
             index=[species_col, site_col], columns=date_col, values="value"
         )
-        result = result.reset_index()
+        result = result.rename_axis(None, axis=1).reset_index()
+        result = result.sort_values([species_col, site_col], ignore_index=True)
 
     return result
 
