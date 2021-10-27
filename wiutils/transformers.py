@@ -266,9 +266,8 @@ def compute_general_count(
         taxonomy_columns = _get_taxonomy_columns(
             rank, class_col, order_col, family_col, genus_col, epithet_col
         )
-        result = pd.merge(
-            result, images[[species_col, *taxonomy_columns]], on=species_col, how="left"
-        )
+        taxonomy = images[[species_col, *taxonomy_columns]].drop_duplicates(species_col)
+        result = pd.merge(result, taxonomy, on=species_col, how="left")
 
     return result
 
