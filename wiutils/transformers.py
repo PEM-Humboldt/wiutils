@@ -232,16 +232,15 @@ def compute_general_count(
     add_taxonomy : bool
         Whether to add the superior taxonomy of the species to the result.
     rank : str
-        Taxonomic rank for which images that do not have an identification
-        will be removed. Possible values are:
+        Upper taxonomic rank to extract classification for:
             * 'epithet'
             * 'genus'
             * 'family'
             * 'order'
             * 'class'
-        For example, if rank is 'family', all images where the family
-        (and therefore the inferior ranks - genus and epithet -) were
-        not identified will be removed.
+        For example, if rank is 'family', the result will have the
+        corresponding family (and therefore the inferior ranks - genus
+        and epithet -) were not identified will be removed.
     class_col : str
         Label of the class column in the images DataFrame.
     order_col : str
@@ -257,6 +256,7 @@ def compute_general_count(
     -------
     DataFrame
         DataFrame with abundance and number of deployments by species.
+
     """
     result = images.groupby(species_col).agg({species_col: "size", site_col: "nunique"})
     result = result.rename(columns={species_col: "images", site_col: "deployments"})
