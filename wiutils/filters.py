@@ -4,7 +4,7 @@ Functions to filter WI images based on different conditions.
 import numpy as np
 import pandas as pd
 
-from ._converters import _convert_to_datetime
+from ._helpers import _convert_to_datetime, _get_taxonomy_columns
 
 
 def remove_duplicates(
@@ -43,7 +43,6 @@ def remove_duplicates(
     reset_index : bool
         Whether to reset the index of the resulting DataFrame. If True,
         the index will be numeric from 0 to the length of the result.
-
 
     Returns
     -------
@@ -177,21 +176,9 @@ def remove_unidentified(
     """
     df = images.copy()
 
-    if rank == "epithet":
-        taxonomy_columns = [epithet_col]
-    elif rank == "genus":
-        taxonomy_columns = [genus_col, epithet_col]
-    elif rank == "family":
-        taxonomy_columns = [family_col, genus_col, epithet_col]
-    elif rank == "order":
-        taxonomy_columns = [order_col, family_col, genus_col, epithet_col]
-    elif rank == "class":
-        taxonomy_columns = [class_col, order_col, family_col, genus_col, epithet_col]
-    else:
-        raise ValueError(
-            "min_rank must be one of: ['epithet', 'genus', 'family', 'order', 'class']."
-        )
-
+    taxonomy_columns = _get_taxonomy_columns(
+        rank, class_col, order_col, family_col, genus_col, epithet_col
+    )
     exclude = ["No CV Result", "Unknown"]
     df[taxonomy_columns] = df[taxonomy_columns].replace(exclude, np.nan)
     df = df.dropna(subset=taxonomy_columns, how="all")
