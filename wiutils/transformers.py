@@ -6,7 +6,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from ._converters import _convert_to_datetime
+from ._helpers import _convert_to_datetime, _get_taxonomy_columns
 
 
 def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> float:
@@ -201,6 +201,74 @@ def compute_detection_history(
             index=[species_col, site_col], columns=date_col, values="value"
         )
         result = result.rename_axis(None, axis=1).reset_index()
+
+    return result
+
+
+def compute_general_count(
+    images: pd.DataFrame,
+    site_col: str = "deployment_id",
+    species_col: str = "scientific_name",
+    add_taxonomy: bool = True,
+    rank: str = "class",
+    class_col: str = "class",
+    order_col: str = "order",
+    family_col: str = "family",
+    genus_col: str = "genus",
+    epithet_col: str = "species"
+):
+    """
+    Computes the general abundance and number of deployments for each
+    species.
+
+    Parameters
+    ----------
+    images : pd.DataFrame
+        DataFrame with the project's images.
+    site_col : str
+        Label of the site column in the images DataFrame.
+    species_col : str
+        Label of the scientific name column in the images DataFrame.
+    add_taxonomy : bool
+        Whether to add the superior taxonomy of the species to the result.
+    rank : str
+        Taxonomic rank for which images that do not have an identification
+        will be removed. Possible values are:
+            * 'epithet'
+            * 'genus'
+            * 'family'
+            * 'order'
+            * 'class'
+        For example, if rank is 'family', all images where the family
+        (and therefore the inferior ranks - genus and epithet -) were
+        not identified will be removed.
+    class_col : str
+        Label of the class column in the images DataFrame.
+    order_col : str
+        Label of the order column in the images DataFrame.
+    family_col : str
+        Label of the family column in the images DataFrame.
+    genus_col : str
+        Label of the genus column in the images DataFrame.
+    epithet_col : str
+        Label of the epithet column in the images DataFrame.
+
+    Returns
+    -------
+    DataFrame
+        DataFrame with abundance and number of deployments by species.
+    """
+    result = images.groupby(species_col).agg({species_col: "size", site_col: "nunique"})
+    result = result.rename(columns={species_col: "images", site_col: "deployments"})
+    result = result.reset_index()
+
+    if add_taxonomy:
+        taxonomy_columns = _get_taxonomy_columns(
+            rank, class_col, order_col, family_col, genus_col, epithet_col
+        )
+        result = pd.merge(
+            result, images[[species_col, *taxonomy_columns]], on=species_col, how="left"
+        )
 
     return result
 
