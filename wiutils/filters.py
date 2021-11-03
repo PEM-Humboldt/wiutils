@@ -61,7 +61,11 @@ def remove_duplicates(
     df = df.sort_values([site_col, species_col, date_col])
     delta = df.groupby([site_col, species_col])[date_col].diff()
     mask = (delta >= pd.Timedelta(**{unit: interval})) | (delta.isna())
-    df = images.sort_values([site_col, species_col, date_col])[mask]
+
+    images_reference = images.dropna(subset=[species_col])
+    images_reference = images_reference.sort_values([site_col, species_col, date_col])
+    df = images_reference[mask]
+    df = df.append(images[images[species_col].isna()])
     df = df.sort_index()
 
     if reset_index:
