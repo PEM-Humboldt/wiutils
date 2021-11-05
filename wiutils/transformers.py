@@ -174,8 +174,9 @@ def compute_detection_history(
         Label of the end date in the deployments DataFrame.
     date_range : str
         Table to compute the date range from. Possible values are:
-            * 'deployments'
-            * 'images'
+
+            - 'deployments'
+            - 'images'
     days : int
         Days interval to group observations into.
     compute_abundance : bool
@@ -284,11 +285,12 @@ def compute_general_count(
         Whether to add the superior taxonomy of the species to the result.
     rank : str
         Upper taxonomic rank to extract classification for:
-            * 'epithet'
-            * 'genus'
-            * 'family'
-            * 'order'
-            * 'class'
+
+            - 'epithet'
+            - 'genus'
+            - 'family'
+            - 'order'
+            - 'class'
         For example, if rank is 'family', the result will have the
         corresponding family (and therefore the inferior ranks - genus
         and epithet -) were not identified will be removed.

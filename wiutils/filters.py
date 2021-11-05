@@ -35,11 +35,12 @@ def remove_duplicates(
         Time interval (for a specific time unit).
     unit : str
         Time unit. Possible values are:
-            * 'weeks'
-            * 'days'
-            * 'hours'
-            * 'minutes'
-            * 'seconds'
+
+            - 'weeks'
+            - 'days'
+            - 'hours'
+            - 'minutes'
+            - 'seconds'
     reset_index : bool
         Whether to reset the index of the resulting DataFrame. If True,
         the index will be numeric from 0 to the length of the result.
@@ -141,7 +142,7 @@ def remove_unidentified(
     reset_index: bool = True,
 ) -> pd.DataFrame:
     """
-    Removes unidentified (up to a specific taxonomic rank) images .
+    Removes unidentified (up to a specific taxonomic rank) images.
 
     Parameters
     ----------
@@ -150,11 +151,12 @@ def remove_unidentified(
     rank : str
         Taxonomic rank for which images that do not have an identification
         will be removed. Possible values are:
-            * 'epithet'
-            * 'genus'
-            * 'family'
-            * 'order'
-            * 'class'
+
+            - 'epithet'
+            - 'genus'
+            - 'family'
+            - 'order'
+            - 'class'
         For example, if rank is 'family', all images where the family
         (and therefore the inferior ranks - genus and epithet -) were
         not identified will be removed.
