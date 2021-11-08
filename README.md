@@ -6,12 +6,12 @@
 
 Con `pip`:
 ```shell
-
+pip install wiutils
 ```
 
 Con `conda`:
 ```shell
-
+conda install -c conda-forge wiutils
 ```
 
 ## Ejecución
