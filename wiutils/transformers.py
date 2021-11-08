@@ -34,6 +34,56 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
         return np.sum(p ** q) ** (1 / (1 - q))
 
 
+def compute_deployment_count_summary(
+        images: pd.DataFrame,
+        site_col: str = "deployment_id",
+        species_col: str = "scientific_name",
+        remove_unidentified_kws: dict = None,
+        remove_duplicates_kws: dict = None,
+) -> pd.DataFrame:
+    """
+    Computes a summary of images, records and species count by deployment.
+
+    Parameters
+    ----------
+    images : pd.DataFrame
+        DataFrame with the project's images.
+    site_col : str
+        Label of the site column in the images DataFrame.
+    species_col : str
+        Label of the scientific name column in the images DataFrame.
+    remove_unidentified_kws : dict
+        Keyword arguments for the wiutils.remove_unidentified function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
+
+    Returns
+    -------
+    DataFrame
+        Summary of images, records and species count by deployment.
+
+    """
+    df = images.copy()
+
+    if remove_unidentified_kws is None:
+        remove_unidentified_kws = {}
+    if remove_duplicates_kws is None:
+        remove_duplicates_kws = {}
+
+    result = pd.DataFrame(index=sorted(df[site_col].unique()))
+    result = result.join(df.groupby(site_col).size().rename("total_images"))
+    df = remove_unidentified(df, **remove_unidentified_kws)
+    result = result.join(df.groupby(site_col).size().rename("identified_images"))
+    df = remove_duplicates(df, **remove_duplicates_kws)
+    result = result.join(df.groupby(site_col).size().rename("independent_records"))
+    result = result.join(df.groupby(site_col)[species_col].nunique().rename("species"))
+
+    result.index.name = site_col
+    result = result.reset_index()
+
+    return result
+
+
 def compute_detection_by_deployment(
     images: pd.DataFrame,
     site_col: str = "deployment_id",
@@ -84,56 +134,6 @@ def compute_detection_by_deployment(
     if pivot:
         result = result.pivot(index=species_col, columns=site_col, values="value")
         result = result.rename_axis(None, axis=1).reset_index()
-
-    return result
-
-
-def compute_deployment_count_summary(
-    images: pd.DataFrame,
-    site_col: str = "deployment_id",
-    species_col: str = "scientific_name",
-    remove_unidentified_kws: dict = None,
-    remove_duplicates_kws: dict = None,
-) -> pd.DataFrame:
-    """
-    Computes a summary of images, records and species count by deployment.
-    
-    Parameters
-    ----------
-    images : pd.DataFrame
-        DataFrame with the project's images.
-    site_col : str
-        Label of the site column in the images DataFrame.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
-    remove_unidentified_kws : dict
-        Keyword arguments for the wiutils.remove_unidentified function.
-    remove_duplicates_kws : dict
-        Keyword arguments for the wiutils.remove_duplicates function.
-
-    Returns
-    -------
-    DataFrame
-        Summary of images, records and species count by deployment.
-
-    """
-    df = images.copy()
-
-    if remove_unidentified_kws is None:
-        remove_unidentified_kws = {}
-    if remove_duplicates_kws is None:
-        remove_duplicates_kws = {}
-
-    result = pd.DataFrame(index=sorted(df[site_col].unique()))
-    result = result.join(df.groupby(site_col).size().rename("total_images"))
-    df = remove_unidentified(df, **remove_unidentified_kws)
-    result = result.join(df.groupby(site_col).size().rename("identified_images"))
-    df = remove_duplicates(df, **remove_duplicates_kws)
-    result = result.join(df.groupby(site_col).size().rename("independent_records"))
-    result = result.join(df.groupby(site_col)[species_col].nunique().rename("species"))
-
-    result.index.name = site_col
-    result = result.reset_index()
 
     return result
 
