@@ -1,7 +1,7 @@
 """
 Field mapping between Wildlife Insights and the Darwin Core standard.
 """
-event = field_map = {
+events = field_map = {
     "deployment_id": "eventID",
     "project_id": "parentEventID",
     "event_name": "eventRemarks",
@@ -10,7 +10,7 @@ event = field_map = {
     "longitude": "decimalLongitude"
 }
 
-record = {
+records = {
     "deployment_id": "eventID",
     "project_id": "parentEventID",
     "individual_animal_notes": "occurrenceRemarks",

@@ -1,5 +1,5 @@
 """
-Converts Wildlife Insights information to Darwin Core tables.
+Converts Wildlife Insights information to Darwin Core transformers.
 """
 import pandas as pd
 

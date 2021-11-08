@@ -1,5 +1,5 @@
 """
-Optional columns for the Darwin Core tables.
+Optional columns for the Darwin Core transformers.
 """
 event = [
 
