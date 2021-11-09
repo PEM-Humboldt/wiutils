@@ -1,11 +1,11 @@
 """
 Optional columns for the Darwin Core transformers.
 """
-event = [
+events = [
 
 ]
 
-record = [
+records = [
     "occurrenceRemarks",
     "organismID",
     "sex",
