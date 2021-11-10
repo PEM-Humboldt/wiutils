@@ -99,8 +99,52 @@ def convert_video_to_images(
         timestamp = start + pd.Timedelta(milliseconds=video.get(cv2.CAP_PROP_POS_MSEC))
         exif[datetime_code] = timestamp.strftime("%Y:%m:%d %H:%M:%S")
         name = video_path.stem + "_" + str(count).zfill(width) + f".{ext}"
-        image.save(output_path.joinpath(name), format=image_format, exif=exif)
+        image.save(output_path.joinpath(name).as_posix(), format=image_format, exif=exif)
         if offset:
             video.set(cv2.CAP_PROP_POS_MSEC, count * (offset * 1e3))
         flag, arr = video.read()
         count += 1
+
+
+def reduce_image_size(
+    image_path: Union[str, pathlib.Path],
+    output_path: Union[str, pathlib.Path],
+    factor: float = 0.9,
+    method: int = Image.ANTIALIAS
+) -> None:
+    """
+    Reduces image file size by resampling using a given factor.
+
+    Parameters
+    ----------
+    image_path : str or pathlib.Path
+        Relative or absolute path of the image to resample.
+    output_path : str or pathlib.Path
+        Relative or absolute path of the output image.
+    factor : float
+        Resampling factor.
+    method : int
+        Image resizing method used by PIL. Possible values are:
+
+            - PIL.Image.NEAREST (0)
+            - PIL.Image.ANTIALIAS or PIL.Image.LANCZOS (1)
+            - PIL.Image.BILINEAR (2)
+            - PIL.Image.BICUBIC (3)
+
+    Returns
+    -------
+    None
+
+    """
+    if not isinstance(image_path, pathlib.Path):
+        image_path = pathlib.Path(image_path)
+    if not isinstance(output_path, pathlib.Path):
+        output_path = pathlib.Path(output_path)
+
+    image = Image.open(image_path.as_posix())
+    exif = image.getexif()
+    new_width = round(image.width * factor)
+    new_height = round(image.height * factor)
+    result = image.resize((new_width, new_height), method)
+
+    result.save(output_path.as_posix(), format=image.format, exif=exif)
