@@ -17,6 +17,9 @@ var/
 .installed.cfg
 *.egg
 
+# Docs
+docs/_build/
+
 # Unit test reports
 .pytest_cache
 
