@@ -21,6 +21,3 @@ words = {
         "subspecies": "subespecie"
     }
 }
-
-
-
