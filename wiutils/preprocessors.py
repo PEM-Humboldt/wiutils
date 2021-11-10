@@ -72,30 +72,35 @@ def convert_video_to_images(
     if image_format not in ("jpeg", "png"):
         raise ValueError("image_format must be one of ['jpeg', 'png'].")
 
+    if image_format == "jpeg":
+        ext = "jpg"
+    else:
+        ext = image_format
+
     info = ffmpeg.probe(video_path.as_posix())
     try:
-        timestamp = info["format"]["tags"]["creation_time"]
+        start = info["format"]["tags"]["creation_time"]
     except KeyError:
         raise Exception(f"{video_path.as_posix()} does not have a creation date.")
-    timestamp = pd.Timestamp(timestamp)
+    start = pd.Timestamp(start)
 
     video = cv2.VideoCapture(video_path.as_posix())
-    frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
-    width = len(str(int(frames)))
+    frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    width = len(str(frames))
     datetime_code = _get_exif_code("DateTime")
 
     output_path.mkdir(parents=True, exist_ok=True)
 
-    flag, arr = video.read()
     count = 1
+    flag, arr = video.read()
     while flag:
-        image = Image.fromarray(arr)
-        exif = Image.Exif()
+        image = Image.fromarray(cv2.cvtColor(arr, cv2.COLOR_RGB2BGR))
+        exif = image.getexif()
+        timestamp = start + pd.Timedelta(milliseconds=video.get(cv2.CAP_PROP_POS_MSEC))
         exif[datetime_code] = timestamp.strftime("%Y:%m:%d %H:%M:%S")
-        name = video_path.stem + "_" + str(count).zfill(width)
-        image.save(output_path.joinpath(name), format=image_format)
+        name = video_path.stem + "_" + str(count).zfill(width) + f".{ext}"
+        image.save(output_path.joinpath(name), format=image_format, exif=exif)
         if offset:
             video.set(cv2.CAP_PROP_POS_MSEC, count * (offset * 1e3))
         flag, arr = video.read()
-        timestamp += pd.Timedelta(milliseconds=video.get(cv2.CAP_PROP_POS_MSEC))
         count += 1
