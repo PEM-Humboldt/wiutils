@@ -1,7 +1,7 @@
 """
 Field mapping between Wildlife Insights and the Darwin Core standard.
 """
-events = field_map = {
+events = {
     "deployment_id": "eventID",
     "project_id": "parentEventID",
     "event_name": "eventRemarks",
@@ -11,8 +11,8 @@ events = field_map = {
 }
 
 records = {
-    "deployment_id": "eventID",
     "project_id": "parentEventID",
+    "deployment_id": "eventID",
     "individual_animal_notes": "occurrenceRemarks",
     "image_id": "recordNumber",
     "recorded_by": "recordedBy",
@@ -27,7 +27,6 @@ records = {
     "order": "order",
     "family": "family",
     "genus": "genus",
-    "species": "specificEpithet",
     "common_name": "vernacularName",
     "license": "accessRights",
     "location": "associatedMedia"

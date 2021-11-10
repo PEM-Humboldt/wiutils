@@ -1,7 +1,7 @@
 """
-Column order for the Darwin Core table.
+Column order for the Darwin Core tables.
 """
-event = [
+events = [
     "eventID",
     "parentEventID",
     "institutionCode",
@@ -25,7 +25,7 @@ event = [
     "geodeticDatum",
 ]
 
-record = [
+records = [
     "occurrenceID",
     "parentEventID",
     "eventID",

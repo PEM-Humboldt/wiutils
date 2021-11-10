@@ -2,6 +2,9 @@
 Spanish dictionary.
 """
 words = {
+    "basisOfRecords": {
+        "MachineObservation": "Observación con máquina"
+    },
     "lifeStage": {
         "adult": "adulto",
         "juvenile": "juvenil"

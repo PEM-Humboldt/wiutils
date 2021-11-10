@@ -6,8 +6,11 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
+from . import _dwc
 from ._helpers import _convert_to_datetime, _get_taxonomy_columns
-from .filters import remove_duplicates, remove_unidentified
+from .extractors import get_scientific_name as _get_scientific_name
+from .filters import remove_duplicates as _remove_duplicates
+from .filters import remove_unidentified as _remove_unidentified
 
 
 def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> float:
@@ -72,9 +75,9 @@ def compute_deployment_count_summary(
 
     result = pd.DataFrame(index=sorted(df[site_col].unique()))
     result = result.join(df.groupby(site_col).size().rename("total_images"))
-    df = remove_unidentified(df, **remove_unidentified_kws)
+    df = _remove_unidentified(df, **remove_unidentified_kws)
     result = result.join(df.groupby(site_col).size().rename("identified_images"))
-    df = remove_duplicates(df, **remove_duplicates_kws)
+    df = _remove_duplicates(df, **remove_duplicates_kws)
     result = result.join(df.groupby(site_col).size().rename("independent_records"))
     result = result.join(df.groupby(site_col)[species_col].nunique().rename("species"))
 
@@ -284,7 +287,8 @@ def compute_general_count(
     add_taxonomy : bool
         Whether to add the superior taxonomy of the species to the result.
     rank : str
-        Upper taxonomic rank to extract classification for:
+        Upper taxonomic rank to extract classification for. Possible
+        values are:
 
             - 'epithet'
             - 'genus'
@@ -378,5 +382,109 @@ def compute_hill_numbers(
         result["q"] = result["q"].astype(str)
         result = result.pivot(index=site_col, columns="q", values="D")
         result = result.rename_axis(None, axis=1).reset_index()
+
+    return result
+
+
+def images_to_records(
+    images: pd.DataFrame,
+    deployments: pd.DataFrame,
+    remove_empty_optionals: bool = False,
+    language: str = "en",
+    remove_unidentified: bool = False,
+    remove_unidentified_kws: dict = None,
+    remove_duplicates: bool = False,
+    remove_duplicates_kws: dict = None,
+) -> pd.DataFrame:
+    """
+    Converts the images DataFrame to a Darwin Core standard compliant
+    DataFrame.
+
+    Parameters
+    ----------
+    images : pd.DataFrame
+        DataFrame with the project's images.
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments.
+    remove_empty_optionals : bool
+        Whether to remove empty optional columns.
+    language : str
+        Language of the result's values. Possible values are:
+
+            - 'en' for english
+            - 'es' for spanish
+        Keep in mind that regardless of the value column names will be
+        kept in english to comply with the Darwin Core standard.
+    remove_unidentified : bool
+        Whether to remove unidentified images. Wrapper for the for the
+        wiutils.remove_unidentified function.
+    remove_unidentified_kws : dict
+        Keyword arguments for the wiutils.remove_unidentified function.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
+
+    Returns
+    -------
+    DataFrame
+        Darwin Core standard compliant table.
+    """
+    df = images.copy()
+
+    if remove_unidentified_kws is None:
+        remove_unidentified_kws = {}
+    if remove_duplicates_kws is None:
+        remove_duplicates_kws = {}
+
+    if remove_unidentified:
+        df = _remove_unidentified(df, **remove_unidentified_kws)
+    if remove_duplicates:
+        df = _remove_duplicates(df, **remove_duplicates_kws)
+
+    result = pd.merge(
+        df, deployments.drop(columns="project_id"), on="deployment_id", how="inner"
+    )
+
+    remove_values = ["Blank", "No CV Result", "Unknown"]
+    result = result.replace(remove_values, np.nan)
+
+    result["scientificName"] = _get_scientific_name(
+        result, keep_genus=True, add_qualifier=True
+    )
+    result.loc[result["class"].notna(), "kingdom"] = "Animalia"
+    result.loc[result["class"].notna(), "kingdom"] = "Chordata"
+    epithets = result["species"].str.split(" ", expand=True)
+    result["specificEpithet"] = epithets[0]
+    if 1 in epithets.columns:
+        result["infraspecificEpithet"] = epithets[1]
+    else:
+        result["infraspecificEpithet"] = np.nan
+    result["taxonRank"] = _dwc.utils.compute_taxonomic_rank(result)
+
+    result["eventDate"] = pd.to_datetime(result["timestamp"]).dt.strftime("%Y-%m-%d")
+    result["eventTime"] = pd.to_datetime(result["timestamp"]).dt.strftime("%H:%M:%S")
+
+    result = result.rename(columns=_dwc.mapping.records)
+
+    mask = (result["organismQuantity"] > 1) & (result["taxonRank"].notna())
+    result.loc[~mask, "organismQuantity"] = np.nan
+    result.loc[mask, "organismQuantityType"] = "individuals"
+
+    for column, value in _dwc.constants.records.items():
+        result[column] = value
+
+    if remove_empty_optionals:
+        result = result.dropna(how="all", axis=1, subset=_dwc.optional.records)
+
+    if language == "en":
+        pass
+    elif language == "es":
+        result = _dwc.utils.translate(df, language)
+    else:
+        raise ValueError("language must be one of ['en', 'es'].")
+
+    result = _dwc.utils.rearrange(result, _dwc.order.records)
 
     return result
