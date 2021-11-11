@@ -6,6 +6,7 @@ wiutils
 .. autofunction:: wiutils.compute_detection_history
 .. autofunction:: wiutils.compute_general_count
 .. autofunction:: wiutils.compute_hill_numbers
+.. autofunction:: wiutils.create_dwc_records
 .. autofunction:: wiutils.get_scientific_name
 .. autofunction:: wiutils.read_project
 .. autofunction:: wiutils.remove_duplicates
