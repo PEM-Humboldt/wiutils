@@ -87,7 +87,7 @@ def convert_video_to_images(
     video = cv2.VideoCapture(video_path.as_posix())
     frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
     width = len(str(frames))
-    datetime_code = _get_exif_code("DateTime")
+    datetime_code = _get_exif_code("DateTimeOriginal")
 
     output_path.mkdir(parents=True, exist_ok=True)
 
