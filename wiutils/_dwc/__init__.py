@@ -1,1 +1,1 @@
-from wiutils._dwc import constants, mapping, optional, order, tables, utils
+from wiutils._dwc import constants, mapping, optional, order, utils
