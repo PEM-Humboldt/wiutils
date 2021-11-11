@@ -14,7 +14,7 @@ records = [
     "identificationQualifier",
     "infraspecificEpithet",
     "taxonRank",
-    "scientificNameAuthorship"
+    "scientificNameAuthorship",
     "vernacularName",
     "accessRights"
 ]

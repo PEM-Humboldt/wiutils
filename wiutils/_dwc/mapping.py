@@ -23,6 +23,7 @@ records = {
     "identified_by": "identifiedBy",
     "uncertainty": "identificationRemarks",
     "wi_taxon_id": "scientificNameID",
+    "scientific_name": "scientificName",
     "class": "class",
     "order": "order",
     "family": "family",

@@ -2,17 +2,11 @@
 Spanish dictionary.
 """
 words = {
-    "basisOfRecords": {
-        "MachineObservation": "Observación con máquina"
-    },
-    "lifeStage": {
-        "adult": "adulto",
-        "juvenile": "juvenil"
-    },
-    "sex": {
-        "female": "hembra",
-        "male": "macho"
-    },
+    "basisOfRecord": {"MachineObservation": "Observación con máquina"},
+    "lifeStage": {"adult": "adulto", "juvenile": "juvenil"},
+    "organismQuantityType": {"individuals": "individuos"},
+    "preparations": {"photograph": "fotografía"},
+    "sex": {"female": "hembra", "male": "macho", "unknown": "desconocido"},
     "taxonRank": {
         "class": "clase",
         "family": "familia",
@@ -21,6 +15,6 @@ words = {
         "order": "orden",
         "phylum": "filo",
         "species": "especie",
-        "subspecies": "subespecie"
-    }
+        "subspecies": "subespecie",
+    },
 }

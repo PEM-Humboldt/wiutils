@@ -386,7 +386,7 @@ def compute_hill_numbers(
     return result
 
 
-def images_to_records(
+def create_dwc_records(
     images: pd.DataFrame,
     deployments: pd.DataFrame,
     remove_empty_optionals: bool = False,
@@ -438,23 +438,22 @@ def images_to_records(
     if remove_duplicates_kws is None:
         remove_duplicates_kws = {}
 
+    df["scientific_name"] = _get_scientific_name(df, keep_genus=True, add_qualifier=True)
+
     if remove_unidentified:
         df = _remove_unidentified(df, **remove_unidentified_kws)
     if remove_duplicates:
         df = _remove_duplicates(df, **remove_duplicates_kws)
 
     result = pd.merge(
-        df, deployments.drop(columns="project_id"), on="deployment_id", how="inner"
+        df, deployments.drop(columns="project_id"), on="deployment_id", how="left"
     )
 
     remove_values = ["Blank", "No CV Result", "Unknown"]
     result = result.replace(remove_values, np.nan)
 
-    result["scientificName"] = _get_scientific_name(
-        result, keep_genus=True, add_qualifier=True
-    )
     result.loc[result["class"].notna(), "kingdom"] = "Animalia"
-    result.loc[result["class"].notna(), "kingdom"] = "Chordata"
+    result.loc[result["class"].notna(), "phylum"] = "Chordata"
     epithets = result["species"].str.split(" ", expand=True)
     result["specificEpithet"] = epithets[0]
     if 1 in epithets.columns:
@@ -468,7 +467,7 @@ def images_to_records(
 
     result = result.rename(columns=_dwc.mapping.records)
 
-    mask = (result["organismQuantity"] > 1) & (result["taxonRank"].notna())
+    mask = (result["organismQuantity"] >= 1) & (result["taxonRank"].notna())
     result.loc[~mask, "organismQuantity"] = np.nan
     result.loc[mask, "organismQuantityType"] = "individuals"
 
@@ -476,12 +475,15 @@ def images_to_records(
         result[column] = value
 
     if remove_empty_optionals:
-        result = result.dropna(how="all", axis=1, subset=_dwc.optional.records)
+        is_empty = result.isna().all()
+        is_optional = result.columns.isin(_dwc.optional.records)
+        subset = result.columns[~(is_empty & is_optional)]
+        result = result[subset]
 
     if language == "en":
         pass
     elif language == "es":
-        result = _dwc.utils.translate(df, language)
+        result = _dwc.utils.translate(result, language)
     else:
         raise ValueError("language must be one of ['en', 'es'].")
 
