@@ -17,13 +17,13 @@ def images():
                 "Eira barbara",
                 "Eira barbara",
                 "Eira barbara",
-                "Canis lupus"
+                "Canis lupus",
             ],
             "class": ["Mammalia", "Mammalia", "Mammalia", "Mammalia", "Mammalia"],
             "order": ["Carnivora", "Carnivora", "Carnivora", "Carnivora", "Carnivora"],
             "family": ["Felidae", "Mustelidae", "Mustelidae", "Mustelidae", "Canidae"],
             "genus": ["Panthera", "Eira", "Eira", "Eira", "Canis"],
-            "species": ["onca", "barbara", "barbara", "barbara", "lupus"]
+            "species": ["onca", "barbara", "barbara", "barbara", "lupus"],
         }
     )
 
@@ -37,7 +37,7 @@ def column_names():
         "order_col": "order",
         "family_col": "family",
         "genus_col": "genus",
-        "epithet_col": "species"
+        "epithet_col": "species",
     }
 
 
@@ -54,7 +54,7 @@ def test_rank_class(images, column_names):
             "order": ["Carnivora", "Carnivora", "Carnivora"],
             "family": ["Canidae", "Mustelidae", "Felidae"],
             "genus": ["Canis", "Eira", "Panthera"],
-            "species": ["lupus", "barbara", "onca"]
+            "species": ["lupus", "barbara", "onca"],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -71,7 +71,7 @@ def test_rank_family(images, column_names):
             "deployments": [1, 2, 1],
             "family": ["Canidae", "Mustelidae", "Felidae"],
             "genus": ["Canis", "Eira", "Panthera"],
-            "species": ["lupus", "barbara", "onca"]
+            "species": ["lupus", "barbara", "onca"],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -88,7 +88,7 @@ def test_no_taxonomy(images, column_names):
         {
             "scientific_name": ["Canis lupus", "Eira barbara", "Panthera onca"],
             "images": [1, 3, 1],
-            "deployments": [1, 2, 1]
+            "deployments": [1, 2, 1],
         }
     )
     pd.testing.assert_frame_equal(result, expected)

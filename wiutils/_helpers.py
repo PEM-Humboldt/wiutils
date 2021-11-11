@@ -7,7 +7,7 @@ import pandas as pd
 
 
 def _convert_to_datetime(
-        df: pd.DataFrame, columns: Union[list, str, tuple]
+    df: pd.DataFrame, columns: Union[list, str, tuple]
 ) -> pd.DataFrame:
     """
     Converts specific columns of a DataFrame to datetime dtype (if they
@@ -42,7 +42,7 @@ def _get_taxonomy_columns(
     order_col: str = "order",
     family_col: str = "family",
     genus_col: str = "genus",
-    epithet_col: str = "species"
+    epithet_col: str = "species",
 ):
     """
 

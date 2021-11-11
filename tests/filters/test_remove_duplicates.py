@@ -106,15 +106,7 @@ def test_unit_minutes(images, column_names):
     result = remove_duplicates(images, interval=30, unit="minutes", **column_names)
     expected = pd.DataFrame(
         {
-            "deployment_id": [
-                "001",
-                "001",
-                "001",
-                "001",
-                "001",
-                "002",
-                "002",
-            ],
+            "deployment_id": ["001", "001", "001", "001", "001", "002", "002"],
             "scientific_name": [
                 "Myrmecophaga tridactyla",
                 "Myrmecophaga tridactyla",
@@ -142,14 +134,7 @@ def test_unit_hours(images, column_names):
     result = remove_duplicates(images, interval=5, unit="hours", **column_names)
     expected = pd.DataFrame(
         {
-            "deployment_id": [
-                "001",
-                "001",
-                "001",
-                "001",
-                "002",
-                "002",
-            ],
+            "deployment_id": ["001", "001", "001", "001", "002", "002"],
             "scientific_name": [
                 "Myrmecophaga tridactyla",
                 "Myrmecophaga tridactyla",
@@ -202,11 +187,7 @@ def test_unit_weeks(images, column_names):
     result = remove_duplicates(images, interval=3, unit="weeks", **column_names)
     expected = pd.DataFrame(
         {
-            "deployment_id": [
-                "001",
-                "001",
-                "002",
-            ],
+            "deployment_id": ["001", "001", "002"],
             "scientific_name": [
                 "Myrmecophaga tridactyla",
                 "Leptotila verreauxi",

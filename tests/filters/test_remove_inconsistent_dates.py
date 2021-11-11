@@ -20,7 +20,7 @@ def images():
                 "002",
                 "002",
                 "002",
-                "002"
+                "002",
             ],
             "timestamp": [
                 "2020-12-01 10:15:05",
@@ -32,7 +32,7 @@ def images():
                 "2020-12-01 13:43:57",
                 "2021-01-12 17:03:13",
                 "2021-02-24 15:00:25",
-            ]
+            ],
         }
     )
 
@@ -64,14 +64,7 @@ def test_inconsistent_dates(images, deployments, column_names):
     )
     expected = pd.DataFrame(
         {
-            "deployment_id": [
-                "001",
-                "001",
-                "001",
-                "002",
-                "002",
-                "002",
-            ],
+            "deployment_id": ["001", "001", "001", "002", "002", "002"],
             "timestamp": [
                 "2020-12-03 08:21:25",
                 "2020-12-17 14:18:12",
@@ -79,7 +72,7 @@ def test_inconsistent_dates(images, deployments, column_names):
                 "2020-11-28 07:32:14",
                 "2020-12-01 13:43:57",
                 "2021-01-12 17:03:13",
-            ]
+            ],
         }
     )
     pd.testing.assert_frame_equal(result, expected)

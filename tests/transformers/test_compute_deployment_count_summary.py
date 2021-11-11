@@ -12,16 +12,7 @@ from wiutils.transformers import compute_deployment_count_summary
 def images():
     return pd.DataFrame(
         {
-            "deployment_id": [
-                "001",
-                "001",
-                "001",
-                "002",
-                "002",
-                "002",
-                "002",
-                "002"
-            ],
+            "deployment_id": ["001", "001", "001", "002", "002", "002", "002", "002"],
             "class": [
                 "Mammalia",
                 "Mammalia",
@@ -30,7 +21,7 @@ def images():
                 "No CV Result",
                 "Mammalia",
                 "Aves",
-                "Aves"
+                "Aves",
             ],
             "order": [
                 "Carnivora",
@@ -40,7 +31,7 @@ def images():
                 "No CV Result",
                 "Primates",
                 "Passeriformes",
-                "Passeriformes"
+                "Passeriformes",
             ],
             "family": [
                 "Felidae",
@@ -50,7 +41,7 @@ def images():
                 "No CV Result",
                 "Cebidae",
                 "Corvidae",
-                "Tyrannidae"
+                "Tyrannidae",
             ],
             "genus": [
                 "Leopardus",
@@ -60,7 +51,7 @@ def images():
                 "No CV Result",
                 "Saimiri",
                 "Cyanocorax",
-                "Elaenia"
+                "Elaenia",
             ],
             "species": [
                 "pardalis",
@@ -70,7 +61,7 @@ def images():
                 "No CV Result",
                 "sciureus",
                 "violaceus",
-                np.nan
+                np.nan,
             ],
             "scientific_name": [
                 "Leopardus pardalis",
@@ -80,7 +71,7 @@ def images():
                 np.nan,
                 "Saimiri sciureus",
                 "Cyanocorax violaceus",
-                np.nan
+                np.nan,
             ],
             "timestamp": [
                 "2020-11-24 00:06:26",
@@ -90,8 +81,8 @@ def images():
                 "2020-12-23 07:26:33",
                 "2020-12-24 08:09:32",
                 "2020-12-24 09:15:01",
-                "2020-12-24 13:48:12"
-            ]
+                "2020-12-24 13:48:12",
+            ],
         }
     )
 
@@ -104,7 +95,7 @@ def test_defaults(images):
             "total_images": [3, 5],
             "identified_images": [2, 4],
             "independent_records": [2, 4],
-            "species": [1, 3]
+            "species": [1, 3],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -120,7 +111,7 @@ def test_remove_unidentified_kws(images):
             "total_images": [3, 5],
             "identified_images": [2, 3],
             "independent_records": [2, 3],
-            "species": [1, 3]
+            "species": [1, 3],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -136,7 +127,7 @@ def test_remove_duplicates_kws(images):
             "total_images": [3, 5],
             "identified_images": [2, 4],
             "independent_records": [1, 4],
-            "species": [1, 3]
+            "species": [1, 3],
         }
     )
     pd.testing.assert_frame_equal(result, expected)

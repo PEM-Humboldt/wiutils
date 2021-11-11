@@ -35,7 +35,7 @@ def compute_taxonomic_rank(df: pd.DataFrame) -> pd.Series:
             "family": "family",
             "genus": "genus",
             "species": "specificEpithet",
-            "subspecies": "infraspecificEpithet"
+            "subspecies": "infraspecificEpithet",
         }
     )
 

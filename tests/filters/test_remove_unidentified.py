@@ -134,7 +134,9 @@ def test_rank_genus(images, column_names):
 
 
 def test_rank_epithet(images, column_names):
-    result = remove_unidentified(images, rank="epithet", reset_index=True, **column_names)
+    result = remove_unidentified(
+        images, rank="epithet", reset_index=True, **column_names
+    )
     expected = pd.DataFrame(
         {
             "class": ["Mammalia"],
@@ -148,10 +150,8 @@ def test_rank_epithet(images, column_names):
 
 
 def test_keep_index(images, column_names):
-    result = remove_unidentified(
-        images, rank="order", reset_index=False, **column_names
-    )
-    expected_index = pd.Index([0, 1, 2, 5], dtype='int64')
+    result = remove_unidentified(images, rank="order", reset_index=False, **column_names)
+    expected_index = pd.Index([0, 1, 2, 5], dtype="int64")
     pd.testing.assert_index_equal(result.index, expected_index)
 
 

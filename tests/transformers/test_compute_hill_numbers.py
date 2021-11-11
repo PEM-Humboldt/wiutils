@@ -38,27 +38,20 @@ def images():
                 "Momotus momota",
                 "Eira barbara",
                 "Leopardus pardalis",
-            ]
+            ],
         }
     )
 
 
 @pytest.fixture(scope="module")
 def column_names():
-    return {
-        "site_col": "deployment_id",
-        "species_col": "scientific_name"
-    }
+    return {"site_col": "deployment_id", "species_col": "scientific_name"}
 
 
 def test_result_long_single(images, column_names):
     result = compute_hill_numbers(images, 0, pivot=False, **column_names)
     expected = pd.DataFrame(
-        {
-            "deployment_id": ["001", "002"],
-            "q": [0, 0],
-            "D": [3.0, 4.0]
-        }
+        {"deployment_id": ["001", "002"], "q": [0, 0], "D": [3.0, 4.0]}
     )
     pd.testing.assert_frame_equal(result, expected, check_exact=False)
 
@@ -69,7 +62,7 @@ def test_result_long_multiple(images, column_names):
         {
             "deployment_id": ["001", "001", "001", "002", "002", "002"],
             "q": [0, 1, 2, 0, 1, 2],
-            "D": [3.0, 2.600490006, 2.333333333, 4.0, 3.789291416, 3.571428571]
+            "D": [3.0, 2.600490006, 2.333333333, 4.0, 3.789291416, 3.571428571],
         }
     )
     pd.testing.assert_frame_equal(result, expected, check_exact=False)
@@ -78,10 +71,7 @@ def test_result_long_multiple(images, column_names):
 def test_result_wide_single(images, column_names):
     result = compute_hill_numbers(images, 1, pivot=True, **column_names)
     expected = pd.DataFrame(
-        {
-            "deployment_id": ["001", "002"],
-            "1": [2.600490006, 3.789291416]
-        }
+        {"deployment_id": ["001", "002"], "1": [2.600490006, 3.789291416]}
     )
     pd.testing.assert_frame_equal(result, expected, check_exact=False)
 
@@ -93,7 +83,7 @@ def test_result_wide_multiple(images, column_names):
             "deployment_id": ["001", "002"],
             "0": [3.0, 4.0],
             "1": [2.600490006, 3.789291416],
-            "2": [2.333333333, 3.571428571]
+            "2": [2.333333333, 3.571428571],
         }
     )
     pd.testing.assert_frame_equal(result, expected, check_exact=False)

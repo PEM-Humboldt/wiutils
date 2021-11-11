@@ -36,7 +36,7 @@ def convert_video_to_images(
     video_path: Union[str, pathlib.Path],
     output_path: Union[str, pathlib.Path],
     image_format: str = "jpeg",
-    offset: int = None
+    offset: int = None,
 ) -> None:
     """
     Converts a video to images with an associated timestamp.
@@ -110,7 +110,7 @@ def reduce_image_size(
     image_path: Union[str, pathlib.Path],
     output_path: Union[str, pathlib.Path],
     factor: float = 0.9,
-    method: int = Image.ANTIALIAS
+    method: int = Image.ANTIALIAS,
 ) -> None:
     """
     Reduces image file size by resampling using a given factor.

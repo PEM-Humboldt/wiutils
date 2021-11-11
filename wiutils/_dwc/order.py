@@ -62,5 +62,5 @@ records = [
     "scientificNameAuthorship",
     "vernacularName",
     "accessRights",
-    "associatedMedia"
+    "associatedMedia",
 ]

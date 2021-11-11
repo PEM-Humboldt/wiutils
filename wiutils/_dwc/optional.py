@@ -16,5 +16,5 @@ records = [
     "taxonRank",
     "scientificNameAuthorship",
     "vernacularName",
-    "accessRights"
+    "accessRights",
 ]

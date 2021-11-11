@@ -38,11 +38,11 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
 
 
 def compute_deployment_count_summary(
-        images: pd.DataFrame,
-        site_col: str = "deployment_id",
-        species_col: str = "scientific_name",
-        remove_unidentified_kws: dict = None,
-        remove_duplicates_kws: dict = None,
+    images: pd.DataFrame,
+    site_col: str = "deployment_id",
+    species_col: str = "scientific_name",
+    remove_unidentified_kws: dict = None,
+    remove_duplicates_kws: dict = None,
 ) -> pd.DataFrame:
     """
     Computes a summary of images, records and species count by deployment.
@@ -241,7 +241,7 @@ def compute_detection_history(
         result, deployments[[site_col, start_col, end_col]], on=site_col, how="left"
     )
     group_start = result[date_col]
-    group_end = result[date_col] + pd.Timedelta(days=days-1)
+    group_end = result[date_col] + pd.Timedelta(days=days - 1)
     inside_range_left = group_start.between(result[start_col], result[end_col])
     inside_range_right = group_end.between(result[start_col], result[end_col])
     inside_range = inside_range_left | inside_range_right
@@ -270,7 +270,7 @@ def compute_general_count(
     order_col: str = "order",
     family_col: str = "family",
     genus_col: str = "genus",
-    epithet_col: str = "species"
+    epithet_col: str = "species",
 ):
     """
     Computes the general abundance and number of deployments for each

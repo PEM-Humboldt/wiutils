@@ -14,7 +14,7 @@ def remove_duplicates(
     date_col: str = "timestamp",
     interval: int = 30,
     unit: str = "minutes",
-    reset_index: bool = True
+    reset_index: bool = True,
 ) -> pd.DataFrame:
     """
     Removes duplicate records (images) from a same species in the same
@@ -82,7 +82,7 @@ def remove_inconsistent_dates(
     site_col: str = "deployment_id",
     start_col: str = "start_date",
     end_col: str = "end_date",
-    reset_index: bool = True
+    reset_index: bool = True,
 ) -> pd.DataFrame:
     """
     Removes images where the timestamp is outside the date range of the

@@ -7,7 +7,7 @@ events = {
     "event_name": "eventRemarks",
     "feature_type": "locationRemarks",
     "latitude": "decimalLatitude",
-    "longitude": "decimalLongitude"
+    "longitude": "decimalLongitude",
 }
 
 records = {
@@ -30,5 +30,5 @@ records = {
     "genus": "genus",
     "common_name": "vernacularName",
     "license": "accessRights",
-    "location": "associatedMedia"
+    "location": "associatedMedia",
 }
