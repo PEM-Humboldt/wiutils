@@ -38,7 +38,7 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # List of modules to mock on build time.
-autodoc_mock_imports = ["numpy", "pandas"]
+autodoc_mock_imports = ["cv2", "ffmpeg", "numpy", "pandas", "PIL"]
 
 # -- Options for HTML output -------------------------------------------------
 
