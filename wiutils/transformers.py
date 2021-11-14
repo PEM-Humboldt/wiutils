@@ -37,6 +37,49 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
         return np.sum(p ** q) ** (1 / (1 - q))
 
 
+def _filter_images(
+    images: pd.DataFrame,
+    remove_unidentified: bool,
+    remove_unidentified_kws: dict,
+    remove_duplicates: bool,
+    remove_duplicates_kws: dict,
+):
+    """
+    Optionally filters images by removing unidentified and/or duplicate
+    records.
+
+    Parameters
+    ----------
+    images : pd.DataFrame
+        DataFrame with the project's images.
+    remove_unidentified : bool
+        Whether to remove unidentified images. Wrapper for the for the
+        wiutils.remove_unidentified function.
+    remove_unidentified_kws : dict
+        Keyword arguments for the wiutils.remove_unidentified function.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
+
+    Returns
+    -------
+    pd.DataFrame
+        (Un)filtered images.
+    """
+    if remove_unidentified:
+        if remove_unidentified_kws is None:
+            remove_unidentified_kws = {}
+        images = _remove_unidentified(images, **remove_unidentified_kws)
+    if remove_duplicates:
+        if remove_duplicates_kws is None:
+            remove_duplicates_kws = {}
+        images = _remove_duplicates(images, **remove_duplicates_kws)
+
+    return images
+
+
 def compute_deployment_count_summary(
     images: pd.DataFrame,
     species_col: str = "scientific_name",
@@ -90,6 +133,10 @@ def compute_detection_by_deployment(
     images: pd.DataFrame,
     species_col: str = "scientific_name",
     compute_abundance: bool = True,
+    remove_unidentified: bool = False,
+    remove_unidentified_kws: dict = None,
+    remove_duplicates: bool = False,
+    remove_duplicates_kws: dict = None,
     pivot: bool = False,
 ):
     """
@@ -105,6 +152,16 @@ def compute_detection_by_deployment(
     compute_abundance : bool
         Whether to compute the abundance for each deployment. If False,
         returns presence/absence for the deployments.
+    remove_unidentified : bool
+        Whether to remove unidentified images. Wrapper for the for the
+        wiutils.remove_unidentified function.
+    remove_unidentified_kws : dict
+        Keyword arguments for the wiutils.remove_unidentified function.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
     pivot : bool
         Whether to pivot (reshape from long to wide format) the resulting
         DataFrame.
@@ -115,10 +172,19 @@ def compute_detection_by_deployment(
         DataFrame with the detection of each species by deployment.
 
     """
-    result = images.groupby([species_col, _labels.site]).size()
+    df = images.copy()
+    df = _filter_images(
+        df,
+        remove_unidentified,
+        remove_unidentified_kws,
+        remove_duplicates,
+        remove_duplicates_kws,
+    )
 
-    species = images[species_col].unique()
-    sites = images[_labels.site].unique()
+    result = df.groupby([species_col, _labels.site]).size()
+
+    species = df[species_col].unique()
+    sites = df[_labels.site].unique()
     idx = pd.MultiIndex.from_product([species, sites], names=[species_col, _labels.site])
     result = result.reindex(idx, fill_value=0)
     result.name = "value"
@@ -144,6 +210,10 @@ def compute_detection_history(
     date_range: str = "deployments",
     days: int = 1,
     compute_abundance: bool = True,
+    remove_unidentified: bool = False,
+    remove_unidentified_kws: dict = None,
+    remove_duplicates: bool = False,
+    remove_duplicates_kws: dict = None,
     pivot: bool = False,
 ) -> pd.DataFrame:
     """
@@ -169,6 +239,16 @@ def compute_detection_history(
     compute_abundance : bool
         Whether to compute the abundance for each interval. If False,
         returns presence/absence for the intervals.
+    remove_unidentified : bool
+        Whether to remove unidentified images. Wrapper for the for the
+        wiutils.remove_unidentified function.
+    remove_unidentified_kws : dict
+        Keyword arguments for the wiutils.remove_unidentified function.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
     pivot : bool
         Whether to pivot (reshape from long to wide format) the resulting
         DataFrame.
@@ -193,6 +273,14 @@ def compute_detection_history(
         end = df[_labels.date].max()
     else:
         raise ValueError("date_range must be one of ['deployments', 'images'].")
+
+    df = _filter_images(
+        df,
+        remove_unidentified,
+        remove_unidentified_kws,
+        remove_duplicates,
+        remove_duplicates_kws,
+    )
 
     freq = pd.Timedelta(days=days)
     groupers = [
@@ -254,6 +342,10 @@ def compute_general_count(
     species_col: str = "scientific_name",
     add_taxonomy: bool = True,
     rank: str = "class",
+    remove_unidentified: bool = False,
+    remove_unidentified_kws: dict = None,
+    remove_duplicates: bool = False,
+    remove_duplicates_kws: dict = None,
 ):
     """
     Computes the general abundance and number of deployments for each
@@ -279,6 +371,16 @@ def compute_general_count(
         For example, if rank is 'family', the result will have the
         corresponding family (and therefore the inferior ranks - genus
         and epithet -) were not identified will be removed.
+    remove_unidentified : bool
+        Whether to remove unidentified images. Wrapper for the for the
+        wiutils.remove_unidentified function.
+    remove_unidentified_kws : dict
+        Keyword arguments for the wiutils.remove_unidentified function.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
 
     Returns
     -------
@@ -286,15 +388,22 @@ def compute_general_count(
         DataFrame with abundance and number of deployments by species.
 
     """
-    result = images.groupby(species_col).agg(
-        {species_col: "size", _labels.site: "nunique"}
+    df = images.copy()
+    df = _filter_images(
+        df,
+        remove_unidentified,
+        remove_unidentified_kws,
+        remove_duplicates,
+        remove_duplicates_kws,
     )
+
+    result = df.groupby(species_col).agg({species_col: "size", _labels.site: "nunique"})
     result = result.rename(columns={species_col: "images", _labels.site: "deployments"})
     result = result.reset_index()
 
     if add_taxonomy:
         taxonomy_columns = _get_taxonomy_columns(rank)
-        taxonomy = images[[species_col, *taxonomy_columns]].drop_duplicates(species_col)
+        taxonomy = df[[species_col, *taxonomy_columns]].drop_duplicates(species_col)
         result = pd.merge(result, taxonomy, on=species_col, how="left")
 
     return result
@@ -304,6 +413,10 @@ def compute_hill_numbers(
     images: pd.DataFrame,
     q_values: Union[int, list, tuple, np.ndarray],
     species_col: str = "scientific_name",
+    remove_unidentified: bool = False,
+    remove_unidentified_kws: dict = None,
+    remove_duplicates: bool = False,
+    remove_duplicates_kws: dict = None,
     pivot: bool = False,
 ) -> pd.DataFrame:
     """
@@ -318,6 +431,16 @@ def compute_hill_numbers(
         Label of the scientific name column in the images DataFrame.
     q_values : int, list, tuple or array
         Value(s) of q to compute Hill numbers for.
+    remove_unidentified : bool
+        Whether to remove unidentified images. Wrapper for the for the
+        wiutils.remove_unidentified function.
+    remove_unidentified_kws : dict
+        Keyword arguments for the wiutils.remove_unidentified function.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
     pivot : bool
         Whether to pivot (reshape from long to wide format) the resulting
         DataFrame.
@@ -328,12 +451,21 @@ def compute_hill_numbers(
         Computed Hill numbers by deployment.
 
     """
+    df = images.copy()
+    df = _filter_images(
+        df,
+        remove_unidentified,
+        remove_unidentified_kws,
+        remove_duplicates,
+        remove_duplicates_kws,
+    )
+
     if isinstance(q_values, int):
         q_values = [q_values]
 
     result = pd.DataFrame(columns=[_labels.site, "q", "D"])
 
-    abundance = images.groupby([_labels.site, species_col]).size()
+    abundance = df.groupby([_labels.site, species_col]).size()
     relative_abundance = abundance / abundance.groupby(level=0).sum()
     for site, group in relative_abundance.groupby(level=0):
         for q in q_values:
@@ -400,18 +532,14 @@ def create_dwc_records(
         Darwin Core standard compliant table.
     """
     df = images.copy()
-
-    if remove_unidentified_kws is None:
-        remove_unidentified_kws = {}
-    if remove_duplicates_kws is None:
-        remove_duplicates_kws = {}
-
     df["scientific_name"] = _get_scientific_name(df, keep_genus=True, add_qualifier=True)
-
-    if remove_unidentified:
-        df = _remove_unidentified(df, **remove_unidentified_kws)
-    if remove_duplicates:
-        df = _remove_duplicates(df, **remove_duplicates_kws)
+    df = _filter_images(
+        df,
+        remove_unidentified,
+        remove_unidentified_kws,
+        remove_duplicates,
+        remove_duplicates_kws,
+    )
 
     result = pd.merge(
         df, deployments.drop(columns="project_id"), on="deployment_id", how="left"
