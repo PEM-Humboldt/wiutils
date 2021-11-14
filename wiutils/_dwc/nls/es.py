@@ -6,6 +6,9 @@ words = {
     "lifeStage": {"adult": "adulto", "juvenile": "juvenil"},
     "organismQuantityType": {"individuals": "individuos"},
     "preparations": {"photograph": "fotografía"},
+    "sampleSizeUnit": {"trap-nights": "trampas-noche"},
+    "samplingEffort": {"trap-nights": "trampas-noche"},
+    "samplingProtocol": {"camera-trap": "fototrampeo"},
     "sex": {"female": "hembra", "male": "macho", "unknown": "desconocido"},
     "taxonRank": {
         "class": "clase",

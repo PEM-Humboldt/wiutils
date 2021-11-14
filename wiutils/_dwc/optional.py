@@ -1,7 +1,7 @@
 """
 Optional columns for the Darwin Core outputs.
 """
-events = ["locationRemarks"]
+events = ["eventRemarks", "locationRemarks"]
 
 records = [
     "occurrenceRemarks",

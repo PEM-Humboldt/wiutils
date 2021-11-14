@@ -67,6 +67,7 @@ def _filter_images(
     -------
     pd.DataFrame
         (Un)filtered images.
+
     """
     if remove_unidentified:
         if remove_unidentified_kws is None:
@@ -486,6 +487,66 @@ def compute_hill_numbers(
     return result
 
 
+def create_dwc_events(
+    deployments: pd.DataFrame, remove_empty_optionals: bool = False, language: str = "en"
+) -> pd.DataFrame:
+    """
+    Creates an events Darwin Core compliant table from Wildlife Insights
+    deployments information.
+
+    Parameters
+    ----------
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments.
+    remove_empty_optionals : bool
+        Whether to remove empty optional columns.
+    language : str
+        Language of the result's values. Possible values are:
+
+            - 'en' for english
+            - 'es' for spanish
+        Keep in mind that regardless of the value, column names will be
+        kept in english to comply with the Darwin Core standard.
+
+    Returns
+    -------
+    DataFrame
+        Darwin Core standard compliant events table.
+
+    """
+    result = deployments.copy()
+
+    result = result.rename(columns=_dwc.mapping.events)
+
+    start_date = pd.to_datetime(result["start_date"])
+    end_date = pd.to_datetime(result["end_date"])
+    result["eventDate"] = (
+        start_date.dt.strftime("%Y-%m-%d") + "/" + end_date.dt.strftime("%Y-%m-%d")
+    )
+    delta = end_date - start_date
+    result["samplingEffort"] = delta.dt.days.astype(str) + " trap-nights"
+
+    for column, value in _dwc.constants.events.items():
+        result[column] = value
+
+    if remove_empty_optionals:
+        is_empty = result.isna().all()
+        is_optional = result.columns.isin(_dwc.optional.events)
+        subset = result.columns[~(is_empty & is_optional)]
+        result = result[subset]
+
+    if language == "en":
+        pass
+    elif language == "es":
+        result = _dwc.utils.translate(result, language)
+    else:
+        raise ValueError("language must be one of ['en', 'es'].")
+
+    result = _dwc.utils.rearrange(result, _dwc.order.events)
+
+    return result
+
+
 def create_dwc_records(
     images: pd.DataFrame,
     deployments: pd.DataFrame,
@@ -497,8 +558,8 @@ def create_dwc_records(
     remove_duplicates_kws: dict = None,
 ) -> pd.DataFrame:
     """
-    Converts the images DataFrame to a Darwin Core standard compliant
-    DataFrame.
+    Creates a records Darwin Core compliant table from Wildlife Insights
+    images and deployments information.
 
     Parameters
     ----------
@@ -513,7 +574,7 @@ def create_dwc_records(
 
             - 'en' for english
             - 'es' for spanish
-        Keep in mind that regardless of the value column names will be
+        Keep in mind that regardless of the value, column names will be
         kept in english to comply with the Darwin Core standard.
     remove_unidentified : bool
         Whether to remove unidentified images. Wrapper for the for the
@@ -529,7 +590,8 @@ def create_dwc_records(
     Returns
     -------
     DataFrame
-        Darwin Core standard compliant table.
+        Darwin Core standard compliant records table.
+
     """
     df = images.copy()
     df["scientific_name"] = _get_scientific_name(df, keep_genus=True, add_qualifier=True)

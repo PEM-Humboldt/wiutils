@@ -1,5 +1,5 @@
 """
-
+Helper functions used when creating DwC tables.
 """
 from collections import OrderedDict
 from typing import Union
@@ -102,6 +102,6 @@ def translate(df: pd.DataFrame, language: str) -> pd.DataFrame:
 
     existing_columns = set(words.keys()) & set(df.columns)
     for column in existing_columns:
-        df[column] = df[column].replace(words[column])
+        df[column] = df[column].replace(words[column], regex=True)
 
     return df
