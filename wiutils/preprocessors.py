@@ -1,6 +1,7 @@
 """
-
+Functions to preprocess information before uploading it to WI.
 """
+import datetime
 import pathlib
 from typing import Union
 
@@ -35,6 +36,7 @@ def _get_exif_code(tag: str) -> int:
 def convert_video_to_images(
     video_path: Union[str, pathlib.Path],
     output_path: Union[str, pathlib.Path],
+    timestamp: Union[str, datetime.datetime, pd.Timestamp] = None,
     image_format: str = "jpeg",
     offset: int = None,
 ) -> None:
@@ -48,6 +50,9 @@ def convert_video_to_images(
     output_path : str or pathlib.Path
         Relative or absolute path of the folder to save the images to. If
         the folder does not exist, it will be created.
+    timestamp : str, datetime.datetime or pd.Timestamp
+        Timestamp of the beginning of the video. If no timestamp is
+        provided, it will be automatically extracted from the metadata.
     image_format : str
         Image format of the output images. Possible values are:
 
@@ -77,12 +82,15 @@ def convert_video_to_images(
     else:
         ext = image_format
 
-    info = ffmpeg.probe(video_path.as_posix())
-    try:
-        start = info["format"]["tags"]["creation_time"]
-    except KeyError:
-        raise Exception(f"{video_path.as_posix()} does not have a creation date.")
-    start = pd.Timestamp(start)
+    if timestamp is not None:
+        start = pd.Timestamp(timestamp)
+    else:
+        info = ffmpeg.probe(video_path.as_posix())
+        try:
+            start = info["format"]["tags"]["creation_time"]
+        except KeyError:
+            raise Exception(f"{video_path.as_posix()} does not have a creation date.")
+        start = pd.Timestamp(start)
 
     video = cv2.VideoCapture(video_path.as_posix())
     frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
