@@ -12,5 +12,6 @@ from wiutils.transformers import (
     compute_detection_history,
     compute_general_count,
     compute_hill_numbers,
+    create_dwc_events,
     create_dwc_records,
 )
