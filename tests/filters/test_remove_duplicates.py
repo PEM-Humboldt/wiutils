@@ -51,17 +51,10 @@ def images():
     )
 
 
-@pytest.fixture(scope="module")
-def column_names():
-    return {
-        "site_col": "deployment_id",
-        "species_col": "scientific_name",
-        "date_col": "timestamp",
-    }
-
-
-def test_unit_seconds(images, column_names):
-    result = remove_duplicates(images, interval=5, unit="seconds", **column_names)
+def test_unit_seconds(images):
+    result = remove_duplicates(
+        images, interval=5, unit="seconds", species_col="scientific_name"
+    )
     expected = pd.DataFrame(
         {
             "deployment_id": [
@@ -102,8 +95,10 @@ def test_unit_seconds(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_unit_minutes(images, column_names):
-    result = remove_duplicates(images, interval=30, unit="minutes", **column_names)
+def test_unit_minutes(images):
+    result = remove_duplicates(
+        images, interval=30, unit="minutes", species_col="scientific_name"
+    )
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "001", "001", "001", "001", "002", "002"],
@@ -130,8 +125,10 @@ def test_unit_minutes(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_unit_hours(images, column_names):
-    result = remove_duplicates(images, interval=5, unit="hours", **column_names)
+def test_unit_hours(images):
+    result = remove_duplicates(
+        images, interval=5, unit="hours", species_col="scientific_name"
+    )
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "001", "001", "001", "002", "002"],
@@ -156,8 +153,10 @@ def test_unit_hours(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_unit_days(images, column_names):
-    result = remove_duplicates(images, interval=4, unit="days", **column_names)
+def test_unit_days(images):
+    result = remove_duplicates(
+        images, interval=4, unit="days", species_col="scientific_name"
+    )
     expected = pd.DataFrame(
         {
             "deployment_id": [
@@ -183,8 +182,10 @@ def test_unit_days(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_unit_weeks(images, column_names):
-    result = remove_duplicates(images, interval=3, unit="weeks", **column_names)
+def test_unit_weeks(images):
+    result = remove_duplicates(
+        images, interval=3, unit="weeks", species_col="scientific_name"
+    )
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "001", "002"],
@@ -203,13 +204,13 @@ def test_unit_weeks(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_keep_index(images, column_names):
-    result = remove_duplicates(images, reset_index=False, **column_names)
+def test_keep_index(images):
+    result = remove_duplicates(images, reset_index=False, species_col="scientific_name")
     expected_index = pd.Index([0, 3, 4, 5, 6, 7, 9], dtype="int64")
     pd.testing.assert_index_equal(result.index, expected_index)
 
 
-def test_intact_input(images, column_names):
+def test_intact_input(images):
     images_original = images.copy()
-    remove_duplicates(images, **column_names)
+    remove_duplicates(images, species_col="scientific_name")
     pd.testing.assert_frame_equal(images_original, images)

@@ -8,6 +8,8 @@ from typing import Union
 
 import pandas as pd
 
+from . import _labels
+
 
 def read_project(path: Union[str, pathlib.Path]) -> tuple:
     """
@@ -37,9 +39,9 @@ def read_project(path: Union[str, pathlib.Path]) -> tuple:
         shutil.unpack_archive(path, temp_folder)
         path = pathlib.Path(temp_folder).joinpath(path.stem)
 
-    images = pd.read_csv(path.joinpath("images.csv"), parse_dates=["timestamp"])
+    images = pd.read_csv(path.joinpath("images.csv"), parse_dates=[_labels.date])
     deployments = pd.read_csv(
-        path.joinpath("deployments.csv"), parse_dates=["start_date", "end_date"]
+        path.joinpath("deployments.csv"), parse_dates=[_labels.start, _labels.end]
     )
 
     if temp_folder:

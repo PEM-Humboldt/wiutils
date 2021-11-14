@@ -66,19 +66,8 @@ def images():
     )
 
 
-@pytest.fixture(scope="module")
-def column_names():
-    return {
-        "class_col": "class",
-        "order_col": "order",
-        "family_col": "family",
-        "genus_col": "genus",
-        "epithet_col": "species",
-    }
-
-
-def test_rank_class(images, column_names):
-    result = remove_unidentified(images, rank="class", reset_index=True, **column_names)
+def test_rank_class(images):
+    result = remove_unidentified(images, rank="class", reset_index=True)
     expected = pd.DataFrame(
         {
             "class": ["Aves", "Mammalia", "Mammalia", "Aves", "Mammalia"],
@@ -91,8 +80,8 @@ def test_rank_class(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_rank_order(images, column_names):
-    result = remove_unidentified(images, rank="order", reset_index=True, **column_names)
+def test_rank_order(images):
+    result = remove_unidentified(images, rank="order", reset_index=True)
     expected = pd.DataFrame(
         {
             "class": ["Aves", "Mammalia", "Mammalia", "Mammalia"],
@@ -105,8 +94,8 @@ def test_rank_order(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_rank_family(images, column_names):
-    result = remove_unidentified(images, rank="family", reset_index=True, **column_names)
+def test_rank_family(images):
+    result = remove_unidentified(images, rank="family", reset_index=True)
     expected = pd.DataFrame(
         {
             "class": ["Aves", "Mammalia", "Mammalia"],
@@ -119,8 +108,8 @@ def test_rank_family(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_rank_genus(images, column_names):
-    result = remove_unidentified(images, rank="genus", reset_index=True, **column_names)
+def test_rank_genus(images):
+    result = remove_unidentified(images, rank="genus", reset_index=True)
     expected = pd.DataFrame(
         {
             "class": ["Mammalia", "Mammalia"],
@@ -133,10 +122,8 @@ def test_rank_genus(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_rank_epithet(images, column_names):
-    result = remove_unidentified(
-        images, rank="epithet", reset_index=True, **column_names
-    )
+def test_rank_epithet(images):
+    result = remove_unidentified(images, rank="epithet", reset_index=True)
     expected = pd.DataFrame(
         {
             "class": ["Mammalia"],
@@ -149,13 +136,13 @@ def test_rank_epithet(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_keep_index(images, column_names):
-    result = remove_unidentified(images, rank="order", reset_index=False, **column_names)
+def test_keep_index(images):
+    result = remove_unidentified(images, rank="order", reset_index=False)
     expected_index = pd.Index([0, 1, 2, 5], dtype="int64")
     pd.testing.assert_index_equal(result.index, expected_index)
 
 
-def test_intact_input(images, column_names):
+def test_intact_input(images):
     images_original = images.copy()
-    remove_unidentified(images, rank="order", **column_names)
+    remove_unidentified(images, rank="order")
     pd.testing.assert_frame_equal(images_original, images)

@@ -28,22 +28,9 @@ def images():
     )
 
 
-@pytest.fixture(scope="module")
-def column_names():
-    return {
-        "site_col": "deployment_id",
-        "species_col": "scientific_name",
-        "class_col": "class",
-        "order_col": "order",
-        "family_col": "family",
-        "genus_col": "genus",
-        "epithet_col": "species",
-    }
-
-
-def test_rank_class(images, column_names):
+def test_rank_class(images):
     result = compute_general_count(
-        images, add_taxonomy=True, rank="class", **column_names
+        images, add_taxonomy=True, rank="class", species_col="scientific_name"
     )
     expected = pd.DataFrame(
         {
@@ -60,9 +47,9 @@ def test_rank_class(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_rank_family(images, column_names):
+def test_rank_family(images):
     result = compute_general_count(
-        images, add_taxonomy=True, rank="family", **column_names
+        images, add_taxonomy=True, rank="family", species_col="scientific_name"
     )
     expected = pd.DataFrame(
         {
@@ -77,13 +64,17 @@ def test_rank_family(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_rank_error(images, column_names):
+def test_rank_error(images):
     with pytest.raises(ValueError):
-        compute_general_count(images, add_taxonomy=True, rank="kingdom", **column_names)
+        compute_general_count(
+            images, add_taxonomy=True, rank="kingdom", species_col="scientific_name"
+        )
 
 
-def test_no_taxonomy(images, column_names):
-    result = compute_general_count(images, add_taxonomy=False, **column_names)
+def test_no_taxonomy(images):
+    result = compute_general_count(
+        images, add_taxonomy=False, species_col="scientific_name"
+    )
     expected = pd.DataFrame(
         {
             "scientific_name": ["Canis lupus", "Eira barbara", "Panthera onca"],
@@ -94,7 +85,7 @@ def test_no_taxonomy(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_intact_input(images, column_names):
+def test_intact_input(images):
     images_original = images.copy()
-    compute_general_count(images, add_taxonomy=False, **column_names)
+    compute_general_count(images, add_taxonomy=False, species_col="scientific_name")
     pd.testing.assert_frame_equal(images_original, images)

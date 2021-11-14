@@ -48,20 +48,8 @@ def deployments():
     )
 
 
-@pytest.fixture(scope="module")
-def column_names():
-    return {
-        "date_col": "timestamp",
-        "site_col": "deployment_id",
-        "start_col": "start_date",
-        "end_col": "end_date",
-    }
-
-
-def test_inconsistent_dates(images, deployments, column_names):
-    result = remove_inconsistent_dates(
-        images, deployments, reset_index=True, **column_names
-    )
+def test_inconsistent_dates(images, deployments):
+    result = remove_inconsistent_dates(images, deployments, reset_index=True)
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "001", "001", "002", "002", "002"],
@@ -78,17 +66,15 @@ def test_inconsistent_dates(images, deployments, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_keep_index(images, deployments, column_names):
-    result = remove_inconsistent_dates(
-        images, deployments, reset_index=False, **column_names
-    )
+def test_keep_index(images, deployments):
+    result = remove_inconsistent_dates(images, deployments, reset_index=False)
     expected_index = pd.Index([1, 2, 3, 5, 6, 7], dtype="int64")
     pd.testing.assert_index_equal(result.index, expected_index)
 
 
-def test_intact_input(images, deployments, column_names):
+def test_intact_input(images, deployments):
     images_original = images.copy()
     deployments_original = deployments.copy()
-    remove_inconsistent_dates(images, deployments, **column_names)
+    remove_inconsistent_dates(images, deployments)
     pd.testing.assert_frame_equal(images_original, images)
     pd.testing.assert_frame_equal(deployments_original, deployments)

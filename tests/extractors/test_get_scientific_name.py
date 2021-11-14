@@ -19,29 +19,19 @@ def images():
 
 
 def test_discard_genus(images):
-    result = get_scientific_name(
-        images, genus_col="genus", epithet_col="species", keep_genus=False
-    )
+    result = get_scientific_name(images, keep_genus=False)
     expected = pd.Series(["Dasyprocta fuliginosa", np.nan, np.nan, np.nan, np.nan])
     pd.testing.assert_series_equal(result, expected)
 
 
 def test_keep_genus(images):
-    result = get_scientific_name(
-        images, genus_col="genus", epithet_col="species", keep_genus=True
-    )
+    result = get_scientific_name(images, keep_genus=True)
     expected = pd.Series(["Dasyprocta fuliginosa", np.nan, np.nan, np.nan, "Odocoileus"])
     pd.testing.assert_series_equal(result, expected)
 
 
 def test_add_qualifier(images):
-    result = get_scientific_name(
-        images,
-        genus_col="genus",
-        epithet_col="species",
-        keep_genus=True,
-        add_qualifier=True,
-    )
+    result = get_scientific_name(images, keep_genus=True, add_qualifier=True)
     expected = pd.Series(
         ["Dasyprocta fuliginosa", np.nan, np.nan, np.nan, "Odocoileus sp."]
     )
@@ -49,12 +39,6 @@ def test_add_qualifier(images):
 
 
 def test_add_qualifier_no_effect(images):
-    result = get_scientific_name(
-        images,
-        genus_col="genus",
-        epithet_col="species",
-        keep_genus=False,
-        add_qualifier=True,
-    )
+    result = get_scientific_name(images, keep_genus=False, add_qualifier=True)
     expected = pd.Series(["Dasyprocta fuliginosa", np.nan, np.nan, np.nan, np.nan])
     pd.testing.assert_series_equal(result, expected)

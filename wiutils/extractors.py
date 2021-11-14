@@ -4,11 +4,11 @@ Functions for extracting information from WI tables.
 import numpy as np
 import pandas as pd
 
+from . import _labels
+
 
 def get_scientific_name(
     images: pd.DataFrame,
-    genus_col: str = "genus",
-    epithet_col: str = "species",
     keep_genus: bool = True,
     add_qualifier: bool = False,
 ) -> pd.Series:
@@ -20,10 +20,6 @@ def get_scientific_name(
     ----------
     images : pd.DataFrame
         DataFrame with the project's images.
-    genus_col : str
-        Label of the genus column in the images DataFrame.
-    epithet_col : str
-        Label of the epithet column in the images DataFrame.
     keep_genus: bool
         Whether to keep the genus as the scientific name in images where
         only the genus was identified. If False, the scientific name for
@@ -42,15 +38,19 @@ def get_scientific_name(
     names = pd.Series(np.nan, index=np.arange(len(images)), dtype=str)
 
     exclude = ["No CV Result", "Unknown"]
-    has_genus = ~images[genus_col].isin(exclude) & images[genus_col].notna()
-    has_epithet = ~images[epithet_col].isin(exclude) & images[epithet_col].notna()
+    has_genus = ~images[_labels.genus].isin(exclude) & images[_labels.genus].notna()
+    has_epithet = (
+        ~images[_labels.epithet].isin(exclude) & images[_labels.epithet].notna()
+    )
 
     mask = has_genus & has_epithet
-    names.loc[mask] = images.loc[mask, genus_col] + " " + images.loc[mask, epithet_col]
+    names.loc[mask] = (
+        images.loc[mask, _labels.genus] + " " + images.loc[mask, _labels.epithet]
+    )
 
     if keep_genus:
         mask = has_genus & ~has_epithet
-        names.loc[mask] = images.loc[mask, genus_col]
+        names.loc[mask] = images.loc[mask, _labels.genus]
         if add_qualifier:
             names.loc[mask] += " sp."
 

@@ -66,19 +66,10 @@ def deployments():
     )
 
 
-@pytest.fixture(scope="module")
-def column_names():
-    return {
-        "date_col": "timestamp",
-        "site_col": "deployment_id",
-        "species_col": "scientific_name",
-        "start_col": "start_date",
-        "end_col": "end_date",
-    }
-
-
-def test_compute_abundance(images, deployments, column_names):
-    result = compute_detection_history(images, deployments, days=7, **column_names)
+def test_compute_abundance(images, deployments):
+    result = compute_detection_history(
+        images, deployments, days=7, species_col="scientific_name"
+    )
     expected = pd.DataFrame(
         {
             "scientific_name": [
@@ -131,9 +122,13 @@ def test_compute_abundance(images, deployments, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_compute_presence(images, deployments, column_names):
+def test_compute_presence(images, deployments):
     result = compute_detection_history(
-        images, deployments, days=14, compute_abundance=False, **column_names
+        images,
+        deployments,
+        days=14,
+        compute_abundance=False,
+        species_col="scientific_name",
     )
     expected = pd.DataFrame(
         {
@@ -166,9 +161,9 @@ def test_compute_presence(images, deployments, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_date_range_images(images, deployments, column_names):
+def test_date_range_images(images, deployments):
     result = compute_detection_history(
-        images, deployments, date_range="images", days=15, **column_names
+        images, deployments, date_range="images", days=15, species_col="scientific_name"
     )
     expected = pd.DataFrame(
         {
@@ -201,9 +196,14 @@ def test_date_range_images(images, deployments, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_pivot(images, deployments, column_names):
+def test_pivot(images, deployments):
     result = compute_detection_history(
-        images, deployments, date_range="images", days=15, pivot=True, **column_names
+        images,
+        deployments,
+        date_range="images",
+        days=15,
+        pivot=True,
+        species_col="scientific_name",
     )
     expected = pd.DataFrame(
         {
@@ -221,9 +221,9 @@ def test_pivot(images, deployments, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_intact_input(images, deployments, column_names):
+def test_intact_input(images, deployments):
     images_original = images.copy()
     deployments_original = deployments.copy()
-    compute_detection_history(images, deployments, days=7, **column_names)
+    compute_detection_history(images, deployments, days=7, species_col="scientific_name")
     pd.testing.assert_frame_equal(images_original, images)
     pd.testing.assert_frame_equal(deployments_original, deployments)

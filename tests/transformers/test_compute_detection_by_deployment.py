@@ -24,13 +24,8 @@ def images():
     )
 
 
-@pytest.fixture(scope="module")
-def column_names():
-    return {"site_col": "deployment_id", "species_col": "scientific_name"}
-
-
-def test_compute_abundance(images, column_names):
-    result = compute_detection_by_deployment(images, **column_names)
+def test_compute_abundance(images):
+    result = compute_detection_by_deployment(images, species_col="scientific_name")
     expected = pd.DataFrame(
         {
             "scientific_name": [
@@ -48,9 +43,9 @@ def test_compute_abundance(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_compute_presence(images, column_names):
+def test_compute_presence(images):
     result = compute_detection_by_deployment(
-        images, compute_abundance=False, **column_names
+        images, compute_abundance=False, species_col="scientific_name"
     )
     expected = pd.DataFrame(
         {
@@ -69,8 +64,10 @@ def test_compute_presence(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_pivot(images, column_names):
-    result = compute_detection_by_deployment(images, pivot=True, **column_names)
+def test_pivot(images):
+    result = compute_detection_by_deployment(
+        images, pivot=True, species_col="scientific_name"
+    )
     expected = pd.DataFrame(
         {
             "scientific_name": [
@@ -85,7 +82,7 @@ def test_pivot(images, column_names):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_intact_input(images, column_names):
+def test_intact_input(images):
     images_original = images.copy()
-    compute_detection_by_deployment(images, **column_names)
+    compute_detection_by_deployment(images, species_col="scientific_name")
     pd.testing.assert_frame_equal(images_original, images)

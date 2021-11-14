@@ -5,6 +5,8 @@ from typing import Union
 
 import pandas as pd
 
+from . import _labels
+
 
 def _convert_to_datetime(
     df: pd.DataFrame, columns: Union[list, str, tuple]
@@ -36,39 +38,42 @@ def _convert_to_datetime(
     return df
 
 
-def _get_taxonomy_columns(
-    rank: str,
-    class_col: str = "class",
-    order_col: str = "order",
-    family_col: str = "family",
-    genus_col: str = "genus",
-    epithet_col: str = "species",
-):
+def _get_taxonomy_columns(rank: str) -> list:
     """
+    Gets a list of columns for a specific rank along with all the
+    inferior taxonomic ranks.
 
     Parameters
     ----------
-    rank
-    class_col
-    order_col
-    family_col
-    genus_col
-    epithet_col
+    rank : str
+        Taxonomic rank.
 
     Returns
     -------
-
+    list
+        List with columns names for the taxonomic ranks.
     """
     if rank == "epithet":
-        taxonomy_columns = [epithet_col]
+        taxonomy_columns = [_labels.epithet]
     elif rank == "genus":
-        taxonomy_columns = [genus_col, epithet_col]
+        taxonomy_columns = [_labels.genus, _labels.epithet]
     elif rank == "family":
-        taxonomy_columns = [family_col, genus_col, epithet_col]
+        taxonomy_columns = [_labels.family, _labels.genus, _labels.epithet]
     elif rank == "order":
-        taxonomy_columns = [order_col, family_col, genus_col, epithet_col]
+        taxonomy_columns = [
+            _labels.order,
+            _labels.family,
+            _labels.genus,
+            _labels.epithet,
+        ]
     elif rank == "class":
-        taxonomy_columns = [class_col, order_col, family_col, genus_col, epithet_col]
+        taxonomy_columns = [
+            _labels.class_,
+            _labels.order,
+            _labels.family,
+            _labels.genus,
+            _labels.epithet,
+        ]
     else:
         raise ValueError(
             "min_rank must be one of: ['epithet', 'genus', 'family', 'order', 'class']."
