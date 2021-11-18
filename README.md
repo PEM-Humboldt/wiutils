@@ -1,63 +1,62 @@
-# wildlife-insights-utils
+# wiutils
 
-`wiutils` tiene utilidades para la transformación y la exploración de información descargada de proyectos de Wildlife Insights.
+`wiutils` has utilities for exploring and transforming information downloaded from Wildlife Insights projects.
 
-## Instalación
+## Installation
 
-Con `pip`:
+Using `pip`:
 ```shell
 pip install wiutils
 ```
 
-Con `conda`:
+Using `conda`:
 ```shell
 conda install -c conda-forge wiutils
 ```
 
-## Ejecución
-Para asegurarse que la instalación de `wiutils` fue satisfactoria ejecute el siguiente comando:
+## Execution
+To check whether the installation of `wiutils` was successful, execute the following command:
 
 ```shell
 python -c "import wiutils"
 ```
-Si el comando no arroja ningún error, la instalación fue satisfactoria.
+If this does not throw any error, the installation was successful.
 
-Puede acceder a las funciones de `wiutils` importando el paquete desde una consola o un script de Python. Para mayor información sobre las funciones disponibles, consulte la [documentación](https://wiutils.readthedocs.io).
+You can use `wiutils` function by importing the package from a Python console or script. For more information about the available functions, check the [documentation](https://wiutils.readthedocs.io).
 
-## Cómo contribuir
+## How to contribute
 
-Se recomienda que la instalación del paquete en modo de desarrollo se haga en un [entorno virtual](https://www.python.org/dev/peps/pep-0405/) para no alterar otras instalaciones existentes de Python en el sistema.
+It is recommended to install the package using a [virtual environment](https://www.python.org/dev/peps/pep-0405/) to avoid tampering other Python installations in your system.
 
-1. Clone este repositorio en su máquina:
+1. Clone this repo in your computer:
 ```shell
-git clone https://github.com/PEM-Humboldt/wildlife-insights-utils.git
+git clone https://github.com/PEM-Humboldt/wiutils.git
 ```
 
-2. Ubíquese en la raíz del proyecto:
+2. Go to the project's root:
 ```shell
-cd wildlife-insights-utils
+cd wiutils
 ```
 
-3. Instale el paquete en modo de desarrollo:
+3. Install the package in development mode:
 ```shell
 pip install --editable .[dev,docs,test]
 ```
 
 
-### Ejecución de pruebas unitarias
-Ubicado dentro del proyecto, ejecute:
-
+### Unit tests
+Execute the following command inside the project's root:
 ```
 pytest tests/
 ```
 
-## Autores y contribuidores
+## Authors and contributors
 
 * Angélica Diaz-Pulido
 * Marcelo Villa-Piñeros - [marcelovilla](https://github.com/marcelovilla)
 
-## Licencia
-Este paquete tiene una licencia MIT. Ver [LICENSE.txt](LICENSE.txt) para más información.
+## License
+This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
 
 [1]: https://github.com/Toblerity/Fiona#installation
 [2]: https://github.com/mapbox/rasterio#installation
