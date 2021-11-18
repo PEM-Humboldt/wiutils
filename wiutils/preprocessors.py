@@ -33,6 +33,56 @@ def _get_exif_code(tag: str) -> int:
     raise ValueError(f"{tag} is not a valid Exif tag.")
 
 
+def change_image_timestamp(
+    image_path: Union[str, pathlib.Path],
+    output_path: Union[str, pathlib.Path],
+    timestamp: Union[str, datetime.datetime, pd.Timestamp] = None,
+    offset: pd.DateOffset = None,
+    direction: str = None,
+) -> None:
+    """
+
+    Parameters
+    ----------
+    image_path : str or pathlib.Path
+        Relative or absolute path of the image to resample.
+    output_path : str or pathlib.Path
+        Relative or absolute path of the output image.
+    timestamp : str, datetime.datetime or pd.Timestamp
+    offset
+    direction
+
+    Returns
+    -------
+
+    """
+    if not isinstance(image_path, pathlib.Path):
+        image_path = pathlib.Path(image_path)
+    if not isinstance(output_path, pathlib.Path):
+        output_path = pathlib.Path(output_path)
+
+    image = Image.open(image_path.as_posix())
+    exif = image.getexif()
+
+    if timestamp is not None:
+        if not isinstance(timestamp, pd.Timestamp):
+            timestamp = pd.Timestamp(timestamp)
+    else:
+        timestamp = exif[_get_exif_code("DateTime")]
+        timestamp = pd.Timestamp(timestamp.replace(":", "-", 2))
+        if direction == "forward":
+            timestamp += offset
+        elif direction == "backward":
+            timestamp -= offset
+        else:
+            raise ValueError("direction must be one of ['forward', 'backward']")
+
+    exif[_get_exif_code("DateTime")] = timestamp.strftime("%Y:%m:%d %H:%M:%S")
+    exif[_get_exif_code("DateTimeOriginal")] = timestamp.strftime("%Y:%m:%d %H:%M:%S")
+
+    image.save(output_path.as_posix(), format=image.format, exif=exif)
+
+
 def convert_video_to_images(
     video_path: Union[str, pathlib.Path],
     output_path: Union[str, pathlib.Path],
