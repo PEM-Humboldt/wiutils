@@ -41,6 +41,9 @@ def change_image_timestamp(
     direction: str = None,
 ) -> None:
     """
+    Changes an image's associated timestamp metadata for a new timestamp.
+    This can be a new arbitrary timestamp or a computed new timestamp from
+    an offset and the original timestamp.
 
     Parameters
     ----------
@@ -49,11 +52,21 @@ def change_image_timestamp(
     output_path : str or pathlib.Path
         Relative or absolute path of the output image.
     timestamp : str, datetime.datetime or pd.Timestamp
-    offset
-    direction
+        New timestamp to write to the image's metadata.
+    offset : pd.Offset
+        Offset to add to or subtract from the original image's timestamp.
+        This argument only has effect when no timestamp is specified
+    direction : str
+        Possible values are:
+
+            * 'forward': to add the offset to the original timestamp.
+            * 'backward': to subtract the offset from the original
+            timestamp.
+        This argument only has effect when an offset is specified.
 
     Returns
     -------
+    None
 
     """
     if not isinstance(image_path, pathlib.Path):
