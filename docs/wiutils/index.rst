@@ -1,6 +1,7 @@
 wiutils
 =======
 
+.. autofunction:: wiutils.change_image_timestamp
 .. autofunction:: wiutils.compute_deployment_count_summary
 .. autofunction:: wiutils.compute_detection_by_deployment
 .. autofunction:: wiutils.compute_detection_history
