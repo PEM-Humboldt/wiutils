@@ -5,7 +5,11 @@ from wiutils.filters import (
     remove_inconsistent_dates,
     remove_unidentified,
 )
-from wiutils.preprocessors import convert_video_to_images, reduce_image_size
+from wiutils.preprocessors import (
+    change_image_timestamp,
+    convert_video_to_images,
+    reduce_image_size,
+)
 from wiutils.transformers import (
     compute_deployment_count_summary,
     compute_detection_by_deployment,
