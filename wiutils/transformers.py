@@ -9,6 +9,7 @@ import pandas as pd
 from . import _dwc, _labels
 from ._helpers import _convert_to_datetime, _get_taxonomy_columns
 from .extractors import get_scientific_name as _get_scientific_name
+from .filters import remove_domestic as _remove_domestic
 from .filters import remove_duplicates as _remove_duplicates
 from .filters import remove_unidentified as _remove_unidentified
 
@@ -43,6 +44,8 @@ def _filter_images(
     remove_unidentified_kws: dict,
     remove_duplicates: bool,
     remove_duplicates_kws: dict,
+    remove_domestic: bool,
+    remove_domestic_kws: dict,
 ):
     """
     Optionally filters images by removing unidentified and/or duplicate
@@ -62,6 +65,12 @@ def _filter_images(
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
+    remove_domestic : bool
+        Whether to remove domestic species. Wrapper for the for the
+        wiutils.remove_domestic function.
+    remove_domestic_kws : dict
+        Keyword arguments for the wiutils.remove_domestic function.
+
 
     Returns
     -------
@@ -77,6 +86,10 @@ def _filter_images(
         if remove_duplicates_kws is None:
             remove_duplicates_kws = {}
         images = _remove_duplicates(images, **remove_duplicates_kws)
+    if remove_domestic:
+        if remove_domestic_kws is None:
+            remove_domestic_kws = {}
+        images = _remove_domestic(images, **remove_domestic_kws)
 
     return images
 
@@ -86,6 +99,8 @@ def compute_deployment_count_summary(
     species_col: str = "scientific_name",
     remove_unidentified_kws: dict = None,
     remove_duplicates_kws: dict = None,
+    remove_domestic: bool = False,
+    remove_domestic_kws: dict = None,
 ) -> pd.DataFrame:
     """
     Computes a summary of images, records and species count by deployment.
@@ -100,6 +115,11 @@ def compute_deployment_count_summary(
         Keyword arguments for the wiutils.remove_unidentified function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
+    remove_domestic : bool
+        Whether to remove domestic species. Wrapper for the for the
+        wiutils.remove_domestic function.
+    remove_domestic_kws : dict
+        Keyword arguments for the wiutils.remove_domestic function.
 
     Returns
     -------
@@ -113,6 +133,11 @@ def compute_deployment_count_summary(
         remove_unidentified_kws = {}
     if remove_duplicates_kws is None:
         remove_duplicates_kws = {}
+
+    if remove_domestic:
+        if remove_domestic_kws is None:
+            remove_domestic_kws = {}
+        df = _remove_domestic(images, **remove_domestic_kws)
 
     result = pd.DataFrame(index=sorted(df[_labels.site].unique()))
     result = result.join(df.groupby(_labels.site).size().rename("total_images"))
@@ -138,6 +163,8 @@ def compute_detection_by_deployment(
     remove_unidentified_kws: dict = None,
     remove_duplicates: bool = False,
     remove_duplicates_kws: dict = None,
+    remove_domestic: bool = False,
+    remove_domestic_kws: dict = None,
     pivot: bool = False,
 ):
     """
@@ -163,6 +190,11 @@ def compute_detection_by_deployment(
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
+    remove_domestic : bool
+        Whether to remove domestic species. Wrapper for the for the
+        wiutils.remove_domestic function.
+    remove_domestic_kws : dict
+        Keyword arguments for the wiutils.remove_domestic function.
     pivot : bool
         Whether to pivot (reshape from long to wide format) the resulting
         DataFrame.
@@ -180,6 +212,8 @@ def compute_detection_by_deployment(
         remove_unidentified_kws,
         remove_duplicates,
         remove_duplicates_kws,
+        remove_domestic,
+        remove_domestic_kws,
     )
 
     result = df.groupby([species_col, _labels.site]).size()
@@ -215,6 +249,8 @@ def compute_detection_history(
     remove_unidentified_kws: dict = None,
     remove_duplicates: bool = False,
     remove_duplicates_kws: dict = None,
+    remove_domestic: bool = False,
+    remove_domestic_kws: dict = None,
     pivot: bool = False,
 ) -> pd.DataFrame:
     """
@@ -250,6 +286,11 @@ def compute_detection_history(
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
+    remove_domestic : bool
+        Whether to remove domestic species. Wrapper for the for the
+        wiutils.remove_domestic function.
+    remove_domestic_kws : dict
+        Keyword arguments for the wiutils.remove_domestic function.
     pivot : bool
         Whether to pivot (reshape from long to wide format) the resulting
         DataFrame.
@@ -281,6 +322,8 @@ def compute_detection_history(
         remove_unidentified_kws,
         remove_duplicates,
         remove_duplicates_kws,
+        remove_domestic,
+        remove_domestic_kws,
     )
 
     freq = pd.Timedelta(days=days)
@@ -347,6 +390,8 @@ def compute_general_count(
     remove_unidentified_kws: dict = None,
     remove_duplicates: bool = False,
     remove_duplicates_kws: dict = None,
+    remove_domestic: bool = False,
+    remove_domestic_kws: dict = None,
 ):
     """
     Computes the general abundance and number of deployments for each
@@ -382,6 +427,11 @@ def compute_general_count(
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
+    remove_domestic : bool
+        Whether to remove domestic species. Wrapper for the for the
+        wiutils.remove_domestic function.
+    remove_domestic_kws : dict
+        Keyword arguments for the wiutils.remove_domestic function.
 
     Returns
     -------
@@ -396,6 +446,8 @@ def compute_general_count(
         remove_unidentified_kws,
         remove_duplicates,
         remove_duplicates_kws,
+        remove_domestic,
+        remove_domestic_kws,
     )
 
     result = df.groupby(species_col).agg({species_col: "size", _labels.site: "nunique"})
@@ -418,6 +470,8 @@ def compute_hill_numbers(
     remove_unidentified_kws: dict = None,
     remove_duplicates: bool = False,
     remove_duplicates_kws: dict = None,
+    remove_domestic: bool = False,
+    remove_domestic_kws: dict = None,
     pivot: bool = False,
 ) -> pd.DataFrame:
     """
@@ -442,6 +496,11 @@ def compute_hill_numbers(
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
+    remove_domestic : bool
+        Whether to remove domestic species. Wrapper for the for the
+        wiutils.remove_domestic function.
+    remove_domestic_kws : dict
+        Keyword arguments for the wiutils.remove_domestic function.
     pivot : bool
         Whether to pivot (reshape from long to wide format) the resulting
         DataFrame.
@@ -459,6 +518,8 @@ def compute_hill_numbers(
         remove_unidentified_kws,
         remove_duplicates,
         remove_duplicates_kws,
+        remove_domestic,
+        remove_domestic_kws,
     )
 
     if isinstance(q_values, int):
@@ -556,6 +617,8 @@ def create_dwc_records(
     remove_unidentified_kws: dict = None,
     remove_duplicates: bool = False,
     remove_duplicates_kws: dict = None,
+    remove_domestic: bool = False,
+    remove_domestic_kws: dict = None,
 ) -> pd.DataFrame:
     """
     Creates a records Darwin Core compliant table from Wildlife Insights
@@ -586,6 +649,11 @@ def create_dwc_records(
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
+    remove_domestic : bool
+        Whether to remove domestic species. Wrapper for the for the
+        wiutils.remove_domestic function.
+    remove_domestic_kws : dict
+        Keyword arguments for the wiutils.remove_domestic function.
 
     Returns
     -------
@@ -601,6 +669,8 @@ def create_dwc_records(
         remove_unidentified_kws,
         remove_duplicates,
         remove_duplicates_kws,
+        remove_domestic,
+        remove_domestic_kws,
     )
 
     result = pd.merge(

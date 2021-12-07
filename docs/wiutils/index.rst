@@ -13,6 +13,7 @@ wiutils
 .. autofunction:: wiutils.get_scientific_name
 .. autofunction:: wiutils.read_project
 .. autofunction:: wiutils.reduce_image_size
+.. autofunction:: wiutils.remove_domestic
 .. autofunction:: wiutils.remove_duplicates
 .. autofunction:: wiutils.remove_inconsistent_dates
 .. autofunction:: wiutils.remove_unidentified
