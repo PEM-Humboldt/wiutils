@@ -4,8 +4,38 @@ Functions to filter WI images based on different conditions.
 import numpy as np
 import pandas as pd
 
-from . import _labels
+from . import _domestic, _labels
 from ._helpers import _convert_to_datetime, _get_taxonomy_columns
+
+
+def remove_domestic(images: pd.DataFrame, reset_index: bool = True) -> pd.DataFrame:
+    """
+    Removes images where the identification corresponds to a domestic
+    species. See wiutils/_domestic for a list of the genera considered
+    as domestic.
+
+    Parameters
+    ----------
+    images : pd.DataFrame
+        DataFrame with the project's images.
+    reset_index : bool
+        Whether to reset the index of the resulting DataFrame. If True,
+        the index will be numeric from 0 to the length of the result.
+
+    Returns
+    -------
+    DataFrame
+        Copy of images with removed domestic species.
+
+    """
+    df = images.copy()
+
+    df = df[~df[_labels.genus].isin(_domestic.genera)]
+
+    if reset_index:
+        df = df.reset_index(drop=True)
+
+    return df
 
 
 def remove_duplicates(
@@ -23,7 +53,6 @@ def remove_duplicates(
     ----------
     images : pd.DataFrame
         DataFrame with the project's images.
-
     species_col : str
         Label of the scientific name column in the images DataFrame.
     interval : int
