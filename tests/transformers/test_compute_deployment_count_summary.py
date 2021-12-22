@@ -94,8 +94,40 @@ def test_defaults(images):
             "deployment_id": ["001", "002"],
             "total_images": [3, 5],
             "identified_images": [2, 4],
-            "independent_records": [2, 4],
+            "records": [2, 4],
             "species": [1, 3],
+        }
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+
+def test_add_records_by_class(images):
+    result = compute_deployment_count_summary(images, add_records_by_class=True)
+    expected = pd.DataFrame(
+        {
+            "deployment_id": ["001", "002"],
+            "total_images": [3, 5],
+            "identified_images": [2, 4],
+            "records": [2, 4],
+            "records_mammalia": [2, 1],
+            "records_aves": [0, 3],
+            "species": [1, 3],
+        }
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+
+def test_add_species_by_class(images):
+    result = compute_deployment_count_summary(images, add_species_by_class=True)
+    expected = pd.DataFrame(
+        {
+            "deployment_id": ["001", "002"],
+            "total_images": [3, 5],
+            "identified_images": [2, 4],
+            "records": [2, 4],
+            "species": [1, 3],
+            "species_mammalia": [1, 1],
+            "species_aves": [0, 2]
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -110,7 +142,7 @@ def test_remove_unidentified_kws(images):
             "deployment_id": ["001", "002"],
             "total_images": [3, 5],
             "identified_images": [2, 3],
-            "independent_records": [2, 3],
+            "records": [2, 3],
             "species": [1, 3],
         }
     )
@@ -126,7 +158,7 @@ def test_remove_duplicates_kws(images):
             "deployment_id": ["001", "002"],
             "total_images": [3, 5],
             "identified_images": [2, 4],
-            "independent_records": [1, 4],
+            "records": [1, 4],
             "species": [1, 3],
         }
     )
