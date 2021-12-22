@@ -56,17 +56,17 @@ def _filter_images(
     images : pd.DataFrame
         DataFrame with the project's images.
     remove_unidentified : bool
-        Whether to remove unidentified images. Wrapper for the for the
+        Whether to remove unidentified images. Wrapper for the
         wiutils.remove_unidentified function.
     remove_unidentified_kws : dict
         Keyword arguments for the wiutils.remove_unidentified function.
     remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the for the
+        Whether to remove duplicates. Wrapper for the
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
     remove_domestic : bool
-        Whether to remove domestic species. Wrapper for the for the
+        Whether to remove domestic species. Wrapper for the
         wiutils.remove_domestic function.
     remove_domestic_kws : dict
         Keyword arguments for the wiutils.remove_domestic function.
@@ -97,6 +97,8 @@ def _filter_images(
 def compute_deployment_count_summary(
     images: pd.DataFrame,
     species_col: str = "scientific_name",
+    add_records_by_class: bool = False,
+    add_species_by_class: bool = False,
     remove_unidentified_kws: dict = None,
     remove_duplicates_kws: dict = None,
     remove_domestic: bool = False,
@@ -111,12 +113,17 @@ def compute_deployment_count_summary(
         DataFrame with the project's images.
     species_col : str
         Label of the scientific name column in the images DataFrame.
+    add_records_by_class : bool
+        Whether to add number of independent records discriminated by
+        taxonomic class.
+    add_species_by_class : bool
+        Whether to add number of species discriminated by taxonomic class.
     remove_unidentified_kws : dict
         Keyword arguments for the wiutils.remove_unidentified function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
     remove_domestic : bool
-        Whether to remove domestic species. Wrapper for the for the
+        Whether to remove domestic species. Wrapper for the
         wiutils.remove_domestic function.
     remove_domestic_kws : dict
         Keyword arguments for the wiutils.remove_domestic function.
@@ -144,13 +151,32 @@ def compute_deployment_count_summary(
     df = _remove_unidentified(df, **remove_unidentified_kws)
     result = result.join(df.groupby(_labels.site).size().rename("identified_images"))
     df = _remove_duplicates(df, **remove_duplicates_kws)
-    result = result.join(df.groupby(_labels.site).size().rename("independent_records"))
+
+    result = result.join(df.groupby(_labels.site).size().rename("records"))
+    if add_records_by_class:
+        classes = df[_labels.class_].dropna().unique()
+        for class_ in classes:
+            subset = df[df[_labels.class_] == class_]
+            result = result.join(
+                subset.groupby(_labels.site).size().rename(f"records_{class_.lower()}")
+            )
+
     result = result.join(
         df.groupby(_labels.site)[species_col].nunique().rename("species")
     )
+    if add_species_by_class:
+        classes = df[_labels.class_].dropna().unique()
+        for class_ in classes:
+            subset = df[df[_labels.class_] == class_]
+            result = result.join(
+                subset.groupby(_labels.site)[species_col]
+                .nunique()
+                .rename(f"species_{class_.lower()}")
+            )
 
     result.index.name = _labels.site
     result = result.reset_index()
+    result.iloc[:, 1:] = result.iloc[:, 1:].fillna(0).astype(int)
 
     return result
 
@@ -181,17 +207,17 @@ def compute_detection_by_deployment(
         Whether to compute the abundance for each deployment. If False,
         returns presence/absence for the deployments.
     remove_unidentified : bool
-        Whether to remove unidentified images. Wrapper for the for the
+        Whether to remove unidentified images. Wrapper for the
         wiutils.remove_unidentified function.
     remove_unidentified_kws : dict
         Keyword arguments for the wiutils.remove_unidentified function.
     remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the for the
+        Whether to remove duplicates. Wrapper for the
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
     remove_domestic : bool
-        Whether to remove domestic species. Wrapper for the for the
+        Whether to remove domestic species. Wrapper for the
         wiutils.remove_domestic function.
     remove_domestic_kws : dict
         Keyword arguments for the wiutils.remove_domestic function.
@@ -277,17 +303,17 @@ def compute_detection_history(
         Whether to compute the abundance for each interval. If False,
         returns presence/absence for the intervals.
     remove_unidentified : bool
-        Whether to remove unidentified images. Wrapper for the for the
+        Whether to remove unidentified images. Wrapper for the
         wiutils.remove_unidentified function.
     remove_unidentified_kws : dict
         Keyword arguments for the wiutils.remove_unidentified function.
     remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the for the
+        Whether to remove duplicates. Wrapper for the
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
     remove_domestic : bool
-        Whether to remove domestic species. Wrapper for the for the
+        Whether to remove domestic species. Wrapper for the
         wiutils.remove_domestic function.
     remove_domestic_kws : dict
         Keyword arguments for the wiutils.remove_domestic function.
@@ -418,17 +444,17 @@ def compute_general_count(
         corresponding family (and therefore the inferior ranks - genus
         and epithet -) were not identified will be removed.
     remove_unidentified : bool
-        Whether to remove unidentified images. Wrapper for the for the
+        Whether to remove unidentified images. Wrapper for the
         wiutils.remove_unidentified function.
     remove_unidentified_kws : dict
         Keyword arguments for the wiutils.remove_unidentified function.
     remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the for the
+        Whether to remove duplicates. Wrapper for the
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
     remove_domestic : bool
-        Whether to remove domestic species. Wrapper for the for the
+        Whether to remove domestic species. Wrapper for the
         wiutils.remove_domestic function.
     remove_domestic_kws : dict
         Keyword arguments for the wiutils.remove_domestic function.
@@ -487,17 +513,17 @@ def compute_hill_numbers(
     q_values : int, list, tuple or array
         Value(s) of q to compute Hill numbers for.
     remove_unidentified : bool
-        Whether to remove unidentified images. Wrapper for the for the
+        Whether to remove unidentified images. Wrapper for the
         wiutils.remove_unidentified function.
     remove_unidentified_kws : dict
         Keyword arguments for the wiutils.remove_unidentified function.
     remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the for the
+        Whether to remove duplicates. Wrapper for the
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
     remove_domestic : bool
-        Whether to remove domestic species. Wrapper for the for the
+        Whether to remove domestic species. Wrapper for the
         wiutils.remove_domestic function.
     remove_domestic_kws : dict
         Keyword arguments for the wiutils.remove_domestic function.
@@ -640,17 +666,17 @@ def create_dwc_records(
         Keep in mind that regardless of the value, column names will be
         kept in english to comply with the Darwin Core standard.
     remove_unidentified : bool
-        Whether to remove unidentified images. Wrapper for the for the
+        Whether to remove unidentified images. Wrapper for the
         wiutils.remove_unidentified function.
     remove_unidentified_kws : dict
         Keyword arguments for the wiutils.remove_unidentified function.
     remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the for the
+        Whether to remove duplicates. Wrapper for the
         wiutils.remove_duplicates function.
     remove_duplicates_kws : dict
         Keyword arguments for the wiutils.remove_duplicates function.
     remove_domestic : bool
-        Whether to remove domestic species. Wrapper for the for the
+        Whether to remove domestic species. Wrapper for the
         wiutils.remove_domestic function.
     remove_domestic_kws : dict
         Keyword arguments for the wiutils.remove_domestic function.
