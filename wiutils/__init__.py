@@ -1,6 +1,7 @@
 from wiutils.readers import read_project
 from wiutils.extractors import get_scientific_name
 from wiutils.filters import (
+    remove_domestic,
     remove_duplicates,
     remove_inconsistent_dates,
     remove_unidentified,
