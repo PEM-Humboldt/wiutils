@@ -17,12 +17,18 @@ var/
 .installed.cfg
 *.egg
 
+# Coverage
+.coverage
+
 # Docs
 docs/_build/
-
-# Unit test reports
-.pytest_cache
 
 # Editor configuration
 .idea
 .vscode
+
+# Unit test reports
+.pytest_cache
+
+# Tox
+.tox
