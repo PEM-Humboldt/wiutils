@@ -92,7 +92,7 @@ def remove_duplicates(
         [_labels.site, species_col, _labels.date]
     )
     df = images_reference[mask]
-    df = df.append(images[images[species_col].isna()])
+    df = pd.concat([df, images[images[species_col].isna()]])
     df = df.sort_index()
 
     if reset_index:
