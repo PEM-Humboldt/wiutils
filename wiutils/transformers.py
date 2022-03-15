@@ -332,8 +332,9 @@ def compute_detection_history(
 
     df = _convert_to_datetime(df, _labels.date)
     df[_labels.date] = pd.to_datetime(df[_labels.date].dt.date)
+    deployments = _convert_to_datetime(deployments, [_labels.start, _labels.end])
     if date_range == "deployments":
-        deployments = _convert_to_datetime(deployments, [_labels.start, _labels.end])
+        # deployments = _convert_to_datetime(deployments, [_labels.start, _labels.end])
         start = deployments[_labels.start].min()
         end = deployments[_labels.end].max()
     elif date_range == "images":
