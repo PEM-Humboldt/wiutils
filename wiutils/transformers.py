@@ -565,6 +565,7 @@ def compute_hill_numbers(
             result = result.append(row, ignore_index=True)
 
     result["q"] = result["q"].astype(int)
+    result["D"] = result["D"].astype(float)
 
     if pivot:
         result["q"] = result["q"].astype(str)
