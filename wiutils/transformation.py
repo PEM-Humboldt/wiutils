@@ -6,8 +6,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from . import _dwc, _labels
-from ._helpers import _convert_to_datetime, _get_taxonomy_columns
+from . import _dwc, _labels, _utils
 from .extraction import get_scientific_name as _get_scientific_name
 from .filtering import remove_domestic as _remove_domestic
 from .filtering import remove_duplicates as _remove_duplicates
@@ -330,11 +329,11 @@ def compute_detection_history(
     df = images.copy()
     deployments = deployments.copy()
 
-    df = _convert_to_datetime(df, _labels.date)
+    df[_labels.date] = pd.to_datetime(df[_labels.date])
     df[_labels.date] = pd.to_datetime(df[_labels.date].dt.date)
-    deployments = _convert_to_datetime(deployments, [_labels.start, _labels.end])
+    deployments[_labels.start] = pd.to_datetime(deployments[_labels.start])
+    deployments[_labels.end] = pd.to_datetime(deployments[_labels.end])
     if date_range == "deployments":
-        # deployments = _convert_to_datetime(deployments, [_labels.start, _labels.end])
         start = deployments[_labels.start].min()
         end = deployments[_labels.end].max()
     elif date_range == "images":
@@ -482,7 +481,7 @@ def compute_general_count(
     result = result.reset_index()
 
     if add_taxonomy:
-        taxonomy_columns = _get_taxonomy_columns(rank)
+        taxonomy_columns = _utils.taxonomy.get_taxonomy_columns(rank)
         taxonomy = df[[species_col, *taxonomy_columns]].drop_duplicates(species_col)
         result = pd.merge(result, taxonomy, on=species_col, how="left")
 
@@ -626,11 +625,11 @@ def create_dwc_events(
     if language == "en":
         pass
     elif language == "es":
-        result = _dwc.utils.translate(result, language)
+        result = _utils.language.translate(result, language)
     else:
         raise ValueError("language must be one of ['en', 'es'].")
 
-    result = _dwc.utils.rearrange(result, _dwc.order.events)
+    result = _utils.data.rearrange(result, _dwc.order.events)
 
     return result
 
@@ -715,7 +714,7 @@ def create_dwc_records(
         result["infraspecificEpithet"] = epithets[1]
     else:
         result["infraspecificEpithet"] = np.nan
-    result["taxonRank"] = _dwc.utils.compute_taxonomic_rank(result)
+    result["taxonRank"] = _utils.taxonomy.compute_taxonomic_rank(result)
 
     result["eventDate"] = pd.to_datetime(result["timestamp"]).dt.strftime("%Y-%m-%d")
     result["eventTime"] = pd.to_datetime(result["timestamp"]).dt.strftime("%H:%M:%S")
@@ -738,10 +737,10 @@ def create_dwc_records(
     if language == "en":
         pass
     elif language == "es":
-        result = _dwc.utils.translate(result, language)
+        result = _utils.language.translate(result, language)
     else:
         raise ValueError("language must be one of ['en', 'es'].")
 
-    result = _dwc.utils.rearrange(result, _dwc.order.records)
+    result = _utils.data.rearrange(result, _dwc.order.records)
 
     return result

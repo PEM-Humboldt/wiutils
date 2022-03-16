@@ -1,44 +1,55 @@
 """
-Functions to convert data types.
+Taxonomy utilities.
 """
-from typing import Union
+from collections import OrderedDict
 
+import numpy as np
 import pandas as pd
 
-from . import _labels
+from .. import _labels
 
 
-def _convert_to_datetime(
-    df: pd.DataFrame, columns: Union[list, str, tuple]
-) -> pd.DataFrame:
+def compute_taxonomic_rank(df: pd.DataFrame) -> pd.Series:
     """
-    Converts specific columns of a DataFrame to datetime dtype (if they
-    are not datetime already).
+    Computes the taxonomic rank of the most specific identification for
+    each image.
 
     Parameters
     ----------
     df : pd.DataFrame
-        DataFrame to convert columns from.
-    columns : list, str or tuple
-        Column names to convert to datetime.
+        DataFrame with records.
 
     Returns
     -------
-    DataFrame
-        DataFrame with converted columns.
+    pd.Series
+        Series with the corresponding taxonomic ranks.
 
     """
-    if isinstance(columns, str):
-        columns = [columns]
+    rank_map = OrderedDict(
+        {
+            "kingdom": "kingdom",
+            "phylum": "phylum",
+            "class": "class",
+            "order": "order",
+            "family": "family",
+            "genus": "genus",
+            "species": "specificEpithet",
+            "subspecies": "infraspecificEpithet",
+        }
+    )
 
-    for column in columns:
-        if not pd.api.types.is_datetime64_any_dtype(df[column]):
-            df[column] = pd.to_datetime(df[column])
+    ranks = pd.Series(np.nan, index=df.index)
 
-    return df
+    for rank, column in reversed(rank_map.items()):
+        if column in df:
+            has_rank = ranks.notna()
+            has_identification = df[column].notna()
+            ranks.loc[(~has_rank & has_identification)] = rank
+
+    return ranks
 
 
-def _get_taxonomy_columns(rank: str) -> list:
+def get_taxonomy_columns(rank: str) -> list:
     """
     Gets a list of columns for a specific rank along with all the
     inferior taxonomic ranks.

@@ -4,8 +4,7 @@ Functions to filter WI images based on different conditions.
 import numpy as np
 import pandas as pd
 
-from . import _domestic, _labels
-from ._helpers import _convert_to_datetime, _get_taxonomy_columns
+from . import _domestic, _labels, _utils
 
 
 def remove_domestic(images: pd.DataFrame, reset_index: bool = True) -> pd.DataFrame:
@@ -81,7 +80,7 @@ def remove_duplicates(
         )
 
     df = images.copy()
-    df = _convert_to_datetime(df, _labels.date)
+    df[_labels.date] = pd.to_datetime(df[_labels.date])
 
     df = df.sort_values([_labels.site, species_col, _labels.date])
     delta = df.groupby([_labels.site, species_col])[_labels.date].diff()
@@ -127,8 +126,9 @@ def remove_inconsistent_dates(
     df = images.copy()
     deployments = deployments.copy()
 
-    df = _convert_to_datetime(df, _labels.date)
-    deployments = _convert_to_datetime(deployments, [_labels.start, _labels.end])
+    df[_labels.date] = pd.to_datetime(df[_labels.date])
+    deployments[_labels.start] = pd.to_datetime(deployments[_labels.start])
+    deployments[_labels.end] = pd.to_datetime(deployments[_labels.end])
 
     df[_labels.date] = pd.to_datetime(df[_labels.date].dt.date)
     df = pd.merge(
@@ -180,7 +180,7 @@ def remove_unidentified(
     """
     df = images.copy()
 
-    taxonomy_columns = _get_taxonomy_columns(rank)
+    taxonomy_columns = _utils.taxonomy.get_taxonomy_columns(rank)
     exclude = ["No CV Result", "Unknown"]
     df[taxonomy_columns] = df[taxonomy_columns].replace(exclude, np.nan)
     df = df.dropna(subset=taxonomy_columns, how="all")
