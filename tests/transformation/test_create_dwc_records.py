@@ -1,11 +1,11 @@
 """
-Test cases for the wiutils.transformers.create_dwc_records function.
+Test cases for the wiutils.transformation.create_dwc_records function.
 """
 import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.transformers import create_dwc_records
+from wiutils.transformation import create_dwc_records
 
 
 @pytest.fixture(scope="function")

@@ -1,11 +1,11 @@
 """
-Test cases for the wiutils.extractors.get_scientific_name function.
+Test cases for the wiutils.extraction.get_scientific_name function.
 """
 import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.extractors import get_scientific_name
+from wiutils.extraction import get_scientific_name
 
 
 @pytest.fixture(scope="module")

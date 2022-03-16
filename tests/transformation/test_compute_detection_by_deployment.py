@@ -1,10 +1,10 @@
 """
-Test cases for the wiutils.transformers.compute_detection_by_deployment function.
+Test cases for the wiutils.transformation.compute_detection_by_deployment function.
 """
 import pandas as pd
 import pytest
 
-from wiutils.transformers import compute_detection_by_deployment
+from wiutils.transformation import compute_detection_by_deployment
 
 
 @pytest.fixture(scope="function")

@@ -8,10 +8,10 @@ import pandas as pd
 
 from . import _dwc, _labels
 from ._helpers import _convert_to_datetime, _get_taxonomy_columns
-from .extractors import get_scientific_name as _get_scientific_name
-from .filters import remove_domestic as _remove_domestic
-from .filters import remove_duplicates as _remove_duplicates
-from .filters import remove_unidentified as _remove_unidentified
+from .extraction import get_scientific_name as _get_scientific_name
+from .filtering import remove_domestic as _remove_domestic
+from .filtering import remove_duplicates as _remove_duplicates
+from .filtering import remove_unidentified as _remove_unidentified
 
 
 def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> float:
@@ -48,7 +48,7 @@ def _filter_images(
     remove_domestic_kws: dict,
 ):
     """
-    Optionally filters images by removing unidentified and/or duplicate
+    Optionally filtering images by removing unidentified and/or duplicate
     records.
 
     Parameters
