@@ -1,11 +1,11 @@
 """
-Test cases for the wiutils.transformers.compute_deployment_count_summary function.
+Test cases for the wiutils.transformation.compute_deployment_count_summary function.
 """
 import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.transformers import compute_deployment_count_summary
+from wiutils.transformation import compute_deployment_count_summary
 
 
 @pytest.fixture(scope="function")

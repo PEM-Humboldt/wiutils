@@ -1,10 +1,10 @@
 """
-Test cases for the wiutils.filters.remove_inconsistent_dates function.
+Test cases for the wiutils.filtering.remove_inconsistent_dates function.
 """
 import pandas as pd
 import pytest
 
-from wiutils.filters import remove_inconsistent_dates
+from wiutils.filtering import remove_inconsistent_dates
 
 
 @pytest.fixture(scope="function")

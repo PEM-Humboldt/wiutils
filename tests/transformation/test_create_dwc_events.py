@@ -1,11 +1,11 @@
 """
-Test cases for the wiutils.transformers.create_dwc_events function.
+Test cases for the wiutils.transformation.create_dwc_events function.
 """
 import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.transformers import create_dwc_events
+from wiutils.transformation import create_dwc_events
 
 
 @pytest.fixture(scope="function")

@@ -1,17 +1,17 @@
-from wiutils.readers import read_project
-from wiutils.extractors import get_scientific_name
-from wiutils.filters import (
+from wiutils.extraction import get_scientific_name
+from wiutils.filtering import (
     remove_domestic,
     remove_duplicates,
     remove_inconsistent_dates,
     remove_unidentified,
 )
-from wiutils.preprocessors import (
+from wiutils.preprocessing import (
     change_image_timestamp,
     convert_video_to_images,
     reduce_image_size,
 )
-from wiutils.transformers import (
+from wiutils.reading import read_project
+from wiutils.transformation import (
     compute_deployment_count_summary,
     compute_detection_by_deployment,
     compute_detection_history,

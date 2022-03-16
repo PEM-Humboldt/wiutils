@@ -1,11 +1,11 @@
 """
-Test cases for the wiutils.filters.remove_domestic function.
+Test cases for the wiutils.filtering.remove_domestic function.
 """
 import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.filters import remove_domestic
+from wiutils.filtering import remove_domestic
 
 
 @pytest.fixture(scope="function")
