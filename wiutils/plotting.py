@@ -9,6 +9,7 @@ import seaborn as sns
 
 from . import _labels
 from .filtering import remove_duplicates as _remove_duplicates
+from .transformation import compute_detection_history
 
 
 def plot_activity_hours(
@@ -82,9 +83,10 @@ def plot_detection_history(
     images: pd.DataFrame,
     deployments: pd.DataFrame,
     name: str,
-    compute_abundance: bool = True,
-    remove_duplicates: bool = False,
-    remove_duplicates_kws: dict = None,
+    species_col: str = "scientific_name",
+    mask: bool = False,
+    compute_detection_history_kws: dict = None,
+    heatmap_kws: dict = None,
 ) -> matplotlib.axes.Axes:
     """
 
@@ -93,15 +95,33 @@ def plot_detection_history(
     images
     deployments
     name
-    compute_abundance
-    remove_duplicates
-    remove_duplicates_kws
+    species_col
+    mask
+    compute_detection_history_kws
+    heatmap_kws
 
     Returns
     -------
 
     """
-    pass
+    if compute_detection_history_kws is None:
+        compute_detection_history_kws = {}
+    if heatmap_kws is None:
+        heatmap_kws = {}
+
+    result = compute_detection_history(
+        images, deployments, species_col, pivot=True, **compute_detection_history_kws
+    )
+    result = result[result[species_col] == name]
+    result = result.drop(columns=species_col)
+    result = result.set_index(_labels.site)
+
+    if not mask:
+        result = result.fillna(0)
+
+    ax = sns.heatmap(data=result, **heatmap_kws)
+
+    return ax
 
 
 def plot_site_dates(deployments: pd.DataFrame, **kwargs) -> matplotlib.axes.Axes:
