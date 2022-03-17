@@ -3,6 +3,7 @@
 """
 from typing import Union
 
+import matplotlib
 import pandas as pd
 import seaborn as sns
 
@@ -19,7 +20,7 @@ def plot_activity_hours(
     kind: str = "kde",
     hist_kws: dict = None,
     kde_kws: dict = None,
-) -> None:
+) -> matplotlib.axes.Axes:
     """
 
     Parameters
@@ -73,5 +74,60 @@ def plot_activity_hours(
 
     ax.set_xlim(-1, 24)
     ax.set_xticks(range(0, 24, 2))
+
+    return ax
+
+
+def plot_detection_history(
+    images: pd.DataFrame,
+    deployments: pd.DataFrame,
+    name: str,
+    compute_abundance: bool = True,
+    remove_duplicates: bool = False,
+    remove_duplicates_kws: dict = None,
+) -> matplotlib.axes.Axes:
+    """
+
+    Parameters
+    ----------
+    images
+    deployments
+    name
+    compute_abundance
+    remove_duplicates
+    remove_duplicates_kws
+
+    Returns
+    -------
+
+    """
+    pass
+
+
+def plot_site_dates(deployments: pd.DataFrame, **kwargs) -> matplotlib.axes.Axes:
+    """
+
+    Parameters
+    ----------
+    deployments
+
+    Returns
+    -------
+
+    """
+    deployments = deployments.copy()
+
+    deployments[_labels.start] = pd.to_datetime(deployments[_labels.start])
+    deployments[_labels.end] = pd.to_datetime(deployments[_labels.end])
+
+    df = pd.melt(
+        deployments, id_vars=_labels.site, value_vars=[_labels.start, _labels.end]
+    )
+    df = df.rename(columns={"value": "date"})
+    df = df.sort_values("date")
+
+    ax = sns.lineplot(
+        data=df, x="date", y=_labels.site, units=_labels.site, estimator=None, **kwargs
+    )
 
     return ax
