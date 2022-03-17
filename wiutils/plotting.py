@@ -74,7 +74,7 @@ def plot_activity_hours(
         raise ValueError("kind must be one of ['hist', 'kde']")
 
     ax.set_xlim(-1, 24)
-    ax.set_xticks(range(0, 24, 2))
+    ax.set_xticks(range(0, 24, 2), labels=[f"{h:02}:00" for h in range(0, 24, 2)])
 
     return ax
 
