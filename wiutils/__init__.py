@@ -5,7 +5,7 @@ from wiutils.filtering import (
     remove_inconsistent_dates,
     remove_unidentified,
 )
-from wiutils.plotting import plot_activity_hours, plot_detection_history, plot_site_dates
+from wiutils.plotting import plot_activity_hours, plot_detection_history, plot_deployment_dates
 from wiutils.preprocessing import (
     change_image_timestamp,
     convert_video_to_images,
