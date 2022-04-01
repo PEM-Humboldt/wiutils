@@ -66,7 +66,7 @@ def plot_activity_hours(
             binwidth=1,
             binrange=(-0.5, 23.5),
             discrete=False,
-            **hist_kws
+            **hist_kws,
         )
     elif kind == "kde":
         ax = sns.kdeplot(data=images, x="hour", hue=species_col, **kde_kws)
@@ -124,7 +124,12 @@ def plot_detection_history(
     return ax
 
 
-def plot_site_dates(deployments: pd.DataFrame, **kwargs) -> matplotlib.axes.Axes:
+def plot_deployment_dates(
+    images: pd.DataFrame = None,
+    deployments: pd.DataFrame = None,
+    source="both",
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
 
     Parameters
@@ -135,19 +140,54 @@ def plot_site_dates(deployments: pd.DataFrame, **kwargs) -> matplotlib.axes.Axes
     -------
 
     """
-    deployments = deployments.copy()
+    df = pd.DataFrame()
 
-    deployments[_labels.start] = pd.to_datetime(deployments[_labels.start])
-    deployments[_labels.end] = pd.to_datetime(deployments[_labels.end])
+    if source == "images" or source == "both":
+        if images is None:
+            raise ValueError("images DataFrame must be provided.")
+        images = images.copy()
+        images[_labels.date] = pd.to_datetime(images[_labels.date])
+        dates = images.groupby(_labels.site)[_labels.date].agg(
+            start_date="min", end_date="max"
+        )
+        dates["source"] = "images"
+        df = pd.concat([df, dates.reset_index()], ignore_index=True)
+    elif source == "deployments" or source == "both":
+        if deployments is None:
+            raise ValueError("deployments DataFrame must be provided.")
+        deployments = deployments.copy()
+        deployments[_labels.start] = pd.to_datetime(deployments[_labels.start])
+        deployments[_labels.end] = pd.to_datetime(deployments[_labels.end])
+        dates = deployments.loc[:, [_labels.site, _labels.start, _labels.end]]
+        dates["source"] = "deployments"
+        df = pd.concat([df, dates], ignore_index=True)
+    else:
+        raise ValueError("source must be one of ['images', 'deployments', 'both']")
 
     df = pd.melt(
-        deployments, id_vars=_labels.site, value_vars=[_labels.start, _labels.end]
+        df, id_vars=[_labels.site, "source"], value_vars=[_labels.start, _labels.end]
     )
     df = df.rename(columns={"value": "date"})
     df = df.sort_values("date")
 
     ax = sns.lineplot(
-        data=df, x="date", y=_labels.site, units=_labels.site, estimator=None, **kwargs
+        data=df,
+        x="date",
+        y=_labels.site,
+        hue="source",
+        units=_labels.site,
+        estimator=None,
+        **kwargs,
     )
 
-    return ax
+    g = sns.relplot(
+        data=df,
+        x="date",
+        y=_labels.site,
+        row="source",
+        kind="line",
+        units=_labels.site,
+        estimator=None,
+    )
+
+    return g.axes
