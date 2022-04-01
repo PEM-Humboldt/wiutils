@@ -1,5 +1,5 @@
 """
-
+Functions to plot information from the images and deployments tables.
 """
 from typing import Union
 
