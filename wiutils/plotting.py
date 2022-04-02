@@ -65,6 +65,10 @@ def plot_activity_hours(
     if kde_kws is None:
         kde_kws = {}
 
+    inconsistent_names = set(names) - set(images[species_col])
+    if len(inconsistent_names):
+        raise ValueError(f"{list(inconsistent_names)} were not found in images.")
+
     images = images.copy()
 
     if remove_duplicates:
@@ -248,6 +252,9 @@ def plot_detection_history(
         compute_detection_history_kws = {}
     if heatmap_kws is None:
         heatmap_kws = {}
+
+    if name not in images[species_col].unique():
+        raise ValueError(f"{name} was not found in images.")
 
     result = compute_detection_history(
         images, deployments, species_col, pivot=True, **compute_detection_history_kws
