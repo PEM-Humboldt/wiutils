@@ -17,7 +17,7 @@ def _remove_wrapper(
     domestic_kws: dict = None,
 ):
     """
-    Wraps all the different filter functions into one convenient function.
+    Wraps some different filter functions into one convenient function.
 
     Parameters
     ----------
@@ -159,7 +159,7 @@ def remove_inconsistent_dates(
 ) -> pd.DataFrame:
     """
     Removes images where the timestamp is outside the date range of the
-    corresponding camera.
+    corresponding deployment.
 
     Parameters
     ----------
