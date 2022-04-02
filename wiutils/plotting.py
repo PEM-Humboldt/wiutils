@@ -9,7 +9,6 @@ import seaborn as sns
 
 from . import _labels
 from .filtering import _remove_wrapper
-from .filtering import remove_duplicates as _remove_duplicates
 from .transformation import compute_detection_history
 
 
@@ -43,8 +42,6 @@ def plot_activity_hours(
     if isinstance(names, str):
         names = [names]
 
-    if remove_duplicates_kws is None:
-        remove_duplicates_kws = {}
     if hist_kws is None:
         hist_kws = {}
     if kde_kws is None:
@@ -53,7 +50,9 @@ def plot_activity_hours(
     images = images.copy()
 
     if remove_duplicates:
-        images = _remove_duplicates(images, **remove_duplicates_kws)
+        images = _remove_wrapper(
+            images, duplicates=True, duplicates_kws=remove_duplicates_kws
+        )
 
     images = images[images[species_col].isin(names)]
     images[_labels.date] = pd.to_datetime(images[_labels.date])
@@ -138,22 +137,43 @@ def plot_deployment_dates(
     **kwargs,
 ) -> matplotlib.axes.Axes:
     """
+    Plots deployment date ranges.
 
     Parameters
     ----------
-    images
-    deployments
-    source
-    remove_unidentified
-    remove_unidentified_kws
-    remove_duplicates
-    remove_duplicates_kws
-    remove_domestic
-    remove_domestic_kws
+    images : DataFrame
+        DataFrame with the project's images.
+    deployments : DataFrame
+        DataFrame with the project's deployments.
+    source : bool
+        Source to plot date ranges from: Values can be:
+
+            - 'images' to plot date ranges from images (i.e. first image
+            to last image taken).
+            - 'deployments' to plot date ranges from deployments
+            information (i.e. start date and end date).
+            - 'both' to plot both sources in two different subplots.
+    remove_unidentified : bool
+        Whether to remove unidentified images. Wrapper for the
+        wiutils.remove_unidentified function.
+    remove_unidentified_kws : dict
+        Keyword arguments for the wiutils.remove_unidentified function.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
+    remove_domestic : bool
+        Whether to remove domestic species. Wrapper for the
+        wiutils.remove_domestic function.
+    remove_domestic_kws : dict
+        Keyword arguments for the wiutils.remove_domestic function.
     kwargs
 
     Returns
     -------
+    Axes
+        Plot axes.
 
     """
     df = pd.DataFrame()
