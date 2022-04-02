@@ -8,9 +8,7 @@ import pandas as pd
 
 from . import _dwc, _labels, _utils
 from .extraction import get_scientific_name as _get_scientific_name
-from .filtering import remove_domestic as _remove_domestic
-from .filtering import remove_duplicates as _remove_duplicates
-from .filtering import remove_unidentified as _remove_unidentified
+from .filtering import _remove_wrapper
 
 
 def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> float:
@@ -35,62 +33,6 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
         return np.exp(-np.sum(p * np.log(p)))
     else:
         return np.sum(p ** q) ** (1 / (1 - q))
-
-
-def _filter_images(
-    images: pd.DataFrame,
-    remove_unidentified: bool,
-    remove_unidentified_kws: dict,
-    remove_duplicates: bool,
-    remove_duplicates_kws: dict,
-    remove_domestic: bool,
-    remove_domestic_kws: dict,
-):
-    """
-    Optionally filtering images by removing unidentified and/or duplicate
-    records.
-
-    Parameters
-    ----------
-    images : pd.DataFrame
-        DataFrame with the project's images.
-    remove_unidentified : bool
-        Whether to remove unidentified images. Wrapper for the
-        wiutils.remove_unidentified function.
-    remove_unidentified_kws : dict
-        Keyword arguments for the wiutils.remove_unidentified function.
-    remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the
-        wiutils.remove_duplicates function.
-    remove_duplicates_kws : dict
-        Keyword arguments for the wiutils.remove_duplicates function.
-    remove_domestic : bool
-        Whether to remove domestic species. Wrapper for the
-        wiutils.remove_domestic function.
-    remove_domestic_kws : dict
-        Keyword arguments for the wiutils.remove_domestic function.
-
-
-    Returns
-    -------
-    pd.DataFrame
-        (Un)filtered images.
-
-    """
-    if remove_unidentified:
-        if remove_unidentified_kws is None:
-            remove_unidentified_kws = {}
-        images = _remove_unidentified(images, **remove_unidentified_kws)
-    if remove_duplicates:
-        if remove_duplicates_kws is None:
-            remove_duplicates_kws = {}
-        images = _remove_duplicates(images, **remove_duplicates_kws)
-    if remove_domestic:
-        if remove_domestic_kws is None:
-            remove_domestic_kws = {}
-        images = _remove_domestic(images, **remove_domestic_kws)
-
-    return images
 
 
 def compute_deployment_count_summary(
@@ -143,13 +85,13 @@ def compute_deployment_count_summary(
     if remove_domestic:
         if remove_domestic_kws is None:
             remove_domestic_kws = {}
-        df = _remove_domestic(images, **remove_domestic_kws)
+        df = _remove_wrapper(df, domestic=True, domestic_kws=remove_domestic_kws)
 
     result = pd.DataFrame(index=sorted(df[_labels.site].unique()))
     result = result.join(df.groupby(_labels.site).size().rename("total_images"))
-    df = _remove_unidentified(df, **remove_unidentified_kws)
+    df = _remove_wrapper(df, unidentified=True, unidentified_kws=remove_unidentified_kws)
     result = result.join(df.groupby(_labels.site).size().rename("identified_images"))
-    df = _remove_duplicates(df, **remove_duplicates_kws)
+    df = _remove_wrapper(df, duplicates=True, duplicates_kws=remove_duplicates_kws)
 
     result = result.join(df.groupby(_labels.site).size().rename("records"))
     if add_records_by_class:
@@ -231,7 +173,7 @@ def compute_detection_by_deployment(
 
     """
     df = images.copy()
-    df = _filter_images(
+    df = _remove_wrapper(
         df,
         remove_unidentified,
         remove_unidentified_kws,
@@ -342,7 +284,7 @@ def compute_detection_history(
     else:
         raise ValueError("date_range must be one of ['deployments', 'images'].")
 
-    df = _filter_images(
+    df = _remove_wrapper(
         df,
         remove_unidentified,
         remove_unidentified_kws,
@@ -466,7 +408,7 @@ def compute_general_count(
 
     """
     df = images.copy()
-    df = _filter_images(
+    df = _remove_wrapper(
         df,
         remove_unidentified,
         remove_unidentified_kws,
@@ -538,7 +480,7 @@ def compute_hill_numbers(
 
     """
     df = images.copy()
-    df = _filter_images(
+    df = _remove_wrapper(
         df,
         remove_unidentified,
         remove_unidentified_kws,
@@ -689,7 +631,7 @@ def create_dwc_records(
     """
     df = images.copy()
     df["scientific_name"] = _get_scientific_name(df, keep_genus=True, add_qualifier=True)
-    df = _filter_images(
+    df = _remove_wrapper(
         df,
         remove_unidentified,
         remove_unidentified_kws,

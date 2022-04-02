@@ -7,6 +7,60 @@ import pandas as pd
 from . import _domestic, _labels, _utils
 
 
+def _remove_wrapper(
+    images: pd.DataFrame,
+    unidentified: bool = False,
+    unidentified_kws: dict = None,
+    duplicates: bool = False,
+    duplicates_kws: dict = None,
+    domestic: bool = False,
+    domestic_kws: dict = None,
+):
+    """
+    Wraps all the different filter functions into one convenient function.
+
+    Parameters
+    ----------
+    images : pd.DataFrame
+        DataFrame with the project's images.
+    unidentified : bool
+        Whether to remove unidentified images. Wrapper for the
+        wiutils.remove_unidentified function.
+    unidentified_kws : dict
+        Keyword arguments for the wiutils.remove_unidentified function.
+    duplicates : bool
+        Whether to remove duplicates. Wrapper for the
+        wiutils.remove_duplicates function.
+    duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
+    domestic : bool
+        Whether to remove domestic species. Wrapper for the
+        wiutils.remove_domestic function.
+    domestic_kws : dict
+        Keyword arguments for the wiutils.remove_domestic function.
+
+    Returns
+    -------
+    DataFrame
+        (Un)filtered images.
+
+    """
+    if unidentified:
+        if unidentified_kws is None:
+            unidentified_kws = {}
+        images = remove_unidentified(images, **unidentified_kws)
+    if duplicates:
+        if duplicates_kws is None:
+            duplicates_kws = {}
+        images = remove_duplicates(images, **duplicates_kws)
+    if domestic:
+        if domestic_kws is None:
+            domestic_kws = {}
+        images = remove_domestic(images, **domestic_kws)
+
+    return images
+
+
 def remove_domestic(images: pd.DataFrame, reset_index: bool = True) -> pd.DataFrame:
     """
     Removes images where the identification corresponds to a domestic
