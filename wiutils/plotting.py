@@ -8,6 +8,7 @@ import pandas as pd
 import seaborn as sns
 
 from . import _labels
+from .filtering import _remove_wrapper
 from .filtering import remove_duplicates as _remove_duplicates
 from .transformation import compute_detection_history
 
@@ -128,13 +129,28 @@ def plot_deployment_dates(
     images: pd.DataFrame = None,
     deployments: pd.DataFrame = None,
     source="both",
+    remove_unidentified: bool = False,
+    remove_unidentified_kws: dict = None,
+    remove_duplicates: bool = False,
+    remove_duplicates_kws: dict = None,
+    remove_domestic: bool = False,
+    remove_domestic_kws: dict = None,
     **kwargs,
 ) -> matplotlib.axes.Axes:
     """
 
     Parameters
     ----------
+    images
     deployments
+    source
+    remove_unidentified
+    remove_unidentified_kws
+    remove_duplicates
+    remove_duplicates_kws
+    remove_domestic
+    remove_domestic_kws
+    kwargs
 
     Returns
     -------
@@ -146,6 +162,15 @@ def plot_deployment_dates(
         if images is None:
             raise ValueError("images DataFrame must be provided.")
         images = images.copy()
+        images = _remove_wrapper(
+            images,
+            remove_unidentified,
+            remove_unidentified_kws,
+            remove_duplicates,
+            remove_duplicates_kws,
+            remove_domestic,
+            remove_domestic_kws,
+        )
         images[_labels.date] = pd.to_datetime(images[_labels.date])
         dates = images.groupby(_labels.site)[_labels.date].agg(
             start_date="min", end_date="max"
@@ -170,16 +195,6 @@ def plot_deployment_dates(
     df = df.rename(columns={"value": "date"})
     df = df.sort_values("date")
 
-    ax = sns.lineplot(
-        data=df,
-        x="date",
-        y=_labels.site,
-        hue="source",
-        units=_labels.site,
-        estimator=None,
-        **kwargs,
-    )
-
     g = sns.relplot(
         data=df,
         x="date",
@@ -188,6 +203,7 @@ def plot_deployment_dates(
         kind="line",
         units=_labels.site,
         estimator=None,
+        **kwargs,
     )
 
     return g.axes
