@@ -72,9 +72,10 @@ def plot_activity_hours(
             images, duplicates=True, duplicates_kws=remove_duplicates_kws
         )
 
-    images = images[images[species_col].isin(names)]
+    images = images.loc[images[species_col].isin(names), :].reset_index(drop=True)
     images[_labels.date] = pd.to_datetime(images[_labels.date])
     images["hour"] = images[_labels.date].dt.round("H").dt.hour
+    images = images.drop(columns=_labels.date)
 
     if kind == "hist":
         ax = sns.histplot(
