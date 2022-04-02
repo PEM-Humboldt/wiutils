@@ -101,7 +101,7 @@ def plot_activity_hours(
 def plot_deployment_dates(
     images: pd.DataFrame = None,
     deployments: pd.DataFrame = None,
-    source="both",
+    source: str = "both",
     remove_unidentified: bool = False,
     remove_unidentified_kws: dict = None,
     remove_duplicates: bool = False,
@@ -166,12 +166,14 @@ def plot_deployment_dates(
             remove_domestic_kws,
         )
         images[_labels.date] = pd.to_datetime(images[_labels.date])
+        images[_labels.date] = pd.to_datetime(images[_labels.date].dt.date)
         dates = images.groupby(_labels.site)[_labels.date].agg(
             start_date="min", end_date="max"
         )
         dates["source"] = "images"
         df = pd.concat([df, dates.reset_index()], ignore_index=True)
-    elif source == "deployments" or source == "both":
+
+    if source == "deployments" or source == "both":
         if deployments is None:
             raise ValueError("deployments DataFrame must be provided.")
         deployments = deployments.copy()
@@ -180,14 +182,15 @@ def plot_deployment_dates(
         dates = deployments.loc[:, [_labels.site, _labels.start, _labels.end]]
         dates["source"] = "deployments"
         df = pd.concat([df, dates], ignore_index=True)
-    else:
+
+    if source not in ("images", "deployments", "both"):
         raise ValueError("source must be one of ['images', 'deployments', 'both']")
 
     df = pd.melt(
         df, id_vars=[_labels.site, "source"], value_vars=[_labels.start, _labels.end]
     )
     df = df.rename(columns={"value": "date"})
-    df = df.sort_values("date")
+    df = df.sort_values("date").reset_index(drop=True)
 
     g = sns.relplot(
         data=df,
