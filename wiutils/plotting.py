@@ -23,20 +23,38 @@ def plot_activity_hours(
     kde_kws: dict = None,
 ) -> matplotlib.axes.Axes:
     """
+    Plots the activity hours of one or multiple species by grouping all
+    observations into a 24-hour range.
 
     Parameters
     ----------
-    images
-    names
-    species_col
-    remove_duplicates
-    remove_duplicates_kws
-    kind
-    hist_kws
-    kde_kws
+    images : DataFrame
+        DataFrame with the project's images.
+    names : list, str or Series
+        List of names to plot activity hours for.
+    species_col : str
+        Label of the scientific name column in the images DataFrame.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
+    kind : str
+        Type of plot. Values can be:
+
+        - 'hist' for histogram.
+        - 'kde' for kernel density estimate plot.
+    hist_kws : dict
+        Keyword arguments passed to the seaborn.histplot() function. Only
+        has effect if kind is 'hist'.
+    kde_kws : dict
+        Keyword arguments passed to the seaborn.kde() function. Only
+        has effect if kind is 'kde'.
 
     Returns
     -------
+    Axes
+        Plot axes.
 
     """
     if isinstance(names, str):
@@ -89,19 +107,32 @@ def plot_detection_history(
     heatmap_kws: dict = None,
 ) -> matplotlib.axes.Axes:
     """
+    Plots detection history matrix for a given species.
 
     Parameters
     ----------
-    images
-    deployments
-    name
-    species_col
-    mask
-    compute_detection_history_kws
-    heatmap_kws
+    images : DataFrame
+        DataFrame with the project's images.
+    deployments : DataFrame
+        DataFrame with the project's deployments.
+    name : str
+        Scientific name of the species to plot the detection history for.
+    species_col : str
+        Label of the scientific name column in the images DataFrame.
+    mask : bool
+        Whether to mask cells where cameras were not functioning. If True,
+        those cells won't be displayed. Otherwise, they will be displayed
+        as zero.
+    compute_detection_history_kws : dict
+        Keyword arguments for the wiutils.compute_detection_history()
+        function.
+    heatmap_kws : dict
+        Keyword arguments for the seaborn.heatmap() function.
 
     Returns
     -------
+    Axes
+        Plot axes.
 
     """
     if compute_detection_history_kws is None:
