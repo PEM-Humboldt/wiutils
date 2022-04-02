@@ -111,7 +111,8 @@ def test_mask(images, deployments, mocker):
     pd.testing.assert_frame_equal(kwargs["data"], expected)
 
 
-def test_intact_input(images, deployments):
+def test_intact_input(images, deployments, mocker):
+    mocker.patch("seaborn.heatmap")
     images_original = images.copy()
     deployments_original = deployments.copy()
     plot_detection_history(
