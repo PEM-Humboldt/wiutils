@@ -98,64 +98,6 @@ def plot_activity_hours(
     return ax
 
 
-def plot_detection_history(
-    images: pd.DataFrame,
-    deployments: pd.DataFrame,
-    name: str,
-    species_col: str = "scientific_name",
-    mask: bool = False,
-    compute_detection_history_kws: dict = None,
-    heatmap_kws: dict = None,
-) -> matplotlib.axes.Axes:
-    """
-    Plots detection history matrix for a given species.
-
-    Parameters
-    ----------
-    images : DataFrame
-        DataFrame with the project's images.
-    deployments : DataFrame
-        DataFrame with the project's deployments.
-    name : str
-        Scientific name of the species to plot the detection history for.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
-    mask : bool
-        Whether to mask cells where cameras were not functioning. If True,
-        those cells won't be displayed. Otherwise, they will be displayed
-        as zero.
-    compute_detection_history_kws : dict
-        Keyword arguments for the wiutils.compute_detection_history()
-        function.
-    heatmap_kws : dict
-        Keyword arguments for the seaborn.heatmap() function.
-
-    Returns
-    -------
-    Axes
-        Plot axes.
-
-    """
-    if compute_detection_history_kws is None:
-        compute_detection_history_kws = {}
-    if heatmap_kws is None:
-        heatmap_kws = {}
-
-    result = compute_detection_history(
-        images, deployments, species_col, pivot=True, **compute_detection_history_kws
-    )
-    result = result[result[species_col] == name]
-    result = result.drop(columns=species_col)
-    result = result.set_index(_labels.site)
-
-    if not mask:
-        result = result.fillna(0)
-
-    ax = sns.heatmap(data=result, **heatmap_kws)
-
-    return ax
-
-
 def plot_deployment_dates(
     images: pd.DataFrame = None,
     deployments: pd.DataFrame = None,
@@ -259,3 +201,61 @@ def plot_deployment_dates(
     )
 
     return g.axes
+
+
+def plot_detection_history(
+    images: pd.DataFrame,
+    deployments: pd.DataFrame,
+    name: str,
+    species_col: str = "scientific_name",
+    mask: bool = False,
+    compute_detection_history_kws: dict = None,
+    heatmap_kws: dict = None,
+) -> matplotlib.axes.Axes:
+    """
+    Plots detection history matrix for a given species.
+
+    Parameters
+    ----------
+    images : DataFrame
+        DataFrame with the project's images.
+    deployments : DataFrame
+        DataFrame with the project's deployments.
+    name : str
+        Scientific name of the species to plot the detection history for.
+    species_col : str
+        Label of the scientific name column in the images DataFrame.
+    mask : bool
+        Whether to mask cells where cameras were not functioning. If True,
+        those cells won't be displayed. Otherwise, they will be displayed
+        as zero.
+    compute_detection_history_kws : dict
+        Keyword arguments for the wiutils.compute_detection_history()
+        function.
+    heatmap_kws : dict
+        Keyword arguments for the seaborn.heatmap() function.
+
+    Returns
+    -------
+    Axes
+        Plot axes.
+
+    """
+    if compute_detection_history_kws is None:
+        compute_detection_history_kws = {}
+    if heatmap_kws is None:
+        heatmap_kws = {}
+
+    result = compute_detection_history(
+        images, deployments, species_col, pivot=True, **compute_detection_history_kws
+    )
+    result = result[result[species_col] == name]
+    result = result.drop(columns=species_col)
+    result = result.set_index(_labels.site)
+
+    if not mask:
+        result = result.fillna(0)
+
+    ax = sns.heatmap(data=result, **heatmap_kws)
+
+    return ax
