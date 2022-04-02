@@ -102,3 +102,13 @@ def test_multiple_names(images, mocker):
     )
     args, kwargs = seaborn.histplot.call_args
     pd.testing.assert_frame_equal(kwargs["data"], expected)
+
+
+def test_invalid_kind(images):
+    with pytest.raises(ValueError):
+        plot_activity_hours(images, "Bradypus variegatus", kind="bar")
+
+
+def test_invalid_species(images):
+    with pytest.raises(ValueError):
+        plot_activity_hours(images, "Panthera onca", kind="hist")
