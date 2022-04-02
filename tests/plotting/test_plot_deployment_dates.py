@@ -185,6 +185,15 @@ def test_both(images, deployments, mocker):
     pd.testing.assert_frame_equal(kwargs["data"], expected)
 
 
+def test_intact_input(images, deployments, mocker):
+    mocker.patch("seaborn.relplot")
+    images_original = images.copy()
+    deployments_original = deployments.copy()
+    plot_deployment_dates(images=images, deployments=deployments, source="both")
+    pd.testing.assert_frame_equal(images_original, images)
+    pd.testing.assert_frame_equal(deployments_original, deployments)
+
+
 def test_invalid_source(images, deployments, mocker):
     mocker.patch("seaborn.relplot")
     with pytest.raises(ValueError):

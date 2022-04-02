@@ -104,6 +104,13 @@ def test_multiple_names(images, mocker):
     pd.testing.assert_frame_equal(kwargs["data"], expected)
 
 
+def test_intact_input(images, mocker):
+    mocker.patch("seaborn.histplot")
+    images_original = images.copy()
+    plot_activity_hours(images, "Tremarctos ornatus", kind="hist")
+    pd.testing.assert_frame_equal(images_original, images)
+
+
 def test_invalid_kind(images):
     with pytest.raises(ValueError):
         plot_activity_hours(images, "Bradypus variegatus", kind="bar")
