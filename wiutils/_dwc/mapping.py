@@ -3,7 +3,7 @@ Field mapping between Wildlife Insights and the Darwin Core standard.
 """
 events = {
     "deployment_id": "eventID",
-    "project_id": "parentEventID",
+    "placename": "parentEventID",
     "event_name": "eventRemarks",
     "feature_type": "locationRemarks",
     "latitude": "decimalLatitude",
