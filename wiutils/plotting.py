@@ -103,7 +103,7 @@ def plot_activity_hours(
     return ax
 
 
-def plot_deployment_dates(
+def plot_date_ranges(
     images: pd.DataFrame = None,
     deployments: pd.DataFrame = None,
     source: str = "both",

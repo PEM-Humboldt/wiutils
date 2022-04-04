@@ -1,11 +1,11 @@
 """
-Test cases for the wiutils.plotting.plot_deployment_dates function.
+Test cases for the wiutils.plotting.plot_date_ranges function.
 """
 import pandas as pd
 import pytest
 import seaborn
 
-from wiutils.plotting import plot_deployment_dates
+from wiutils.plotting import plot_date_ranges
 
 
 @pytest.fixture()
@@ -51,7 +51,7 @@ def deployments():
 
 def test_images(images, mocker):
     mocker.patch("seaborn.relplot")
-    plot_deployment_dates(images=images, source="images")
+    plot_date_ranges(images=images, source="images")
     expected = pd.DataFrame(
         {
             "deployment_id": ["002", "003", "001", "001", "003", "002"],
@@ -82,7 +82,7 @@ def test_images(images, mocker):
 
 def test_deployments(deployments, mocker):
     mocker.patch("seaborn.relplot")
-    plot_deployment_dates(deployments=deployments, source="deployments")
+    plot_date_ranges(deployments=deployments, source="deployments")
     expected = pd.DataFrame(
         {
             "deployment_id": ["002", "001", "003", "001", "003", "002"],
@@ -120,7 +120,7 @@ def test_deployments(deployments, mocker):
 
 def test_both(images, deployments, mocker):
     mocker.patch("seaborn.relplot")
-    plot_deployment_dates(images=images, deployments=deployments, source="both")
+    plot_date_ranges(images=images, deployments=deployments, source="both")
     expected = pd.DataFrame(
         {
             "deployment_id": [
@@ -189,7 +189,7 @@ def test_intact_input(images, deployments, mocker):
     mocker.patch("seaborn.relplot")
     images_original = images.copy()
     deployments_original = deployments.copy()
-    plot_deployment_dates(images=images, deployments=deployments, source="both")
+    plot_date_ranges(images=images, deployments=deployments, source="both")
     pd.testing.assert_frame_equal(images_original, images)
     pd.testing.assert_frame_equal(deployments_original, deployments)
 
@@ -197,16 +197,16 @@ def test_intact_input(images, deployments, mocker):
 def test_invalid_source(images, deployments, mocker):
     mocker.patch("seaborn.relplot")
     with pytest.raises(ValueError):
-        plot_deployment_dates(images=images, deployments=deployments, source="records")
+        plot_date_ranges(images=images, deployments=deployments, source="records")
 
 
 def test_no_images(deployments, mocker):
     mocker.patch("seaborn.relplot")
     with pytest.raises(ValueError):
-        plot_deployment_dates(deployments=deployments, source="both")
+        plot_date_ranges(deployments=deployments, source="both")
 
 
 def test_no_deployments(images, mocker):
     mocker.patch("seaborn.relplot")
     with pytest.raises(ValueError):
-        plot_deployment_dates(images=images, source="both")
+        plot_date_ranges(images=images, source="both")
