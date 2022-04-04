@@ -10,6 +10,7 @@ import seaborn as sns
 from . import _labels
 from .filtering import _remove_wrapper
 from .transformation import compute_detection_history
+from .verification import compute_date_ranges
 
 
 def plot_activity_hours(
@@ -106,12 +107,7 @@ def plot_deployment_dates(
     images: pd.DataFrame = None,
     deployments: pd.DataFrame = None,
     source: str = "both",
-    remove_unidentified: bool = False,
-    remove_unidentified_kws: dict = None,
-    remove_duplicates: bool = False,
-    remove_duplicates_kws: dict = None,
-    remove_domestic: bool = False,
-    remove_domestic_kws: dict = None,
+    compute_date_ranges_kws: dict = None,
     **kwargs,
 ) -> matplotlib.axes.Axes:
     """
@@ -131,21 +127,10 @@ def plot_deployment_dates(
             - 'deployments' to plot date ranges from deployments
             information (i.e. start date and end date).
             - 'both' to plot both sources in two different subplots.
-    remove_unidentified : bool
-        Whether to remove unidentified images. Wrapper for the
-        wiutils.remove_unidentified function.
-    remove_unidentified_kws : dict
-        Keyword arguments for the wiutils.remove_unidentified function.
-    remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the
-        wiutils.remove_duplicates function.
-    remove_duplicates_kws : dict
-        Keyword arguments for the wiutils.remove_duplicates function.
-    remove_domestic : bool
-        Whether to remove domestic species. Wrapper for the
-        wiutils.remove_domestic function.
-    remove_domestic_kws : dict
-        Keyword arguments for the wiutils.remove_domestic function.
+    compute_date_ranges_kws : dict
+        Keyword arguments passed to the wiutils.compute_date_ranges
+        function. Only keywords related to image filtering should be
+        passed.
     kwargs
 
     Returns
@@ -154,41 +139,17 @@ def plot_deployment_dates(
         Plot axes.
 
     """
-    df = pd.DataFrame()
+    if compute_date_ranges_kws is None:
+        compute_date_ranges_kws = {}
 
-    if source == "images" or source == "both":
-        if images is None:
-            raise ValueError("images DataFrame must be provided.")
-        images = images.copy()
-        images = _remove_wrapper(
-            images,
-            remove_unidentified,
-            remove_unidentified_kws,
-            remove_duplicates,
-            remove_duplicates_kws,
-            remove_domestic,
-            remove_domestic_kws,
-        )
-        images[_labels.date] = pd.to_datetime(images[_labels.date])
-        images[_labels.date] = pd.to_datetime(images[_labels.date].dt.date)
-        dates = images.groupby(_labels.site)[_labels.date].agg(
-            start_date="min", end_date="max"
-        )
-        dates["source"] = "images"
-        df = pd.concat([df, dates.reset_index()], ignore_index=True)
-
-    if source == "deployments" or source == "both":
-        if deployments is None:
-            raise ValueError("deployments DataFrame must be provided.")
-        deployments = deployments.copy()
-        deployments[_labels.start] = pd.to_datetime(deployments[_labels.start])
-        deployments[_labels.end] = pd.to_datetime(deployments[_labels.end])
-        dates = deployments.loc[:, [_labels.site, _labels.start, _labels.end]]
-        dates["source"] = "deployments"
-        df = pd.concat([df, dates], ignore_index=True)
-
-    if source not in ("images", "deployments", "both"):
-        raise ValueError("source must be one of ['images', 'deployments', 'both']")
+    df = compute_date_ranges(
+        images,
+        deployments,
+        source,
+        compute_delta=False,
+        pivot=False,
+        **compute_date_ranges_kws,
+    )
 
     df = pd.melt(
         df, id_vars=[_labels.site, "source"], value_vars=[_labels.start, _labels.end]

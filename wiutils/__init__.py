@@ -5,7 +5,11 @@ from wiutils.filtering import (
     remove_inconsistent_dates,
     remove_unidentified,
 )
-from wiutils.plotting import plot_activity_hours, plot_detection_history, plot_deployment_dates
+from wiutils.plotting import (
+    plot_activity_hours,
+    plot_detection_history,
+    plot_deployment_dates,
+)
 from wiutils.preprocessing import (
     change_image_timestamp,
     convert_video_to_images,
@@ -21,3 +25,4 @@ from wiutils.transformation import (
     create_dwc_events,
     create_dwc_records,
 )
+from wiutils.verification import compute_date_ranges
