@@ -11,7 +11,7 @@ events = {
 }
 
 records = {
-    "project_id": "parentEventID",
+    "placename": "parentEventID",
     "deployment_id": "eventID",
     "individual_animal_notes": "occurrenceRemarks",
     "image_id": "recordNumber",
