@@ -12,4 +12,5 @@ genera = [
     "Homo",
     "Meleagris",
     "Numida",
+    "Sus",
 ]
