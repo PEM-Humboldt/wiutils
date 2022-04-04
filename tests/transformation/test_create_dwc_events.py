@@ -12,7 +12,7 @@ from wiutils.transformation import create_dwc_events
 def deployments():
     return pd.DataFrame(
         {
-            "project_id": ["90210", "90210", "90210"],
+            "placename": ["90210", "90210", "90210"],
             "deployment_id": ["001", "002", "003"],
             "longitude": [-71.79161, -71.52733, -71.81543],
             "latitude": [3.71647, 3.82742, 3.90128],

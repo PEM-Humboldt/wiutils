@@ -12,7 +12,6 @@ from wiutils.transformation import create_dwc_records
 def images():
     return pd.DataFrame(
         {
-            "project_id": ["90210", "90210", "90210", "90210", "90210"],
             "deployment_id": ["001", "001", "001", "002", "001"],
             "image_id": ["bc6534f0", "003cb8eb", "a19bbd16", "740e09f5", "e09axa3q"],
             "filename": [
@@ -82,7 +81,7 @@ def images():
 def deployments():
     return pd.DataFrame(
         {
-            "project_id": ["90210", "90210"],
+            "placename": ["90210", "90210"],
             "deployment_id": ["001", "002"],
             "recorded_by": ["Joe Bloggs", np.nan],
         }

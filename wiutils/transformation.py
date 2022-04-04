@@ -641,9 +641,7 @@ def create_dwc_records(
         remove_domestic_kws,
     )
 
-    result = pd.merge(
-        df, deployments.drop(columns="project_id"), on="deployment_id", how="left"
-    )
+    result = pd.merge(df, deployments, on="deployment_id", how="left")
 
     remove_values = ["Blank", "No CV Result", "Unknown"]
     result = result.replace(remove_values, np.nan)
