@@ -35,8 +35,47 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
         return np.sum(p ** q) ** (1 / (1 - q))
 
 
-def compute_deployment_count_summary(
+def _process_groupby_arg(
+    images: pd.DataFrame, deployments: pd.DataFrame, groupby: str
+) -> tuple:
+    """
+
+    Parameters
+    ----------
+    images
+    deployments
+    groupby
+
+    Returns
+    -------
+
+    """
+    if groupby == "deployment":
+        groupby_label = _labels.images.deployment
+    elif groupby == "location":
+        groupby_label = _labels.deployments.location
+        if deployments is not None:
+            images = pd.merge(
+                images,
+                deployments[
+                    [_labels.deployments.deployment, _labels.deployments.location]
+                ],
+                left_on=_labels.images.deployment,
+                right_on=_labels.deployments.deployment,
+                how="left",
+            )
+        else:
+            raise ValueError("deployments must be passed if groupby is 'location'")
+    else:
+        raise ValueError("groupby must be one of ['deployment', 'location']")
+
+    return images, groupby_label
+
+
+def compute_count_summary(
     images: pd.DataFrame,
+    deployments: pd.DataFrame = None,
+    groupby: str = "deployment",
     species_col: str = "scientific_name",
     add_records_by_class: bool = False,
     add_species_by_class: bool = False,
@@ -52,6 +91,14 @@ def compute_deployment_count_summary(
     ----------
     images : pd.DataFrame
         DataFrame with the project's images.
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments. Must be passed only if
+        groupby is 'location'.
+    groupby : str
+        Level to group results by. Can be one of:
+
+            - 'deployment' to group by deployment (deployment_id)
+            - 'location' to group by location (placename)
     species_col : str
         Label of the scientific name column in the images DataFrame.
     add_records_by_class : bool
@@ -87,57 +134,52 @@ def compute_deployment_count_summary(
             remove_domestic_kws = {}
         images = _remove_wrapper(images, domestic=True, domestic_kws=remove_domestic_kws)
 
-    result = pd.DataFrame(index=sorted(images[_labels.images.deployment].unique()))
-    result = result.join(
-        images.groupby(_labels.images.deployment).size().rename("total_images")
-    )
+    images, groupby_label = _process_groupby_arg(images, deployments, groupby)
+    result = pd.DataFrame(index=sorted(images[groupby_label].unique()))
+    result = result.join(images.groupby(groupby_label).size().rename("total_images"))
     images = _remove_wrapper(
         images, unidentified=True, unidentified_kws=remove_unidentified_kws
     )
     result = result.join(
-        images.groupby(_labels.images.deployment).size().rename("identified_images")
+        images.groupby(groupby_label).size().rename("identified_images")
     )
     images = _remove_wrapper(
         images, duplicates=True, duplicates_kws=remove_duplicates_kws
     )
 
-    result = result.join(
-        images.groupby(_labels.images.deployment).size().rename("records")
-    )
+    result = result.join(images.groupby(groupby_label).size().rename("records"))
     if add_records_by_class:
         classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
             subset = images[images[_labels.images.class_] == class_]
             result = result.join(
-                subset.groupby(_labels.images.deployment)
-                .size()
-                .rename(f"records_{class_.lower()}")
+                subset.groupby(groupby_label).size().rename(f"records_{class_.lower()}")
             )
 
     result = result.join(
-        images.groupby(_labels.images.deployment)[species_col]
-        .nunique()
-        .rename("species")
+        images.groupby(groupby_label)[species_col].nunique().rename("species")
     )
     if add_species_by_class:
         classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
             subset = images[images[_labels.images.class_] == class_]
             result = result.join(
-                subset.groupby(_labels.images.deployment)[species_col]
+                subset.groupby(groupby_label)[species_col]
                 .nunique()
                 .rename(f"species_{class_.lower()}")
             )
 
-    result.index.name = _labels.images.deployment
+    result.index.name = groupby_label
     result = result.reset_index()
     result.iloc[:, 1:] = result.iloc[:, 1:].fillna(0).astype(int)
 
     return result
 
 
-def compute_detection_by_deployment(
+def compute_detection(
     images: pd.DataFrame,
+    deployments: pd.DataFrame = None,
+    groupby: str = "deployment",
     species_col: str = "scientific_name",
     compute_abundance: bool = True,
     remove_unidentified: bool = False,
@@ -156,6 +198,14 @@ def compute_detection_by_deployment(
     ----------
     images : pd.DataFrame
         DataFrame with the project's images.
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments. Must be passed only if
+        groupby is 'location'.
+    groupby : str
+        Level to group results by. Can be one of:
+
+            - 'deployment' to group by deployment (deployment_id)
+            - 'location' to group by location (placename)
     species_col : str
         Label of the scientific name column in the images DataFrame.
     compute_abundance : bool
@@ -197,12 +247,12 @@ def compute_detection_by_deployment(
         remove_domestic_kws,
     )
 
-    result = images.groupby([species_col, _labels.images.deployment]).size()
-
+    images, groupby_label = _process_groupby_arg(images, deployments, groupby)
+    result = images.groupby([species_col, groupby_label]).size()
     species = images[species_col].unique()
-    sites = images[_labels.images.deployment].unique()
+    sites = images[groupby_label].unique()
     idx = pd.MultiIndex.from_product(
-        [species, sites], names=[species_col, _labels.images.deployment]
+        [species, sites], names=[species_col, groupby_label]
     )
     result = result.reindex(idx, fill_value=0)
     result.name = "value"
@@ -213,12 +263,12 @@ def compute_detection_by_deployment(
         result.loc[has_observations, "value"] = 1
 
     result = result.sort_values(
-        [species_col, _labels.images.deployment], ignore_index=True
+        [species_col, groupby_label], ignore_index=True
     )
 
     if pivot:
         result = result.pivot(
-            index=species_col, columns=_labels.images.deployment, values="value"
+            index=species_col, columns=groupby_label, values="value"
         )
         result = result.rename_axis(None, axis=1).reset_index()
 
