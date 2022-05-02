@@ -38,19 +38,25 @@ def get_scientific_name(
     names = pd.Series(np.nan, index=np.arange(len(images)), dtype=str)
 
     exclude = ["No CV Result", "Unknown"]
-    has_genus = ~images[_labels.genus].isin(exclude) & images[_labels.genus].notna()
+    has_genus = (
+        ~images[_labels.images.genus].isin(exclude)
+        & images[_labels.images.genus].notna()
+    )
     has_epithet = (
-        ~images[_labels.epithet].isin(exclude) & images[_labels.epithet].notna()
+        ~images[_labels.images.epithet].isin(exclude)
+        & images[_labels.images.epithet].notna()
     )
 
     mask = has_genus & has_epithet
     names.loc[mask] = (
-        images.loc[mask, _labels.genus] + " " + images.loc[mask, _labels.epithet]
+        images.loc[mask, _labels.images.genus]
+        + " "
+        + images.loc[mask, _labels.images.epithet]
     )
 
     if keep_genus:
         mask = has_genus & ~has_epithet
-        names.loc[mask] = images.loc[mask, _labels.genus]
+        names.loc[mask] = images.loc[mask, _labels.images.genus]
         if add_qualifier:
             names.loc[mask] += " sp."
 
