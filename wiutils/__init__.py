@@ -17,8 +17,8 @@ from wiutils.preprocessing import (
 )
 from wiutils.reading import read_project
 from wiutils.transformation import (
-    compute_deployment_count_summary,
-    compute_detection_by_deployment,
+    compute_count_summary,
+    compute_detection,
     compute_detection_history,
     compute_general_count,
     compute_hill_numbers,

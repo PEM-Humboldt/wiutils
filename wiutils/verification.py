@@ -79,9 +79,9 @@ def compute_date_ranges(
             remove_domestic,
             remove_domestic_kws,
         )
-        images[_labels.date] = pd.to_datetime(images[_labels.date])
-        images[_labels.date] = pd.to_datetime(images[_labels.date].dt.date)
-        dates = images.groupby(_labels.site)[_labels.date].agg(
+        images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
+        images[_labels.images.date] = pd.to_datetime(images[_labels.images.date].dt.date)
+        dates = images.groupby(_labels.images.deployment)[_labels.images.date].agg(
             start_date="min", end_date="max"
         )
         dates["source"] = "images"
@@ -91,9 +91,20 @@ def compute_date_ranges(
         if deployments is None:
             raise ValueError("deployments DataFrame must be provided.")
         deployments = deployments.copy()
-        deployments[_labels.start] = pd.to_datetime(deployments[_labels.start])
-        deployments[_labels.end] = pd.to_datetime(deployments[_labels.end])
-        dates = deployments.loc[:, [_labels.site, _labels.start, _labels.end]]
+        deployments[_labels.deployments.start] = pd.to_datetime(
+            deployments[_labels.deployments.start]
+        )
+        deployments[_labels.deployments.end] = pd.to_datetime(
+            deployments[_labels.deployments.end]
+        )
+        dates = deployments.loc[
+            :,
+            [
+                _labels.deployments.deployment,
+                _labels.deployments.start,
+                _labels.deployments.end,
+            ],
+        ]
         dates["source"] = "deployments"
         df = pd.concat([df, dates], ignore_index=True)
 

@@ -81,14 +81,13 @@ def remove_domestic(images: pd.DataFrame, reset_index: bool = True) -> pd.DataFr
         Copy of images with removed domestic species.
 
     """
-    df = images.copy()
-
-    df = df[~df[_labels.genus].isin(_domestic.genera)]
+    images = images.copy()
+    images = images[~images[_labels.images.genus].isin(_domestic.genera)]
 
     if reset_index:
-        df = df.reset_index(drop=True)
+        images = images.reset_index(drop=True)
 
-    return df
+    return images
 
 
 def remove_duplicates(
@@ -134,15 +133,17 @@ def remove_duplicates(
         )
 
     df = images.copy()
-    df[_labels.date] = pd.to_datetime(df[_labels.date])
+    df[_labels.images.date] = pd.to_datetime(df[_labels.images.date])
 
-    df = df.sort_values([_labels.site, species_col, _labels.date])
-    delta = df.groupby([_labels.site, species_col])[_labels.date].diff()
+    df = df.sort_values([_labels.images.deployment, species_col, _labels.images.date])
+    delta = df.groupby([_labels.images.deployment, species_col])[
+        _labels.images.date
+    ].diff()
     mask = (delta >= pd.Timedelta(**{unit: interval})) | (delta.isna())
 
     images_reference = images.dropna(subset=[species_col])
     images_reference = images_reference.sort_values(
-        [_labels.site, species_col, _labels.date]
+        [_labels.images.deployment, species_col, _labels.images.date]
     )
     df = images_reference.loc[mask]
     df = pd.concat([df, images[images[species_col].isna()]])
@@ -180,18 +181,30 @@ def remove_inconsistent_dates(
     df = images.copy()
     deployments = deployments.copy()
 
-    df[_labels.date] = pd.to_datetime(df[_labels.date])
-    deployments[_labels.start] = pd.to_datetime(deployments[_labels.start])
-    deployments[_labels.end] = pd.to_datetime(deployments[_labels.end])
+    df[_labels.images.date] = pd.to_datetime(df[_labels.images.date])
+    deployments[_labels.deployments.start] = pd.to_datetime(
+        deployments[_labels.deployments.start]
+    )
+    deployments[_labels.deployments.end] = pd.to_datetime(
+        deployments[_labels.deployments.end]
+    )
 
-    df[_labels.date] = pd.to_datetime(df[_labels.date].dt.date)
+    df[_labels.images.date] = pd.to_datetime(df[_labels.images.date].dt.date)
     df = pd.merge(
         df,
-        deployments[[_labels.site, _labels.start, _labels.end]],
-        on=_labels.site,
+        deployments[
+            [
+                _labels.deployments.deployment,
+                _labels.deployments.start,
+                _labels.deployments.end,
+            ]
+        ],
+        on=_labels.images.deployment,
         how="left",
     )
-    df["__is_between"] = df[_labels.date].between(df[_labels.start], df[_labels.end])
+    df["__is_between"] = df[_labels.images.date].between(
+        df[_labels.deployments.start], df[_labels.deployments.end]
+    )
     df = images[df["__is_between"]]
 
     if reset_index:
@@ -232,14 +245,14 @@ def remove_unidentified(
         Images DataFrame with removed unidentified images.
 
     """
-    df = images.copy()
+    images = images.copy()
 
     taxonomy_columns = _utils.taxonomy.get_taxonomy_columns(rank)
     exclude = ["No CV Result", "Unknown"]
-    df[taxonomy_columns] = df[taxonomy_columns].replace(exclude, np.nan)
-    df = df.dropna(subset=taxonomy_columns, how="all")
+    images[taxonomy_columns] = images[taxonomy_columns].replace(exclude, np.nan)
+    images = images.dropna(subset=taxonomy_columns, how="all")
 
     if reset_index:
-        df = df.reset_index(drop=True)
+        images = images.reset_index(drop=True)
 
-    return df
+    return images

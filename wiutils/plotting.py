@@ -78,9 +78,9 @@ def plot_activity_hours(
         )
 
     images = images.loc[images[species_col].isin(names), :].reset_index(drop=True)
-    images[_labels.date] = pd.to_datetime(images[_labels.date])
-    images["hour"] = images[_labels.date].dt.round("H").dt.hour
-    images = images.drop(columns=_labels.date)
+    images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
+    images["hour"] = images[_labels.images.date].dt.round("H").dt.hour
+    images = images.drop(columns=_labels.images.date)
 
     if kind == "hist":
         ax = sns.histplot(
@@ -152,7 +152,9 @@ def plot_date_ranges(
     )
 
     df = pd.melt(
-        df, id_vars=[_labels.site, "source"], value_vars=[_labels.start, _labels.end]
+        df,
+        id_vars=[_labels.deployments.deployment, "source"],
+        value_vars=[_labels.deployments.start, _labels.deployments.end],
     )
     df = df.rename(columns={"value": "date"})
     df = df.sort_values("date").reset_index(drop=True)
@@ -160,10 +162,10 @@ def plot_date_ranges(
     g = sns.relplot(
         data=df,
         x="date",
-        y=_labels.site,
+        y=_labels.deployments.deployment,
         row="source",
         kind="line",
-        units=_labels.site,
+        units=_labels.deployments.deployment,
         estimator=None,
         **kwargs,
     )
@@ -222,7 +224,7 @@ def plot_detection_history(
     )
     result = result[result[species_col] == name]
     result = result.drop(columns=species_col)
-    result = result.set_index(_labels.site)
+    result = result.set_index(_labels.images.deployment)
 
     if not mask:
         result = result.fillna(0)

@@ -65,25 +65,29 @@ def get_taxonomy_columns(rank: str) -> list:
         List with columns names for the taxonomic ranks.
     """
     if rank == "epithet":
-        taxonomy_columns = [_labels.epithet]
+        taxonomy_columns = [_labels.images.epithet]
     elif rank == "genus":
-        taxonomy_columns = [_labels.genus, _labels.epithet]
+        taxonomy_columns = [_labels.images.genus, _labels.images.epithet]
     elif rank == "family":
-        taxonomy_columns = [_labels.family, _labels.genus, _labels.epithet]
+        taxonomy_columns = [
+            _labels.images.family,
+            _labels.images.genus,
+            _labels.images.epithet,
+        ]
     elif rank == "order":
         taxonomy_columns = [
-            _labels.order,
-            _labels.family,
-            _labels.genus,
-            _labels.epithet,
+            _labels.images.order,
+            _labels.images.family,
+            _labels.images.genus,
+            _labels.images.epithet,
         ]
     elif rank == "class":
         taxonomy_columns = [
-            _labels.class_,
-            _labels.order,
-            _labels.family,
-            _labels.genus,
-            _labels.epithet,
+            _labels.images.class_,
+            _labels.images.order,
+            _labels.images.family,
+            _labels.images.genus,
+            _labels.images.epithet,
         ]
     else:
         raise ValueError(

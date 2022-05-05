@@ -35,8 +35,47 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
         return np.sum(p ** q) ** (1 / (1 - q))
 
 
-def compute_deployment_count_summary(
+def _process_groupby_arg(
+    images: pd.DataFrame, deployments: pd.DataFrame, groupby: str
+) -> tuple:
+    """
+
+    Parameters
+    ----------
+    images
+    deployments
+    groupby
+
+    Returns
+    -------
+
+    """
+    if groupby == "deployment":
+        groupby_label = _labels.images.deployment
+    elif groupby == "location":
+        groupby_label = _labels.deployments.location
+        if deployments is not None:
+            images = pd.merge(
+                images,
+                deployments[
+                    [_labels.deployments.deployment, _labels.deployments.location]
+                ],
+                left_on=_labels.images.deployment,
+                right_on=_labels.deployments.deployment,
+                how="left",
+            )
+        else:
+            raise ValueError("deployments must be passed if groupby is 'location'")
+    else:
+        raise ValueError("groupby must be one of ['deployment', 'location']")
+
+    return images, groupby_label
+
+
+def compute_count_summary(
     images: pd.DataFrame,
+    deployments: pd.DataFrame = None,
+    groupby: str = "deployment",
     species_col: str = "scientific_name",
     add_records_by_class: bool = False,
     add_species_by_class: bool = False,
@@ -52,6 +91,14 @@ def compute_deployment_count_summary(
     ----------
     images : pd.DataFrame
         DataFrame with the project's images.
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments. Must be passed only if
+        groupby is 'location'.
+    groupby : str
+        Level to group results by. Can be one of:
+
+            - 'deployment' to group by deployment (deployment_id)
+            - 'location' to group by location (placename)
     species_col : str
         Label of the scientific name column in the images DataFrame.
     add_records_by_class : bool
@@ -75,7 +122,7 @@ def compute_deployment_count_summary(
         Summary of images, records and species count by deployment.
 
     """
-    df = images.copy()
+    images = images.copy()
 
     if remove_unidentified_kws is None:
         remove_unidentified_kws = {}
@@ -85,45 +132,54 @@ def compute_deployment_count_summary(
     if remove_domestic:
         if remove_domestic_kws is None:
             remove_domestic_kws = {}
-        df = _remove_wrapper(df, domestic=True, domestic_kws=remove_domestic_kws)
+        images = _remove_wrapper(images, domestic=True, domestic_kws=remove_domestic_kws)
 
-    result = pd.DataFrame(index=sorted(df[_labels.site].unique()))
-    result = result.join(df.groupby(_labels.site).size().rename("total_images"))
-    df = _remove_wrapper(df, unidentified=True, unidentified_kws=remove_unidentified_kws)
-    result = result.join(df.groupby(_labels.site).size().rename("identified_images"))
-    df = _remove_wrapper(df, duplicates=True, duplicates_kws=remove_duplicates_kws)
+    images, groupby_label = _process_groupby_arg(images, deployments, groupby)
+    result = pd.DataFrame(index=sorted(images[groupby_label].unique()))
+    result = result.join(images.groupby(groupby_label).size().rename("total_images"))
+    images = _remove_wrapper(
+        images, unidentified=True, unidentified_kws=remove_unidentified_kws
+    )
+    result = result.join(
+        images.groupby(groupby_label).size().rename("identified_images")
+    )
+    images = _remove_wrapper(
+        images, duplicates=True, duplicates_kws=remove_duplicates_kws
+    )
 
-    result = result.join(df.groupby(_labels.site).size().rename("records"))
+    result = result.join(images.groupby(groupby_label).size().rename("records"))
     if add_records_by_class:
-        classes = df[_labels.class_].dropna().unique()
+        classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
-            subset = df[df[_labels.class_] == class_]
+            subset = images[images[_labels.images.class_] == class_]
             result = result.join(
-                subset.groupby(_labels.site).size().rename(f"records_{class_.lower()}")
+                subset.groupby(groupby_label).size().rename(f"records_{class_.lower()}")
             )
 
     result = result.join(
-        df.groupby(_labels.site)[species_col].nunique().rename("species")
+        images.groupby(groupby_label)[species_col].nunique().rename("species")
     )
     if add_species_by_class:
-        classes = df[_labels.class_].dropna().unique()
+        classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
-            subset = df[df[_labels.class_] == class_]
+            subset = images[images[_labels.images.class_] == class_]
             result = result.join(
-                subset.groupby(_labels.site)[species_col]
+                subset.groupby(groupby_label)[species_col]
                 .nunique()
                 .rename(f"species_{class_.lower()}")
             )
 
-    result.index.name = _labels.site
+    result.index.name = groupby_label
     result = result.reset_index()
     result.iloc[:, 1:] = result.iloc[:, 1:].fillna(0).astype(int)
 
     return result
 
 
-def compute_detection_by_deployment(
+def compute_detection(
     images: pd.DataFrame,
+    deployments: pd.DataFrame = None,
+    groupby: str = "deployment",
     species_col: str = "scientific_name",
     compute_abundance: bool = True,
     remove_unidentified: bool = False,
@@ -142,6 +198,14 @@ def compute_detection_by_deployment(
     ----------
     images : pd.DataFrame
         DataFrame with the project's images.
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments. Must be passed only if
+        groupby is 'location'.
+    groupby : str
+        Level to group results by. Can be one of:
+
+            - 'deployment' to group by deployment (deployment_id)
+            - 'location' to group by location (placename)
     species_col : str
         Label of the scientific name column in the images DataFrame.
     compute_abundance : bool
@@ -172,9 +236,9 @@ def compute_detection_by_deployment(
         DataFrame with the detection of each species by deployment.
 
     """
-    df = images.copy()
-    df = _remove_wrapper(
-        df,
+    images = images.copy()
+    images = _remove_wrapper(
+        images,
         remove_unidentified,
         remove_unidentified_kws,
         remove_duplicates,
@@ -183,11 +247,13 @@ def compute_detection_by_deployment(
         remove_domestic_kws,
     )
 
-    result = df.groupby([species_col, _labels.site]).size()
-
-    species = df[species_col].unique()
-    sites = df[_labels.site].unique()
-    idx = pd.MultiIndex.from_product([species, sites], names=[species_col, _labels.site])
+    images, groupby_label = _process_groupby_arg(images, deployments, groupby)
+    result = images.groupby([species_col, groupby_label]).size()
+    species = images[species_col].unique()
+    sites = images[groupby_label].unique()
+    idx = pd.MultiIndex.from_product(
+        [species, sites], names=[species_col, groupby_label]
+    )
     result = result.reindex(idx, fill_value=0)
     result.name = "value"
     result = result.reset_index()
@@ -196,10 +262,10 @@ def compute_detection_by_deployment(
         has_observations = result["value"] > 0
         result.loc[has_observations, "value"] = 1
 
-    result = result.sort_values([species_col, _labels.site], ignore_index=True)
+    result = result.sort_values([species_col, groupby_label], ignore_index=True)
 
     if pivot:
-        result = result.pivot(index=species_col, columns=_labels.site, values="value")
+        result = result.pivot(index=species_col, columns=groupby_label, values="value")
         result = result.rename_axis(None, axis=1).reset_index()
 
     return result
@@ -268,24 +334,28 @@ def compute_detection_history(
         Detection history.
 
     """
-    df = images.copy()
+    images = images.copy()
     deployments = deployments.copy()
 
-    df[_labels.date] = pd.to_datetime(df[_labels.date])
-    df[_labels.date] = pd.to_datetime(df[_labels.date].dt.date)
-    deployments[_labels.start] = pd.to_datetime(deployments[_labels.start])
-    deployments[_labels.end] = pd.to_datetime(deployments[_labels.end])
+    images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
+    images[_labels.images.date] = pd.to_datetime(images[_labels.images.date].dt.date)
+    deployments[_labels.deployments.start] = pd.to_datetime(
+        deployments[_labels.deployments.start]
+    )
+    deployments[_labels.deployments.end] = pd.to_datetime(
+        deployments[_labels.deployments.end]
+    )
     if date_range == "deployments":
-        start = deployments[_labels.start].min()
-        end = deployments[_labels.end].max()
+        start = deployments[_labels.deployments.start].min()
+        end = deployments[_labels.deployments.end].max()
     elif date_range == "images":
-        start = df[_labels.date].min()
-        end = df[_labels.date].max()
+        start = images[_labels.images.date].min()
+        end = images[_labels.images.date].max()
     else:
         raise ValueError("date_range must be one of ['deployments', 'images'].")
 
-    df = _remove_wrapper(
-        df,
+    images = _remove_wrapper(
+        images,
         remove_unidentified,
         remove_unidentified_kws,
         remove_duplicates,
@@ -297,19 +367,20 @@ def compute_detection_history(
     freq = pd.Timedelta(days=days)
     groupers = [
         pd.Grouper(key=species_col),
-        pd.Grouper(key=_labels.site),
-        pd.Grouper(key=_labels.date, freq=freq, origin=start),
+        pd.Grouper(key=_labels.images.deployment),
+        pd.Grouper(key=_labels.images.date, freq=freq, origin=start),
     ]
-    result = df.groupby(groupers).size()
+    result = images.groupby(groupers).size()
 
     # A new index with all the combinations of species, sites and dates
     # is created to reindex the result and to assign zeros where there
     # were no observations.
-    species = df[species_col].unique()
-    sites = df[_labels.site].unique()
+    species = images[species_col].unique()
+    sites = images[_labels.images.deployment].unique()
     dates = pd.date_range(start, end, freq=freq)
     idx = pd.MultiIndex.from_product(
-        [species, sites, dates], names=[species_col, _labels.site, _labels.date]
+        [species, sites, dates],
+        names=[species_col, _labels.images.deployment, _labels.images.date],
     )
     result = result.reindex(idx, fill_value=0)
     result.name = "value"
@@ -323,26 +394,38 @@ def compute_detection_history(
     # deployed at the time are assigned NaNs.
     result = pd.merge(
         result,
-        deployments[[_labels.site, _labels.start, _labels.end]],
-        on=_labels.site,
+        deployments[
+            [
+                _labels.images.deployment,
+                _labels.deployments.start,
+                _labels.deployments.end,
+            ]
+        ],
+        on=_labels.images.deployment,
         how="left",
     )
-    group_start = result[_labels.date]
-    group_end = result[_labels.date] + pd.Timedelta(days=days - 1)
-    inside_range_left = group_start.between(result[_labels.start], result[_labels.end])
-    inside_range_right = group_end.between(result[_labels.start], result[_labels.end])
+    group_start = result[_labels.images.date]
+    group_end = result[_labels.images.date] + pd.Timedelta(days=days - 1)
+    inside_range_left = group_start.between(
+        result[_labels.deployments.start], result[_labels.deployments.end]
+    )
+    inside_range_right = group_end.between(
+        result[_labels.deployments.start], result[_labels.deployments.end]
+    )
     inside_range = inside_range_left | inside_range_right
     result.loc[~inside_range, "value"] = np.nan
-    result = result.drop(columns=[_labels.start, _labels.end])
+    result = result.drop(columns=[_labels.deployments.start, _labels.deployments.end])
 
     result = result.sort_values(
-        [species_col, _labels.site, _labels.date], ignore_index=True
+        [species_col, _labels.images.deployment, _labels.images.date], ignore_index=True
     )
 
     if pivot:
-        result[_labels.date] = result[_labels.date].astype(str)
+        result[_labels.images.date] = result[_labels.images.date].astype(str)
         result = result.pivot(
-            index=[species_col, _labels.site], columns=_labels.date, values="value"
+            index=[species_col, _labels.images.deployment],
+            columns=_labels.images.date,
+            values="value",
         )
         result = result.rename_axis(None, axis=1).reset_index()
 
@@ -351,8 +434,10 @@ def compute_detection_history(
 
 def compute_general_count(
     images: pd.DataFrame,
+    deployments: pd.DataFrame = None,
+    groupby: str = "deployment",
     species_col: str = "scientific_name",
-    add_taxonomy: bool = True,
+    add_taxonomy: bool = False,
     rank: str = "class",
     remove_unidentified: bool = False,
     remove_unidentified_kws: dict = None,
@@ -369,6 +454,14 @@ def compute_general_count(
     ----------
     images : pd.DataFrame
         DataFrame with the project's images.
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments. Must be passed only if
+        groupby is 'location'.
+    groupby : str
+        Level to group results by. Can be one of:
+
+            - 'deployment' to group by deployment (deployment_id)
+            - 'location' to group by location (placename)
     species_col : str
         Label of the scientific name column in the images DataFrame.
     add_taxonomy : bool
@@ -407,9 +500,9 @@ def compute_general_count(
         DataFrame with abundance and number of deployments by species.
 
     """
-    df = images.copy()
-    df = _remove_wrapper(
-        df,
+    images = images.copy()
+    images = _remove_wrapper(
+        images,
         remove_unidentified,
         remove_unidentified_kws,
         remove_duplicates,
@@ -418,13 +511,18 @@ def compute_general_count(
         remove_domestic_kws,
     )
 
-    result = df.groupby(species_col).agg({species_col: "size", _labels.site: "nunique"})
-    result = result.rename(columns={species_col: "images", _labels.site: "deployments"})
+    images, groupby_label = _process_groupby_arg(images, deployments, groupby)
+    result = images.groupby(species_col).agg(
+        {species_col: "size", groupby_label: "nunique"}
+    )
+    result = result.rename(
+        columns={species_col: "images", groupby_label: f"{groupby}s"}
+    )
     result = result.reset_index()
 
     if add_taxonomy:
         taxonomy_columns = _utils.taxonomy.get_taxonomy_columns(rank)
-        taxonomy = df[[species_col, *taxonomy_columns]].drop_duplicates(species_col)
+        taxonomy = images[[species_col, *taxonomy_columns]].drop_duplicates(species_col)
         result = pd.merge(result, taxonomy, on=species_col, how="left")
 
     return result
@@ -432,7 +530,9 @@ def compute_general_count(
 
 def compute_hill_numbers(
     images: pd.DataFrame,
-    q_values: Union[int, list, tuple, np.ndarray],
+    deployments: pd.DataFrame = None,
+    groupby: str = "deployment",
+    q_values: Union[int, list, tuple, np.ndarray] = (0, 1, 2),
     species_col: str = "scientific_name",
     remove_unidentified: bool = False,
     remove_unidentified_kws: dict = None,
@@ -450,10 +550,18 @@ def compute_hill_numbers(
     ----------
     images : pd.DataFrame
         DataFrame with the project's images.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments. Must be passed only if
+        groupby is 'location'.
+    groupby : str
+        Level to group results by. Can be one of:
+
+            - 'deployment' to group by deployment (deployment_id)
+            - 'location' to group by location (placename)
     q_values : int, list, tuple or array
         Value(s) of q to compute Hill numbers for.
+    species_col : str
+        Label of the scientific name column in the images DataFrame.
     remove_unidentified : bool
         Whether to remove unidentified images. Wrapper for the
         wiutils.remove_unidentified function.
@@ -479,9 +587,9 @@ def compute_hill_numbers(
         Computed Hill numbers by deployment.
 
     """
-    df = images.copy()
-    df = _remove_wrapper(
-        df,
+    images = images.copy()
+    images = _remove_wrapper(
+        images,
         remove_unidentified,
         remove_unidentified_kws,
         remove_duplicates,
@@ -495,12 +603,13 @@ def compute_hill_numbers(
 
     result = []
 
-    abundance = df.groupby([_labels.site, species_col]).size()
+    images, groupby_label = _process_groupby_arg(images, deployments, groupby)
+    abundance = images.groupby([groupby_label, species_col]).size()
     relative_abundance = abundance / abundance.groupby(level=0).sum()
     for site, group in relative_abundance.groupby(level=0):
         for q in q_values:
             row = {
-                _labels.site: site,
+                groupby_label: site,
                 "q": q,
                 "D": _compute_q_diversity_index(group.to_numpy(), q),
             }
@@ -510,7 +619,7 @@ def compute_hill_numbers(
 
     if pivot:
         result["q"] = result["q"].astype(str)
-        result = result.pivot(index=_labels.site, columns="q", values="D")
+        result = result.pivot(index=groupby_label, columns="q", values="D")
         result = result.rename_axis(None, axis=1).reset_index()
 
     return result

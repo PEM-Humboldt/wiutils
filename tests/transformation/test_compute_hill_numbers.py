@@ -43,52 +43,100 @@ def images():
     )
 
 
+@pytest.fixture(scope="function")
+def deployments():
+    return pd.DataFrame({"deployment_id": ["001", "002"], "placename": ["AAA", "AAA"]})
+
+
+def test_result_long_location(images, deployments):
+    result = compute_hill_numbers(
+        images,
+        deployments,
+        groupby="location",
+        q_values=[0, 1, 2],
+        pivot=False,
+        species_col="scientific_name",
+    )
+    expected = pd.DataFrame(
+        {
+            "placename": ["AAA", "AAA", "AAA"],
+            "q": [0, 1, 2],
+            "D": [5.0, 4.154, 3.599],
+        }
+    )
+    pd.testing.assert_frame_equal(result, expected, atol=1e-3)
+
+
+def test_result_wide_location(images, deployments):
+    result = compute_hill_numbers(
+        images,
+        deployments,
+        groupby="location",
+        q_values=[0, 1, 2],
+        pivot=True,
+        species_col="scientific_name",
+    )
+    expected = pd.DataFrame(
+        {
+            "placename": ["AAA"],
+            "0": [5.0],
+            "1": [4.154],
+            "2": [3.599],
+        }
+    )
+    pd.testing.assert_frame_equal(result, expected, atol=1e-3)
+
+
 def test_result_long_single(images):
-    result = compute_hill_numbers(images, 0, pivot=False, species_col="scientific_name")
+    result = compute_hill_numbers(
+        images, q_values=0, pivot=False, species_col="scientific_name"
+    )
     expected = pd.DataFrame(
         {"deployment_id": ["001", "002"], "q": [0, 0], "D": [3.0, 4.0]}
     )
-    pd.testing.assert_frame_equal(result, expected, check_exact=False)
+    pd.testing.assert_frame_equal(result, expected)
 
 
 def test_result_long_multiple(images):
     result = compute_hill_numbers(
-        images, [0, 1, 2], pivot=False, species_col="scientific_name"
+        images, q_values=[0, 1, 2], pivot=False, species_col="scientific_name"
     )
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "001", "001", "002", "002", "002"],
             "q": [0, 1, 2, 0, 1, 2],
-            "D": [3.0, 2.600490006, 2.333333333, 4.0, 3.789291416, 3.571428571],
+            "D": [3.0, 2.600, 2.333, 4.0, 3.789, 3.571],
         }
     )
-    pd.testing.assert_frame_equal(result, expected, check_exact=False)
+    pd.testing.assert_frame_equal(result, expected, atol=1e-3)
 
 
 def test_result_wide_single(images):
-    result = compute_hill_numbers(images, 1, pivot=True, species_col="scientific_name")
-    expected = pd.DataFrame(
-        {"deployment_id": ["001", "002"], "1": [2.600490006, 3.789291416]}
+    result = compute_hill_numbers(
+        images, q_values=1, pivot=True, species_col="scientific_name"
     )
-    pd.testing.assert_frame_equal(result, expected, check_exact=False)
+    expected = pd.DataFrame(
+        {"deployment_id": ["001", "002"], "1": [2.600, 3.789]}
+    )
+    pd.testing.assert_frame_equal(result, expected, atol=1e-3)
 
 
 def test_result_wide_multiple(images):
     result = compute_hill_numbers(
-        images, [0, 1, 2], pivot=True, species_col="scientific_name"
+        images, q_values=[0, 1, 2], pivot=True, species_col="scientific_name"
     )
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "002"],
             "0": [3.0, 4.0],
-            "1": [2.600490006, 3.789291416],
-            "2": [2.333333333, 3.571428571],
+            "1": [2.600, 3.789],
+            "2": [2.333, 3.571],
         }
     )
-    pd.testing.assert_frame_equal(result, expected, check_exact=False)
+    pd.testing.assert_frame_equal(result, expected, atol=1e-3)
 
 
 def test_intact_input(images):
     images_original = images.copy()
-    compute_hill_numbers(images, [0, 1, 2], species_col="scientific_name")
+    compute_hill_numbers(images, q_values=[0, 1, 2], species_col="scientific_name")
     pd.testing.assert_frame_equal(images_original, images)

@@ -28,9 +28,48 @@ def images():
     )
 
 
+@pytest.fixture(scope="function")
+def deployments():
+    return pd.DataFrame(
+        {"deployment_id": ["001", "002", "003"], "placename": ["AAA", "AAA", "BBB"]}
+    )
+
+
+def test_deployment(images):
+    result = compute_general_count(
+        images, groupby="deployment", species_col="scientific_name"
+    )
+    expected = pd.DataFrame(
+        {
+            "scientific_name": ["Canis lupus", "Eira barbara", "Panthera onca"],
+            "images": [1, 3, 1],
+            "deployments": [1, 2, 1],
+        }
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+
+def test_placename(images, deployments):
+    result = compute_general_count(
+        images, deployments, groupby="location", species_col="scientific_name"
+    )
+    expected = pd.DataFrame(
+        {
+            "scientific_name": ["Canis lupus", "Eira barbara", "Panthera onca"],
+            "images": [1, 3, 1],
+            "locations": [1, 1, 1]
+        }
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+
 def test_rank_class(images):
     result = compute_general_count(
-        images, add_taxonomy=True, rank="class", species_col="scientific_name"
+        images,
+        groupby="deployment",
+        species_col="scientific_name",
+        add_taxonomy=True,
+        rank="class",
     )
     expected = pd.DataFrame(
         {
@@ -49,7 +88,11 @@ def test_rank_class(images):
 
 def test_rank_family(images):
     result = compute_general_count(
-        images, add_taxonomy=True, rank="family", species_col="scientific_name"
+        images,
+        groupby="deployment",
+        species_col="scientific_name",
+        add_taxonomy=True,
+        rank="family",
     )
     expected = pd.DataFrame(
         {
