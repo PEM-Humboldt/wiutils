@@ -1,3 +1,4 @@
+from wiutils.darwincore import create_dwc_events, create_dwc_records
 from wiutils.extraction import get_scientific_name
 from wiutils.filtering import (
     remove_domestic,
@@ -22,7 +23,5 @@ from wiutils.transformation import (
     compute_detection_history,
     compute_general_count,
     compute_hill_numbers,
-    create_dwc_events,
-    create_dwc_records,
 )
 from wiutils.verification import compute_date_ranges

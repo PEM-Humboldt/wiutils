@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.transformation import create_dwc_events
+from wiutils.darwincore import create_dwc_events
 
 
 @pytest.fixture(scope="function")

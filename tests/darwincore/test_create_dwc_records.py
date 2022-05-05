@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.transformation import create_dwc_records
+from wiutils.darwincore import create_dwc_records
 
 
 @pytest.fixture(scope="function")
@@ -167,7 +167,7 @@ def test_defaults(deployments, images):
                 np.nan,
                 np.nan,
                 "Cuniculus paca nelsoni",
-                np.nan,
+                "Cricetidae",
                 "Cuniculus paca nelsoni",
             ],
             "kingdom": [np.nan, np.nan, "Animalia", "Animalia", "Animalia"],
@@ -281,7 +281,7 @@ def test_remove_empty_optionals(deployments, images):
                 np.nan,
                 np.nan,
                 "Cuniculus paca nelsoni",
-                np.nan,
+                "Cricetidae",
                 "Cuniculus paca nelsoni",
             ],
             "kingdom": [np.nan, np.nan, "Animalia", "Animalia", "Animalia"],
@@ -398,7 +398,7 @@ def test_language_es(deployments, images):
                 np.nan,
                 np.nan,
                 "Cuniculus paca nelsoni",
-                np.nan,
+                "Cricetidae",
                 "Cuniculus paca nelsoni",
             ],
             "kingdom": [np.nan, np.nan, "Animalia", "Animalia", "Animalia"],
@@ -475,7 +475,7 @@ def test_remove_unidentified(deployments, images):
             "identificationQualifier": [np.nan, np.nan, np.nan],
             "scientificName": [
                 "Cuniculus paca nelsoni",
-                np.nan,
+                "Cricetidae",
                 "Cuniculus paca nelsoni",
             ],
             "kingdom": ["Animalia", "Animalia", "Animalia"],
@@ -528,7 +528,7 @@ def test_remove_duplicates(deployments, images):
             "identificationRemarks": [np.nan, np.nan, np.nan, np.nan],
             "scientificNameID": ["f2efdae9", "f1856211", "32c0147f", "523439f4"],
             "identificationQualifier": [np.nan, np.nan, np.nan, np.nan],
-            "scientificName": [np.nan, np.nan, "Cuniculus paca nelsoni", np.nan],
+            "scientificName": [np.nan, np.nan, "Cuniculus paca nelsoni", "Cricetidae"],
             "kingdom": [np.nan, np.nan, "Animalia", "Animalia"],
             "phylum": [np.nan, np.nan, "Chordata", "Chordata"],
             "class": [np.nan, np.nan, "Mammalia", "Mammalia"],
