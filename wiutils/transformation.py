@@ -530,7 +530,9 @@ def compute_general_count(
 
 def compute_hill_numbers(
     images: pd.DataFrame,
-    q_values: Union[int, list, tuple, np.ndarray],
+    deployments: pd.DataFrame = None,
+    groupby: str = "deployment",
+    q_values: Union[int, list, tuple, np.ndarray] = (0, 1, 2),
     species_col: str = "scientific_name",
     remove_unidentified: bool = False,
     remove_unidentified_kws: dict = None,
@@ -548,10 +550,18 @@ def compute_hill_numbers(
     ----------
     images : pd.DataFrame
         DataFrame with the project's images.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments. Must be passed only if
+        groupby is 'location'.
+    groupby : str
+        Level to group results by. Can be one of:
+
+            - 'deployment' to group by deployment (deployment_id)
+            - 'location' to group by location (placename)
     q_values : int, list, tuple or array
         Value(s) of q to compute Hill numbers for.
+    species_col : str
+        Label of the scientific name column in the images DataFrame.
     remove_unidentified : bool
         Whether to remove unidentified images. Wrapper for the
         wiutils.remove_unidentified function.
@@ -577,9 +587,9 @@ def compute_hill_numbers(
         Computed Hill numbers by deployment.
 
     """
-    df = images.copy()
-    df = _remove_wrapper(
-        df,
+    images = images.copy()
+    images = _remove_wrapper(
+        images,
         remove_unidentified,
         remove_unidentified_kws,
         remove_duplicates,
@@ -593,12 +603,13 @@ def compute_hill_numbers(
 
     result = []
 
-    abundance = df.groupby([_labels.images.deployment, species_col]).size()
+    images, groupby_label = _process_groupby_arg(images, deployments, groupby)
+    abundance = images.groupby([groupby_label, species_col]).size()
     relative_abundance = abundance / abundance.groupby(level=0).sum()
     for site, group in relative_abundance.groupby(level=0):
         for q in q_values:
             row = {
-                _labels.images.deployment: site,
+                groupby_label: site,
                 "q": q,
                 "D": _compute_q_diversity_index(group.to_numpy(), q),
             }
@@ -608,7 +619,7 @@ def compute_hill_numbers(
 
     if pivot:
         result["q"] = result["q"].astype(str)
-        result = result.pivot(index=_labels.images.deployment, columns="q", values="D")
+        result = result.pivot(index=groupby_label, columns="q", values="D")
         result = result.rename_axis(None, axis=1).reset_index()
 
     return result
