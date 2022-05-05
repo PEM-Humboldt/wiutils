@@ -181,7 +181,7 @@ def reduce_image_size(
     image_path: Union[str, pathlib.Path],
     output_path: Union[str, pathlib.Path],
     factor: float = 0.9,
-    method: int = Image.ANTIALIAS,
+    method: int = 1,
 ) -> None:
     """
     Reduces image file size by resampling using a given factor.
@@ -197,10 +197,10 @@ def reduce_image_size(
     method : int
         Image resizing method used by PIL. Possible values are:
 
-            - PIL.Image.NEAREST (0)
-            - PIL.Image.ANTIALIAS or PIL.Image.LANCZOS (1)
-            - PIL.Image.BILINEAR (2)
-            - PIL.Image.BICUBIC (3)
+            - 0: PIL.Image.Resampling.Resampling.NEAREST
+            - 1: PIL.Image.Resampling.LANCZOS
+            - 2: PIL.Image.Resampling.BILINEAR
+            - 3: PIL.Image.Resampling.BICUBIC
 
     Returns
     -------
