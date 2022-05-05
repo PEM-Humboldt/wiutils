@@ -262,14 +262,10 @@ def compute_detection(
         has_observations = result["value"] > 0
         result.loc[has_observations, "value"] = 1
 
-    result = result.sort_values(
-        [species_col, groupby_label], ignore_index=True
-    )
+    result = result.sort_values([species_col, groupby_label], ignore_index=True)
 
     if pivot:
-        result = result.pivot(
-            index=species_col, columns=groupby_label, values="value"
-        )
+        result = result.pivot(index=species_col, columns=groupby_label, values="value")
         result = result.rename_axis(None, axis=1).reset_index()
 
     return result
@@ -438,8 +434,10 @@ def compute_detection_history(
 
 def compute_general_count(
     images: pd.DataFrame,
+    deployments: pd.DataFrame = None,
+    groupby: str = "deployment",
     species_col: str = "scientific_name",
-    add_taxonomy: bool = True,
+    add_taxonomy: bool = False,
     rank: str = "class",
     remove_unidentified: bool = False,
     remove_unidentified_kws: dict = None,
@@ -456,6 +454,14 @@ def compute_general_count(
     ----------
     images : pd.DataFrame
         DataFrame with the project's images.
+    deployments : pd.DataFrame
+        DataFrame with the project's deployments. Must be passed only if
+        groupby is 'location'.
+    groupby : str
+        Level to group results by. Can be one of:
+
+            - 'deployment' to group by deployment (deployment_id)
+            - 'location' to group by location (placename)
     species_col : str
         Label of the scientific name column in the images DataFrame.
     add_taxonomy : bool
@@ -494,9 +500,9 @@ def compute_general_count(
         DataFrame with abundance and number of deployments by species.
 
     """
-    df = images.copy()
-    df = _remove_wrapper(
-        df,
+    images = images.copy()
+    images = _remove_wrapper(
+        images,
         remove_unidentified,
         remove_unidentified_kws,
         remove_duplicates,
@@ -505,17 +511,18 @@ def compute_general_count(
         remove_domestic_kws,
     )
 
-    result = df.groupby(species_col).agg(
-        {species_col: "size", _labels.images.deployment: "nunique"}
+    images, groupby_label = _process_groupby_arg(images, deployments, groupby)
+    result = images.groupby(species_col).agg(
+        {species_col: "size", groupby_label: "nunique"}
     )
     result = result.rename(
-        columns={species_col: "images", _labels.images.deployment: "deployments"}
+        columns={species_col: "images", groupby_label: f"{groupby}s"}
     )
     result = result.reset_index()
 
     if add_taxonomy:
         taxonomy_columns = _utils.taxonomy.get_taxonomy_columns(rank)
-        taxonomy = df[[species_col, *taxonomy_columns]].drop_duplicates(species_col)
+        taxonomy = images[[species_col, *taxonomy_columns]].drop_duplicates(species_col)
         result = pd.merge(result, taxonomy, on=species_col, how="left")
 
     return result
