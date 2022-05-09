@@ -39,9 +39,10 @@ def read_project(path: Union[str, pathlib.Path]) -> tuple:
         shutil.unpack_archive(path, temp_folder)
         path = pathlib.Path(temp_folder).joinpath(path.stem)
 
-    images = pd.read_csv(path.joinpath("images.csv"), parse_dates=[_labels.date])
+    images = pd.read_csv(path.joinpath("images.csv"), parse_dates=[_labels.images.date])
     deployments = pd.read_csv(
-        path.joinpath("deployments.csv"), parse_dates=[_labels.start, _labels.end]
+        path.joinpath("deployments.csv"),
+        parse_dates=[_labels.deployments.start, _labels.deployments.end],
     )
 
     if temp_folder:
