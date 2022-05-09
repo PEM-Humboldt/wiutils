@@ -64,31 +64,24 @@ def get_taxonomy_columns(rank: str) -> list:
     list
         List with columns names for the taxonomic ranks.
     """
+    columns = [
+        _labels.images.class_,
+        _labels.images.order,
+        _labels.images.family,
+        _labels.images.genus,
+        _labels.images.epithet,
+    ]
+
     if rank == "epithet":
-        taxonomy_columns = [_labels.images.epithet]
+        taxonomy_columns = columns[-1:]
     elif rank == "genus":
-        taxonomy_columns = [_labels.images.genus, _labels.images.epithet]
+        taxonomy_columns = columns[-2:]
     elif rank == "family":
-        taxonomy_columns = [
-            _labels.images.family,
-            _labels.images.genus,
-            _labels.images.epithet,
-        ]
+        taxonomy_columns = columns[-3:]
     elif rank == "order":
-        taxonomy_columns = [
-            _labels.images.order,
-            _labels.images.family,
-            _labels.images.genus,
-            _labels.images.epithet,
-        ]
+        taxonomy_columns = columns[-4:]
     elif rank == "class":
-        taxonomy_columns = [
-            _labels.images.class_,
-            _labels.images.order,
-            _labels.images.family,
-            _labels.images.genus,
-            _labels.images.epithet,
-        ]
+        taxonomy_columns = columns[-5:]
     else:
         raise ValueError(
             "min_rank must be one of: ['epithet', 'genus', 'family', 'order', 'class']."
