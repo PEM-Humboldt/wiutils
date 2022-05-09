@@ -426,7 +426,6 @@ def compute_general_count(
     images: pd.DataFrame,
     deployments: pd.DataFrame = None,
     groupby: str = "deployment",
-    species_col: str = "scientific_name",
     add_taxonomy: bool = False,
     rank: str = "class",
     remove_unidentified: bool = False,
@@ -452,8 +451,6 @@ def compute_general_count(
 
             - 'deployment' to group by deployment (deployment_id)
             - 'location' to group by location (placename)
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     add_taxonomy : bool
         Whether to add the superior taxonomy of the species to the result.
     rank : str
@@ -502,16 +499,17 @@ def compute_general_count(
     )
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
-    result = images.groupby(species_col).agg(
-        {species_col: "size", groupby_label: "nunique"}
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
+    result = images.groupby("taxon").agg(
+        {"taxon": "size", groupby_label: "nunique"}
     )
-    result = result.rename(columns={species_col: "images", groupby_label: f"{groupby}s"})
+    result = result.rename(columns={"taxon": "images", groupby_label: f"{groupby}s"})
     result = result.reset_index()
 
     if add_taxonomy:
         taxonomy_columns = _utils.taxonomy.get_taxonomy_columns(rank)
-        taxonomy = images[[species_col, *taxonomy_columns]].drop_duplicates(species_col)
-        result = pd.merge(result, taxonomy, on=species_col, how="left")
+        taxonomy = images[["taxon", *taxonomy_columns]].drop_duplicates("taxon")
+        result = pd.merge(result, taxonomy, on="taxon", how="left")
 
     return result
 
