@@ -1,15 +1,54 @@
 """
 Functions for extracting information from WI tables.
 """
+from typing import Union
+
 import numpy as np
 import pandas as pd
 
-from . import _labels
+from . import _labels, _utils
+
+
+def get_lowest_taxon(
+    images: pd.DataFrame, return_rank: bool = False
+) -> Union[pd.Series, tuple]:
+    """
+    Gets the lowest identified taxa and ranks.
+
+    Parameters
+    ----------
+    images : DataFrame
+        DataFrame with the project's images.
+    return_rank : bool
+        Whether to return the lowest identified ranks.
+
+    Returns
+    -------
+    Series
+        Lowest identified taxon for each image.
+
+    Series
+        Lowest identified rank for each image.
+
+    """
+    ranks = _utils.taxonomy.compute_taxonomic_rank(images)
+    taxa = get_scientific_name(images, keep_genus=False, add_qualifier=False)
+
+    mask = (taxa.isna()) & (ranks.notna())
+    sorted_columns = np.argsort(images.columns)
+    column_indices = np.searchsorted(images.columns[sorted_columns], ranks.loc[mask])
+    indices = sorted_columns[column_indices]
+    taxa.loc[mask] = images.loc[mask].values[np.arange(mask.sum()), indices]
+
+    if return_rank:
+        return taxa, ranks
+    else:
+        return taxa
 
 
 def get_scientific_name(
     images: pd.DataFrame,
-    keep_genus: bool = True,
+    keep_genus: bool = False,
     add_qualifier: bool = False,
 ) -> pd.Series:
     """
