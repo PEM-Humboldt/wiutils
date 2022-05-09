@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 from . import _labels, _utils
+from .extraction import get_lowest_taxon
 from .filtering import _remove_wrapper
 
 
@@ -75,7 +76,6 @@ def compute_count_summary(
     images: pd.DataFrame,
     deployments: pd.DataFrame = None,
     groupby: str = "deployment",
-    species_col: str = "scientific_name",
     add_records_by_class: bool = False,
     add_species_by_class: bool = False,
     remove_unidentified_kws: dict = None,
@@ -98,8 +98,6 @@ def compute_count_summary(
 
             - 'deployment' to group by deployment (deployment_id)
             - 'location' to group by location (placename)
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     add_records_by_class : bool
         Whether to add number of independent records discriminated by
         taxonomic class.
@@ -155,17 +153,18 @@ def compute_count_summary(
                 subset.groupby(groupby_label).size().rename(f"records_{class_.lower()}")
             )
 
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
     result = result.join(
-        images.groupby(groupby_label)[species_col].nunique().rename("species")
+        images.groupby(groupby_label)["taxon"].nunique().rename("taxa")
     )
     if add_species_by_class:
         classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
             subset = images[images[_labels.images.class_] == class_]
             result = result.join(
-                subset.groupby(groupby_label)[species_col]
+                subset.groupby(groupby_label)["taxon"]
                 .nunique()
-                .rename(f"species_{class_.lower()}")
+                .rename(f"taxa_{class_.lower()}")
             )
 
     result.index.name = groupby_label
