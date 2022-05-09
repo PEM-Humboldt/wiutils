@@ -154,9 +154,7 @@ def compute_count_summary(
             )
 
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
-    result = result.join(
-        images.groupby(groupby_label)["taxon"].nunique().rename("taxa")
-    )
+    result = result.join(images.groupby(groupby_label)["taxon"].nunique().rename("taxa"))
     if add_species_by_class:
         classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
@@ -247,9 +245,7 @@ def compute_detection(
     result = images.groupby(["taxon", groupby_label]).size()
     taxa = images["taxon"].unique()
     sites = images[groupby_label].unique()
-    idx = pd.MultiIndex.from_product(
-        [taxa, sites], names=["taxon", groupby_label]
-    )
+    idx = pd.MultiIndex.from_product([taxa, sites], names=["taxon", groupby_label])
     result = result.reindex(idx, fill_value=0)
     result.name = "value"
     result = result.reset_index()
@@ -270,7 +266,6 @@ def compute_detection(
 def compute_detection_history(
     images: pd.DataFrame,
     deployments: pd.DataFrame,
-    species_col: str = "scientific_name",
     date_range: str = "deployments",
     days: int = 1,
     compute_abundance: bool = True,
@@ -293,8 +288,6 @@ def compute_detection_history(
         DataFrame with the project's images.
     deployments : pd.DataFrame
         DataFrame with the project's deployments.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     date_range : str
         Table to compute the date range from. Possible values are:
 
@@ -360,9 +353,10 @@ def compute_detection_history(
         remove_domestic_kws,
     )
 
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
     freq = pd.Timedelta(days=days)
     groupers = [
-        pd.Grouper(key=species_col),
+        pd.Grouper(key="taxon"),
         pd.Grouper(key=_labels.images.deployment),
         pd.Grouper(key=_labels.images.date, freq=freq, origin=start),
     ]
@@ -371,12 +365,12 @@ def compute_detection_history(
     # A new index with all the combinations of species, sites and dates
     # is created to reindex the result and to assign zeros where there
     # were no observations.
-    species = images[species_col].unique()
+    species = images["taxon"].unique()
     sites = images[_labels.images.deployment].unique()
     dates = pd.date_range(start, end, freq=freq)
     idx = pd.MultiIndex.from_product(
         [species, sites, dates],
-        names=[species_col, _labels.images.deployment, _labels.images.date],
+        names=["taxon", _labels.images.deployment, _labels.images.date],
     )
     result = result.reindex(idx, fill_value=0)
     result.name = "value"
@@ -413,13 +407,13 @@ def compute_detection_history(
     result = result.drop(columns=[_labels.deployments.start, _labels.deployments.end])
 
     result = result.sort_values(
-        [species_col, _labels.images.deployment, _labels.images.date], ignore_index=True
+        ["taxon", _labels.images.deployment, _labels.images.date], ignore_index=True
     )
 
     if pivot:
         result[_labels.images.date] = result[_labels.images.date].astype(str)
         result = result.pivot(
-            index=[species_col, _labels.images.deployment],
+            index=["taxon", _labels.images.deployment],
             columns=_labels.images.date,
             values="value",
         )
@@ -511,9 +505,7 @@ def compute_general_count(
     result = images.groupby(species_col).agg(
         {species_col: "size", groupby_label: "nunique"}
     )
-    result = result.rename(
-        columns={species_col: "images", groupby_label: f"{groupby}s"}
-    )
+    result = result.rename(columns={species_col: "images", groupby_label: f"{groupby}s"})
     result = result.reset_index()
 
     if add_taxonomy:
