@@ -1,50 +1,50 @@
 """
 Taxonomy utilities.
 """
-from collections import OrderedDict
-
 import numpy as np
 import pandas as pd
 
 from .. import _labels
 
 
-def compute_taxonomic_rank(df: pd.DataFrame) -> pd.Series:
+taxonomy_columns = [
+    _labels.images.class_,
+    _labels.images.order,
+    _labels.images.family,
+    _labels.images.genus,
+    _labels.images.epithet,
+]
+
+
+def compute_taxonomic_rank(images: pd.DataFrame) -> pd.Series:
     """
     Computes the taxonomic rank of the most specific identification for
     each image.
 
     Parameters
     ----------
-    df : pd.DataFrame
+    images : DataFrame
         DataFrame with records.
 
     Returns
     -------
-    pd.Series
+    Series
         Series with the corresponding taxonomic ranks.
 
     """
-    rank_map = OrderedDict(
-        {
-            "kingdom": "kingdom",
-            "phylum": "phylum",
-            "class": "class",
-            "order": "order",
-            "family": "family",
-            "genus": "genus",
-            "species": "specificEpithet",
-            "subspecies": "infraspecificEpithet",
-        }
-    )
+    images = replace_unidentified(images)
 
-    ranks = pd.Series(np.nan, index=df.index)
+    ranks = pd.Series(np.nan, index=images.index)
+    for column in reversed(taxonomy_columns):
+        has_rank = ranks.notna()
+        has_identification = images[column].notna()
+        ranks.loc[(~has_rank & has_identification)] = column
 
-    for rank, column in reversed(rank_map.items()):
-        if column in df:
-            has_rank = ranks.notna()
-            has_identification = df[column].notna()
-            ranks.loc[(~has_rank & has_identification)] = rank
+    # Because there is no column for infraspecific epithet, it is assumed
+    # that all the records with two words on the species column has
+    # a subspecies rank.
+    words = images[_labels.images.epithet].str.split(" ").str.len()
+    ranks.loc[words == 2] = "subspecies"
 
     return ranks
 
@@ -63,28 +63,45 @@ def get_taxonomy_columns(rank: str) -> list:
     -------
     list
         List with columns names for the taxonomic ranks.
-    """
-    columns = [
-        _labels.images.class_,
-        _labels.images.order,
-        _labels.images.family,
-        _labels.images.genus,
-        _labels.images.epithet,
-    ]
 
+    """
     if rank == "epithet":
-        taxonomy_columns = columns[-1:]
+        columns = taxonomy_columns[-1:]
     elif rank == "genus":
-        taxonomy_columns = columns[-2:]
+        columns = taxonomy_columns[-2:]
     elif rank == "family":
-        taxonomy_columns = columns[-3:]
+        columns = taxonomy_columns[-3:]
     elif rank == "order":
-        taxonomy_columns = columns[-4:]
+        columns = taxonomy_columns[-4:]
     elif rank == "class":
-        taxonomy_columns = columns[-5:]
+        columns = taxonomy_columns[-5:]
     else:
         raise ValueError(
             "min_rank must be one of: ['epithet', 'genus', 'family', 'order', 'class']."
         )
 
-    return taxonomy_columns
+    return columns
+
+
+def replace_unidentified(images: pd.DataFrame) -> pd.DataFrame:
+    """
+    Replaces unidentified taxa with NaN.
+
+    Parameters
+    ----------
+    images : DataFrame
+        DataFrame with records.
+
+    Returns
+    -------
+    DataFrame
+        Copy of images with replaced unidentified values.
+
+    """
+    images = images.copy()
+    unidentified_values = ["No CV Result", "Unknown"]
+    images.loc[:, taxonomy_columns] = images.loc[:, taxonomy_columns].replace(
+        unidentified_values, np.nan
+    )
+
+    return images
