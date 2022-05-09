@@ -178,7 +178,6 @@ def compute_detection(
     images: pd.DataFrame,
     deployments: pd.DataFrame = None,
     groupby: str = "deployment",
-    species_col: str = "scientific_name",
     compute_abundance: bool = True,
     remove_unidentified: bool = False,
     remove_unidentified_kws: dict = None,
@@ -204,8 +203,6 @@ def compute_detection(
 
             - 'deployment' to group by deployment (deployment_id)
             - 'location' to group by location (placename)
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     compute_abundance : bool
         Whether to compute the abundance for each deployment. If False,
         returns presence/absence for the deployments.
@@ -246,11 +243,12 @@ def compute_detection(
     )
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
-    result = images.groupby([species_col, groupby_label]).size()
-    species = images[species_col].unique()
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
+    result = images.groupby(["taxon", groupby_label]).size()
+    taxa = images["taxon"].unique()
     sites = images[groupby_label].unique()
     idx = pd.MultiIndex.from_product(
-        [species, sites], names=[species_col, groupby_label]
+        [taxa, sites], names=["taxon", groupby_label]
     )
     result = result.reindex(idx, fill_value=0)
     result.name = "value"
@@ -260,10 +258,10 @@ def compute_detection(
         has_observations = result["value"] > 0
         result.loc[has_observations, "value"] = 1
 
-    result = result.sort_values([species_col, groupby_label], ignore_index=True)
+    result = result.sort_values(["taxon", groupby_label], ignore_index=True)
 
     if pivot:
-        result = result.pivot(index=species_col, columns=groupby_label, values="value")
+        result = result.pivot(index="taxon", columns=groupby_label, values="value")
         result = result.rename_axis(None, axis=1).reset_index()
 
     return result
