@@ -8,6 +8,7 @@ import pandas as pd
 import seaborn as sns
 
 from . import _labels
+from .extraction import get_lowest_taxon
 from .filtering import _remove_wrapper
 from .transformation import compute_detection_history
 from .verification import compute_date_ranges
@@ -16,7 +17,6 @@ from .verification import compute_date_ranges
 def plot_activity_hours(
     images: pd.DataFrame,
     names: Union[list, str, pd.Series],
-    species_col: str = "scientific_name",
     remove_duplicates: bool = False,
     remove_duplicates_kws: dict = None,
     kind: str = "kde",
@@ -24,7 +24,7 @@ def plot_activity_hours(
     kde_kws: dict = None,
 ) -> matplotlib.axes.Axes:
     """
-    Plots the activity hours of one or multiple species by grouping all
+    Plots the activity hours of one or multiple taxa by grouping all
     observations into a 24-hour range.
 
     Parameters
@@ -33,8 +33,6 @@ def plot_activity_hours(
         DataFrame with the project's images.
     names : list, str or Series
         List of names to plot activity hours for.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     remove_duplicates : bool
         Whether to remove duplicates. Wrapper for the
         wiutils.remove_duplicates function.
@@ -66,7 +64,8 @@ def plot_activity_hours(
     if kde_kws is None:
         kde_kws = {}
 
-    inconsistent_names = set(names) - set(images[species_col])
+    taxa = get_lowest_taxon(images, return_rank=False)
+    inconsistent_names = set(names) - set(taxa)
     if len(inconsistent_names):
         raise ValueError(f"{list(inconsistent_names)} were not found in images.")
 
@@ -77,23 +76,24 @@ def plot_activity_hours(
             images, duplicates=True, duplicates_kws=remove_duplicates_kws
         )
 
-    images = images.loc[images[species_col].isin(names), :].reset_index(drop=True)
+    images["taxon"] = taxa
+    images = images.loc[images["taxon"].isin(names), :].reset_index(drop=True)
     images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
     images["hour"] = images[_labels.images.date].dt.round("H").dt.hour
-    images = images.drop(columns=_labels.images.date)
+    images = images[["taxon", "hour"]]
 
     if kind == "hist":
         ax = sns.histplot(
             data=images,
             x="hour",
-            hue=species_col,
+            hue="taxon",
             binwidth=1,
             binrange=(-0.5, 23.5),
             discrete=False,
             **hist_kws,
         )
     elif kind == "kde":
-        ax = sns.kdeplot(data=images, x="hour", hue=species_col, **kde_kws)
+        ax = sns.kdeplot(data=images, x="hour", hue="taxon", **kde_kws)
     else:
         raise ValueError("kind must be one of ['hist', 'kde']")
 
