@@ -115,31 +115,31 @@ def images():
 
 
 def test_unit_seconds(images):
-    result = remove_duplicates(images, interval=5, unit="seconds")
+    result = remove_duplicates(images, interval=5, unit="seconds", reset_index=False)
     expected_index = pd.Index([0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11])
     pd.testing.assert_index_equal(result.index, expected_index)
 
 
 def test_unit_minutes(images):
-    result = remove_duplicates(images, interval=30, unit="minutes")
+    result = remove_duplicates(images, interval=30, unit="minutes", reset_index=False)
     expected_index = pd.Index([0, 3, 4, 5, 6, 7, 9, 10, 11])
     pd.testing.assert_index_equal(result.index, expected_index)
 
 
 def test_unit_hours(images):
-    result = remove_duplicates(images, interval=5, unit="hours")
+    result = remove_duplicates(images, interval=5, unit="hours", reset_index=False)
     expected_index = pd.Index([0, 4, 5, 6, 7, 9, 10])
     pd.testing.assert_index_equal(result.index, expected_index)
 
 
 def test_unit_days(images):
-    result = remove_duplicates(images, interval=4, unit="days")
+    result = remove_duplicates(images, interval=4, unit="days", reset_index=False)
     expected_index = pd.Index([0, 5, 6, 7, 10])
     pd.testing.assert_index_equal(result.index, expected_index)
 
 
 def test_unit_weeks(images):
-    result = remove_duplicates(images, interval=3, unit="weeks")
+    result = remove_duplicates(images, interval=3, unit="weeks", reset_index=False)
     expected_index = pd.Index([0, 6, 7, 10])
     pd.testing.assert_index_equal(result.index, expected_index)
 

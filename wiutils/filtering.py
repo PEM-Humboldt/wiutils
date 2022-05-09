@@ -95,7 +95,7 @@ def remove_duplicates(
     images: pd.DataFrame,
     interval: int = 30,
     unit: str = "minutes",
-    reset_index: bool = False,
+    reset_index: bool = True,
 ) -> pd.DataFrame:
     """
     Removes duplicate records (images) from the same taxon in the same
