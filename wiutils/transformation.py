@@ -519,7 +519,6 @@ def compute_hill_numbers(
     deployments: pd.DataFrame = None,
     groupby: str = "deployment",
     q_values: Union[int, list, tuple, np.ndarray] = (0, 1, 2),
-    species_col: str = "scientific_name",
     remove_unidentified: bool = False,
     remove_unidentified_kws: dict = None,
     remove_duplicates: bool = False,
@@ -546,8 +545,6 @@ def compute_hill_numbers(
             - 'location' to group by location (placename)
     q_values : int, list, tuple or array
         Value(s) of q to compute Hill numbers for.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     remove_unidentified : bool
         Whether to remove unidentified images. Wrapper for the
         wiutils.remove_unidentified function.
@@ -590,7 +587,8 @@ def compute_hill_numbers(
     result = []
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
-    abundance = images.groupby([groupby_label, species_col]).size()
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
+    abundance = images.groupby([groupby_label, "taxon"]).size()
     relative_abundance = abundance / abundance.groupby(level=0).sum()
     for site, group in relative_abundance.groupby(level=0):
         for q in q_values:

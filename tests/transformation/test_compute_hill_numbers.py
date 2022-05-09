@@ -25,19 +25,75 @@ def images():
                 "002",
                 "002",
             ],
-            "scientific_name": [
-                "Momotus momota",
-                "Momotus momota",
-                "Momotus momota",
-                "Momotus momota",
-                "Eira barbara",
-                "Eira barbara",
-                "Cuniculus paca",
-                "Didelphis marsupialis",
-                "Didelphis marsupialis",
-                "Momotus momota",
-                "Eira barbara",
-                "Leopardus pardalis",
+            "class": [
+                "Aves",
+                "Aves",
+                "Aves",
+                "Aves",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Aves",
+                "Mammalia",
+                "Mammalia",
+            ],
+            "order": [
+                "Coraciiformes",
+                "Coraciiformes",
+                "Coraciiformes",
+                "Coraciiformes",
+                "Carnivora",
+                "Carnivora",
+                "Rodentia",
+                "Didelphimorphia",
+                "Didelphimorphia",
+                "Coraciiformes",
+                "Carnivora",
+                "Carnivora",
+            ],
+            "family": [
+                "Momotidae",
+                "Momotidae",
+                "Momotidae",
+                "Momotidae",
+                "Mustelidae",
+                "Mustelidae",
+                "Cuniculidae",
+                "Didelphidae",
+                "Didelphidae",
+                "Momotidae",
+                "Mustelidae",
+                "Felidae",
+            ],
+            "genus": [
+                "Momotus",
+                "Momotus",
+                "Momotus",
+                "Momotus",
+                "Eira",
+                "Eira",
+                "Cuniculus",
+                "Didelphis",
+                "Didelphis",
+                "Momotus",
+                "Eira",
+                "Leopardus",
+            ],
+            "species": [
+                "momota",
+                "momota",
+                "momota",
+                "momota",
+                "barbara",
+                "barbara",
+                "paca",
+                "marsupialis",
+                "marsupialis",
+                "momota",
+                "barbara",
+                "pardalis",
             ],
         }
     )
@@ -50,12 +106,7 @@ def deployments():
 
 def test_result_long_location(images, deployments):
     result = compute_hill_numbers(
-        images,
-        deployments,
-        groupby="location",
-        q_values=[0, 1, 2],
-        pivot=False,
-        species_col="scientific_name",
+        images, deployments, groupby="location", q_values=[0, 1, 2], pivot=False
     )
     expected = pd.DataFrame(
         {
@@ -69,12 +120,7 @@ def test_result_long_location(images, deployments):
 
 def test_result_wide_location(images, deployments):
     result = compute_hill_numbers(
-        images,
-        deployments,
-        groupby="location",
-        q_values=[0, 1, 2],
-        pivot=True,
-        species_col="scientific_name",
+        images, deployments, groupby="location", q_values=[0, 1, 2], pivot=True
     )
     expected = pd.DataFrame(
         {
@@ -88,9 +134,7 @@ def test_result_wide_location(images, deployments):
 
 
 def test_result_long_single(images):
-    result = compute_hill_numbers(
-        images, q_values=0, pivot=False, species_col="scientific_name"
-    )
+    result = compute_hill_numbers(images, q_values=0, pivot=False)
     expected = pd.DataFrame(
         {"deployment_id": ["001", "002"], "q": [0, 0], "D": [3.0, 4.0]}
     )
@@ -98,9 +142,7 @@ def test_result_long_single(images):
 
 
 def test_result_long_multiple(images):
-    result = compute_hill_numbers(
-        images, q_values=[0, 1, 2], pivot=False, species_col="scientific_name"
-    )
+    result = compute_hill_numbers(images, q_values=[0, 1, 2], pivot=False)
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "001", "001", "002", "002", "002"],
@@ -112,19 +154,13 @@ def test_result_long_multiple(images):
 
 
 def test_result_wide_single(images):
-    result = compute_hill_numbers(
-        images, q_values=1, pivot=True, species_col="scientific_name"
-    )
-    expected = pd.DataFrame(
-        {"deployment_id": ["001", "002"], "1": [2.600, 3.789]}
-    )
+    result = compute_hill_numbers(images, q_values=1, pivot=True)
+    expected = pd.DataFrame({"deployment_id": ["001", "002"], "1": [2.600, 3.789]})
     pd.testing.assert_frame_equal(result, expected, atol=1e-3)
 
 
 def test_result_wide_multiple(images):
-    result = compute_hill_numbers(
-        images, q_values=[0, 1, 2], pivot=True, species_col="scientific_name"
-    )
+    result = compute_hill_numbers(images, q_values=[0, 1, 2], pivot=True)
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "002"],
@@ -138,5 +174,5 @@ def test_result_wide_multiple(images):
 
 def test_intact_input(images):
     images_original = images.copy()
-    compute_hill_numbers(images, q_values=[0, 1, 2], species_col="scientific_name")
+    compute_hill_numbers(images, q_values=[0, 1, 2])
     pd.testing.assert_frame_equal(images_original, images)
