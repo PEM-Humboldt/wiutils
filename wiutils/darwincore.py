@@ -1,5 +1,5 @@
 """
-
+Functions to create Darwin Core tables from a Wildlife Insights project.
 """
 import pandas as pd
 import numpy as np
