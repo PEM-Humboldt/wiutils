@@ -177,7 +177,6 @@ def plot_detection_history(
     images: pd.DataFrame,
     deployments: pd.DataFrame,
     name: str,
-    species_col: str = "scientific_name",
     mask: bool = False,
     compute_detection_history_kws: dict = None,
     heatmap_kws: dict = None,
@@ -193,8 +192,6 @@ def plot_detection_history(
         DataFrame with the project's deployments.
     name : str
         Scientific name of the species to plot the detection history for.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     mask : bool
         Whether to mask cells where cameras were not functioning. If True,
         those cells won't be displayed. Otherwise, they will be displayed
@@ -216,14 +213,15 @@ def plot_detection_history(
     if heatmap_kws is None:
         heatmap_kws = {}
 
-    if name not in images[species_col].unique():
+    taxa = get_lowest_taxon(images, return_rank=False)
+    if name not in taxa.unique():
         raise ValueError(f"{name} was not found in images.")
 
     result = compute_detection_history(
-        images, deployments, species_col, pivot=True, **compute_detection_history_kws
+        images, deployments, pivot=True, **compute_detection_history_kws
     )
-    result = result[result[species_col] == name]
-    result = result.drop(columns=species_col)
+    result = result[result["taxon"] == name]
+    result = result.drop(columns="taxon")
     result = result.set_index(_labels.images.deployment)
 
     if not mask:

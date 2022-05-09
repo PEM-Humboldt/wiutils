@@ -26,18 +26,70 @@ def images():
                 "002",
                 "002",
             ],
-            "scientific_name": [
-                "Alouatta seniculus",
-                "Alouatta seniculus",
-                "Alouatta seniculus",
-                "Alouatta seniculus",
-                "Alouatta seniculus",
-                "Tapirus terrestris",
-                "Tapirus terrestris",
-                "Tapirus terrestris",
-                "Alouatta seniculus",
-                "Alouatta seniculus",
-                "Alouatta seniculus",
+            "class": [
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+            ],
+            "order": [
+                "Primates",
+                "Primates",
+                "Primates",
+                "Primates",
+                "Primates",
+                "Perissodactyla",
+                "Perissodactyla",
+                "Perissodactyla",
+                "Primates",
+                "Primates",
+                "Primates",
+            ],
+            "family": [
+                "Atelidae",
+                "Atelidae",
+                "Atelidae",
+                "Atelidae",
+                "Atelidae",
+                "Tapiridae",
+                "Tapiridae",
+                "Tapiridae",
+                "Atelidae",
+                "Atelidae",
+                "Atelidae",
+            ],
+            "genus": [
+                "Alouatta",
+                "Alouatta",
+                "Alouatta",
+                "Alouatta",
+                "Alouatta",
+                "Tapirus",
+                "Tapirus",
+                "Tapirus",
+                "Alouatta",
+                "Alouatta",
+                "Alouatta",
+            ],
+            "species": [
+                "seniculus",
+                "seniculus",
+                "seniculus",
+                "seniculus",
+                "seniculus",
+                "terrestris",
+                "terrestris",
+                "terrestris",
+                "seniculus",
+                "seniculus",
+                "seniculus",
             ],
             "timestamp": [
                 "2020-11-27 06:45:57",
@@ -73,7 +125,6 @@ def test_no_mask(images, deployments, mocker):
         images,
         deployments,
         name="Alouatta seniculus",
-        species_col="scientific_name",
         mask=False,
         compute_detection_history_kws=dict(days=7),
     )
@@ -95,7 +146,6 @@ def test_mask(images, deployments, mocker):
         images,
         deployments,
         name="Tapirus terrestris",
-        species_col="scientific_name",
         mask=True,
         compute_detection_history_kws=dict(days=7, compute_abundance=True),
     )
@@ -115,9 +165,7 @@ def test_intact_input(images, deployments, mocker):
     mocker.patch("seaborn.heatmap")
     images_original = images.copy()
     deployments_original = deployments.copy()
-    plot_detection_history(
-        images, deployments, name="Alouatta seniculus", species_col="scientific_name"
-    )
+    plot_detection_history(images, deployments, name="Alouatta seniculus")
     pd.testing.assert_frame_equal(images_original, images)
     pd.testing.assert_frame_equal(deployments_original, deployments)
 
