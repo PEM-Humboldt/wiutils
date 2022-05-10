@@ -1,10 +1,10 @@
 """
-Test cases for the wiutils.verification.compute_date_ranges function.
+Test cases for the wiutils.summarizing.compute_date_ranges function.
 """
 import pandas as pd
 import pytest
 
-from wiutils.verification import compute_date_ranges
+from wiutils.summarizing import compute_date_ranges
 
 
 @pytest.fixture()

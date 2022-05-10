@@ -1,5 +1,5 @@
 """
-Test cases for the wiutils.transformation.compute_count_summary function.
+Test cases for the wiutils.summarizing.compute_count_summary function.
 """
 import numpy as np
 import pandas as pd

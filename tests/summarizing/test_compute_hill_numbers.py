@@ -1,5 +1,5 @@
 """
-Test cases for the wiutils.transformation.compute_hill_numbers function.
+Test cases for the wiutils.summarizing.compute_hill_numbers function.
 """
 import pandas as pd
 import pytest

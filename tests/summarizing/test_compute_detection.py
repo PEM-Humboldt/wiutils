@@ -1,5 +1,5 @@
 """
-Test cases for the wiutils.transformation.compute_detection function.
+Test cases for the wiutils.summarizing.compute_detection function.
 """
 import pandas as pd
 import pytest

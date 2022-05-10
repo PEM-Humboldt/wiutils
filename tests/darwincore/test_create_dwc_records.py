@@ -1,5 +1,5 @@
 """
-Test cases for the wiutils.transformation.create_dwc_records function.
+Test cases for the wiutils.summarizing.create_dwc_records function.
 """
 import numpy as np
 import pandas as pd

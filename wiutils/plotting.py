@@ -10,8 +10,7 @@ import seaborn as sns
 from . import _labels
 from .extraction import get_lowest_taxon
 from .filtering import _remove_wrapper
-from .transformation import compute_detection_history
-from .verification import compute_date_ranges
+from .summarizing import compute_date_ranges, compute_detection_history
 
 
 def plot_activity_hours(
