@@ -12,13 +12,6 @@ def images():
     return pd.DataFrame(
         {
             "deployment_id": ["001", "001", "001", "002", "003"],
-            "scientific_name": [
-                "Panthera onca",
-                "Eira barbara",
-                "Eira barbara",
-                "Eira barbara",
-                "Canis lupus",
-            ],
             "class": ["Mammalia", "Mammalia", "Mammalia", "Mammalia", "Mammalia"],
             "order": ["Carnivora", "Carnivora", "Carnivora", "Carnivora", "Carnivora"],
             "family": ["Felidae", "Mustelidae", "Mustelidae", "Mustelidae", "Canidae"],
@@ -36,12 +29,10 @@ def deployments():
 
 
 def test_deployment(images):
-    result = compute_general_count(
-        images, groupby="deployment", species_col="scientific_name"
-    )
+    result = compute_general_count(images, groupby="deployment")
     expected = pd.DataFrame(
         {
-            "scientific_name": ["Canis lupus", "Eira barbara", "Panthera onca"],
+            "taxon": ["Canis lupus", "Eira barbara", "Panthera onca"],
             "images": [1, 3, 1],
             "deployments": [1, 2, 1],
         }
@@ -50,14 +41,12 @@ def test_deployment(images):
 
 
 def test_placename(images, deployments):
-    result = compute_general_count(
-        images, deployments, groupby="location", species_col="scientific_name"
-    )
+    result = compute_general_count(images, deployments, groupby="location")
     expected = pd.DataFrame(
         {
-            "scientific_name": ["Canis lupus", "Eira barbara", "Panthera onca"],
+            "taxon": ["Canis lupus", "Eira barbara", "Panthera onca"],
             "images": [1, 3, 1],
-            "locations": [1, 1, 1]
+            "locations": [1, 1, 1],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -65,15 +54,11 @@ def test_placename(images, deployments):
 
 def test_rank_class(images):
     result = compute_general_count(
-        images,
-        groupby="deployment",
-        species_col="scientific_name",
-        add_taxonomy=True,
-        rank="class",
+        images, groupby="deployment", add_taxonomy=True, rank="class"
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": ["Canis lupus", "Eira barbara", "Panthera onca"],
+            "taxon": ["Canis lupus", "Eira barbara", "Panthera onca"],
             "images": [1, 3, 1],
             "deployments": [1, 2, 1],
             "class": ["Mammalia", "Mammalia", "Mammalia"],
@@ -88,15 +73,11 @@ def test_rank_class(images):
 
 def test_rank_family(images):
     result = compute_general_count(
-        images,
-        groupby="deployment",
-        species_col="scientific_name",
-        add_taxonomy=True,
-        rank="family",
+        images, groupby="deployment", add_taxonomy=True, rank="family"
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": ["Canis lupus", "Eira barbara", "Panthera onca"],
+            "taxon": ["Canis lupus", "Eira barbara", "Panthera onca"],
             "images": [1, 3, 1],
             "deployments": [1, 2, 1],
             "family": ["Canidae", "Mustelidae", "Felidae"],
@@ -109,18 +90,14 @@ def test_rank_family(images):
 
 def test_rank_error(images):
     with pytest.raises(ValueError):
-        compute_general_count(
-            images, add_taxonomy=True, rank="kingdom", species_col="scientific_name"
-        )
+        compute_general_count(images, add_taxonomy=True, rank="kingdom")
 
 
 def test_no_taxonomy(images):
-    result = compute_general_count(
-        images, add_taxonomy=False, species_col="scientific_name"
-    )
+    result = compute_general_count(images, add_taxonomy=False)
     expected = pd.DataFrame(
         {
-            "scientific_name": ["Canis lupus", "Eira barbara", "Panthera onca"],
+            "taxon": ["Canis lupus", "Eira barbara", "Panthera onca"],
             "images": [1, 3, 1],
             "deployments": [1, 2, 1],
         }
@@ -130,5 +107,5 @@ def test_no_taxonomy(images):
 
 def test_intact_input(images):
     images_original = images.copy()
-    compute_general_count(images, add_taxonomy=False, species_col="scientific_name")
+    compute_general_count(images, add_taxonomy=False)
     pd.testing.assert_frame_equal(images_original, images)

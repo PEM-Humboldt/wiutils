@@ -25,18 +25,70 @@ def images():
                 "002",
                 "002",
             ],
-            "scientific_name": [
-                "Panthera onca",
-                "Panthera onca",
-                "Panthera onca",
-                "Panthera onca",
-                "Panthera onca",
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                "Panthera onca",
-                "Panthera onca",
-                "Panthera onca",
+            "class": [
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+            ],
+            "order": [
+                "Carnivora",
+                "Carnivora",
+                "Carnivora",
+                "Carnivora",
+                "Carnivora",
+                "Carnivora",
+                "Carnivora",
+                "Carnivora",
+                "Carnivora",
+                "Carnivora",
+                "Carnivora",
+            ],
+            "family": [
+                "Felidae",
+                "Felidae",
+                "Felidae",
+                "Felidae",
+                "Felidae",
+                "Felidae",
+                "Felidae",
+                "Felidae",
+                "Felidae",
+                "Felidae",
+                "Felidae",
+            ],
+            "genus": [
+                "Panthera",
+                "Panthera",
+                "Panthera",
+                "Panthera",
+                "Panthera",
+                "Leopardus",
+                "Leopardus",
+                "Leopardus",
+                "Panthera",
+                "Panthera",
+                "Panthera",
+            ],
+            "species": [
+                "onca",
+                "onca",
+                "onca",
+                "onca",
+                "onca",
+                "pardalis",
+                "pardalis",
+                "pardalis",
+                "onca",
+                "onca",
+                "onca",
             ],
             "timestamp": [
                 "2020-11-27 06:45:57",
@@ -67,12 +119,10 @@ def deployments():
 
 
 def test_compute_abundance(images, deployments):
-    result = compute_detection_history(
-        images, deployments, days=7, species_col="scientific_name"
-    )
+    result = compute_detection_history(images, deployments, days=7)
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Leopardus pardalis",
                 "Leopardus pardalis",
                 "Leopardus pardalis",
@@ -124,15 +174,11 @@ def test_compute_abundance(images, deployments):
 
 def test_compute_presence(images, deployments):
     result = compute_detection_history(
-        images,
-        deployments,
-        days=14,
-        compute_abundance=False,
-        species_col="scientific_name",
+        images, deployments, days=14, compute_abundance=False
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Leopardus pardalis",
                 "Leopardus pardalis",
                 "Leopardus pardalis",
@@ -162,12 +208,10 @@ def test_compute_presence(images, deployments):
 
 
 def test_date_range_images(images, deployments):
-    result = compute_detection_history(
-        images, deployments, date_range="images", days=15, species_col="scientific_name"
-    )
+    result = compute_detection_history(images, deployments, date_range="images", days=15)
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Leopardus pardalis",
                 "Leopardus pardalis",
                 "Leopardus pardalis",
@@ -198,16 +242,11 @@ def test_date_range_images(images, deployments):
 
 def test_pivot(images, deployments):
     result = compute_detection_history(
-        images,
-        deployments,
-        date_range="images",
-        days=15,
-        pivot=True,
-        species_col="scientific_name",
+        images, deployments, date_range="images", days=15, pivot=True
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Leopardus pardalis",
                 "Leopardus pardalis",
                 "Panthera onca",
@@ -224,6 +263,6 @@ def test_pivot(images, deployments):
 def test_intact_input(images, deployments):
     images_original = images.copy()
     deployments_original = deployments.copy()
-    compute_detection_history(images, deployments, days=7, species_col="scientific_name")
+    compute_detection_history(images, deployments, days=7)
     pd.testing.assert_frame_equal(images_original, images)
     pd.testing.assert_frame_equal(deployments_original, deployments)

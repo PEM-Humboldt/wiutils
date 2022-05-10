@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 from . import _labels, _utils
+from .extraction import get_lowest_taxon
 from .filtering import _remove_wrapper
 
 
@@ -75,7 +76,6 @@ def compute_count_summary(
     images: pd.DataFrame,
     deployments: pd.DataFrame = None,
     groupby: str = "deployment",
-    species_col: str = "scientific_name",
     add_records_by_class: bool = False,
     add_species_by_class: bool = False,
     remove_unidentified_kws: dict = None,
@@ -98,8 +98,6 @@ def compute_count_summary(
 
             - 'deployment' to group by deployment (deployment_id)
             - 'location' to group by location (placename)
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     add_records_by_class : bool
         Whether to add number of independent records discriminated by
         taxonomic class.
@@ -155,17 +153,16 @@ def compute_count_summary(
                 subset.groupby(groupby_label).size().rename(f"records_{class_.lower()}")
             )
 
-    result = result.join(
-        images.groupby(groupby_label)[species_col].nunique().rename("species")
-    )
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
+    result = result.join(images.groupby(groupby_label)["taxon"].nunique().rename("taxa"))
     if add_species_by_class:
         classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
             subset = images[images[_labels.images.class_] == class_]
             result = result.join(
-                subset.groupby(groupby_label)[species_col]
+                subset.groupby(groupby_label)["taxon"]
                 .nunique()
-                .rename(f"species_{class_.lower()}")
+                .rename(f"taxa_{class_.lower()}")
             )
 
     result.index.name = groupby_label
@@ -179,7 +176,6 @@ def compute_detection(
     images: pd.DataFrame,
     deployments: pd.DataFrame = None,
     groupby: str = "deployment",
-    species_col: str = "scientific_name",
     compute_abundance: bool = True,
     remove_unidentified: bool = False,
     remove_unidentified_kws: dict = None,
@@ -205,8 +201,6 @@ def compute_detection(
 
             - 'deployment' to group by deployment (deployment_id)
             - 'location' to group by location (placename)
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     compute_abundance : bool
         Whether to compute the abundance for each deployment. If False,
         returns presence/absence for the deployments.
@@ -247,12 +241,11 @@ def compute_detection(
     )
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
-    result = images.groupby([species_col, groupby_label]).size()
-    species = images[species_col].unique()
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
+    result = images.groupby(["taxon", groupby_label]).size()
+    taxa = images["taxon"].unique()
     sites = images[groupby_label].unique()
-    idx = pd.MultiIndex.from_product(
-        [species, sites], names=[species_col, groupby_label]
-    )
+    idx = pd.MultiIndex.from_product([taxa, sites], names=["taxon", groupby_label])
     result = result.reindex(idx, fill_value=0)
     result.name = "value"
     result = result.reset_index()
@@ -261,10 +254,10 @@ def compute_detection(
         has_observations = result["value"] > 0
         result.loc[has_observations, "value"] = 1
 
-    result = result.sort_values([species_col, groupby_label], ignore_index=True)
+    result = result.sort_values(["taxon", groupby_label], ignore_index=True)
 
     if pivot:
-        result = result.pivot(index=species_col, columns=groupby_label, values="value")
+        result = result.pivot(index="taxon", columns=groupby_label, values="value")
         result = result.rename_axis(None, axis=1).reset_index()
 
     return result
@@ -273,7 +266,6 @@ def compute_detection(
 def compute_detection_history(
     images: pd.DataFrame,
     deployments: pd.DataFrame,
-    species_col: str = "scientific_name",
     date_range: str = "deployments",
     days: int = 1,
     compute_abundance: bool = True,
@@ -296,8 +288,6 @@ def compute_detection_history(
         DataFrame with the project's images.
     deployments : pd.DataFrame
         DataFrame with the project's deployments.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     date_range : str
         Table to compute the date range from. Possible values are:
 
@@ -363,9 +353,10 @@ def compute_detection_history(
         remove_domestic_kws,
     )
 
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
     freq = pd.Timedelta(days=days)
     groupers = [
-        pd.Grouper(key=species_col),
+        pd.Grouper(key="taxon"),
         pd.Grouper(key=_labels.images.deployment),
         pd.Grouper(key=_labels.images.date, freq=freq, origin=start),
     ]
@@ -374,12 +365,12 @@ def compute_detection_history(
     # A new index with all the combinations of species, sites and dates
     # is created to reindex the result and to assign zeros where there
     # were no observations.
-    species = images[species_col].unique()
+    species = images["taxon"].unique()
     sites = images[_labels.images.deployment].unique()
     dates = pd.date_range(start, end, freq=freq)
     idx = pd.MultiIndex.from_product(
         [species, sites, dates],
-        names=[species_col, _labels.images.deployment, _labels.images.date],
+        names=["taxon", _labels.images.deployment, _labels.images.date],
     )
     result = result.reindex(idx, fill_value=0)
     result.name = "value"
@@ -416,13 +407,13 @@ def compute_detection_history(
     result = result.drop(columns=[_labels.deployments.start, _labels.deployments.end])
 
     result = result.sort_values(
-        [species_col, _labels.images.deployment, _labels.images.date], ignore_index=True
+        ["taxon", _labels.images.deployment, _labels.images.date], ignore_index=True
     )
 
     if pivot:
         result[_labels.images.date] = result[_labels.images.date].astype(str)
         result = result.pivot(
-            index=[species_col, _labels.images.deployment],
+            index=["taxon", _labels.images.deployment],
             columns=_labels.images.date,
             values="value",
         )
@@ -435,7 +426,6 @@ def compute_general_count(
     images: pd.DataFrame,
     deployments: pd.DataFrame = None,
     groupby: str = "deployment",
-    species_col: str = "scientific_name",
     add_taxonomy: bool = False,
     rank: str = "class",
     remove_unidentified: bool = False,
@@ -461,8 +451,6 @@ def compute_general_count(
 
             - 'deployment' to group by deployment (deployment_id)
             - 'location' to group by location (placename)
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     add_taxonomy : bool
         Whether to add the superior taxonomy of the species to the result.
     rank : str
@@ -511,18 +499,17 @@ def compute_general_count(
     )
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
-    result = images.groupby(species_col).agg(
-        {species_col: "size", groupby_label: "nunique"}
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
+    result = images.groupby("taxon").agg(
+        {"taxon": "size", groupby_label: "nunique"}
     )
-    result = result.rename(
-        columns={species_col: "images", groupby_label: f"{groupby}s"}
-    )
+    result = result.rename(columns={"taxon": "images", groupby_label: f"{groupby}s"})
     result = result.reset_index()
 
     if add_taxonomy:
         taxonomy_columns = _utils.taxonomy.get_taxonomy_columns(rank)
-        taxonomy = images[[species_col, *taxonomy_columns]].drop_duplicates(species_col)
-        result = pd.merge(result, taxonomy, on=species_col, how="left")
+        taxonomy = images[["taxon", *taxonomy_columns]].drop_duplicates("taxon")
+        result = pd.merge(result, taxonomy, on="taxon", how="left")
 
     return result
 
@@ -532,7 +519,6 @@ def compute_hill_numbers(
     deployments: pd.DataFrame = None,
     groupby: str = "deployment",
     q_values: Union[int, list, tuple, np.ndarray] = (0, 1, 2),
-    species_col: str = "scientific_name",
     remove_unidentified: bool = False,
     remove_unidentified_kws: dict = None,
     remove_duplicates: bool = False,
@@ -559,8 +545,6 @@ def compute_hill_numbers(
             - 'location' to group by location (placename)
     q_values : int, list, tuple or array
         Value(s) of q to compute Hill numbers for.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     remove_unidentified : bool
         Whether to remove unidentified images. Wrapper for the
         wiutils.remove_unidentified function.
@@ -603,7 +587,8 @@ def compute_hill_numbers(
     result = []
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
-    abundance = images.groupby([groupby_label, species_col]).size()
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
+    abundance = images.groupby([groupby_label, "taxon"]).size()
     relative_abundance = abundance / abundance.groupby(level=0).sum()
     for site, group in relative_abundance.groupby(level=0):
         for q in q_values:

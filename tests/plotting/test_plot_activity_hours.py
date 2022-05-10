@@ -12,17 +12,65 @@ from wiutils.plotting import plot_activity_hours
 def images():
     return pd.DataFrame(
         {
-            "scientific_name": [
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Tremarctos ornatus",
-                "Tremarctos ornatus",
-                "Tremarctos ornatus",
+            "class": [
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+                "Mammalia",
+            ],
+            "order": [
+                "Pilosa",
+                "Pilosa",
+                "Pilosa",
+                "Pilosa",
+                "Pilosa",
+                "Pilosa",
+                "Pilosa",
+                "Carnivora",
+                "Carnivora",
+                "Carnivora",
+            ],
+            "family": [
+                "Bradypodidae",
+                "Bradypodidae",
+                "Bradypodidae",
+                "Bradypodidae",
+                "Bradypodidae",
+                "Bradypodidae",
+                "Bradypodidae",
+                "Ursidae",
+                "Ursidae",
+                "Ursidae",
+            ],
+            "genus": [
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Tremarctos",
+                "Tremarctos",
+                "Tremarctos",
+            ],
+            "species": [
+                "variegatus",
+                "variegatus",
+                "variegatus",
+                "variegatus",
+                "variegatus",
+                "variegatus",
+                "variegatus",
+                "ornatus",
+                "ornatus",
+                "ornatus",
             ],
             "timestamp": [
                 "2020-11-16 08:13:13",
@@ -45,7 +93,7 @@ def test_hist(images, mocker):
     plot_activity_hours(images, "Bradypus variegatus", kind="hist")
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Bradypus variegatus",
                 "Bradypus variegatus",
                 "Bradypus variegatus",
@@ -66,7 +114,7 @@ def test_kde(images, mocker):
     plot_activity_hours(images, "Tremarctos ornatus", kind="kde")
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Tremarctos ornatus",
                 "Tremarctos ornatus",
                 "Tremarctos ornatus",
@@ -85,7 +133,7 @@ def test_multiple_names(images, mocker):
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Bradypus variegatus",
                 "Bradypus variegatus",
                 "Bradypus variegatus",

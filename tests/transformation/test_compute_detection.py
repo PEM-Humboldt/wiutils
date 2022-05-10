@@ -12,13 +12,45 @@ def images():
     return pd.DataFrame(
         {
             "deployment_id": ["001", "001", "001", "001", "002", "002"],
-            "scientific_name": [
-                "Zentrygon linearis",
-                "Zentrygon linearis",
-                "Galictis vittata",
-                "Galictis vittata",
-                "Zentrygon linearis",
-                "Eira barbara",
+            "class": [
+                "Aves",
+                "Aves",
+                "",
+                "",
+                "Aves",
+                "Mammalia",
+            ],
+            "order": [
+                "Columbiformes",
+                "Columbiformes",
+                "",
+                "",
+                "Columbiformes",
+                "Carnivora",
+            ],
+            "family": [
+                "Columbidae",
+                "Columbidae",
+                "",
+                "",
+                "Columbidae",
+                "Mustelidae",
+            ],
+            "genus": [
+                "Zentrygon",
+                "Zentrygon",
+                "Galictis",
+                "Galictis",
+                "Zentrygon",
+                "Eira",
+            ],
+            "species": [
+                "linearis",
+                "linearis",
+                "vittata",
+                "vittata",
+                "linearis",
+                "barbara",
             ],
         }
     )
@@ -34,11 +66,10 @@ def test_compute_abundance_deployment(images):
         images,
         groupby="deployment",
         compute_abundance=True,
-        species_col="scientific_name",
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Eira barbara",
                 "Eira barbara",
                 "Galictis vittata",
@@ -59,11 +90,10 @@ def test_compute_abundance_location(images, deployments):
         deployments,
         groupby="location",
         compute_abundance=True,
-        species_col="scientific_name",
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Eira barbara",
                 "Galictis vittata",
                 "Zentrygon linearis",
@@ -80,11 +110,10 @@ def test_compute_presence_deployment(images):
         images,
         groupby="deployment",
         compute_abundance=False,
-        species_col="scientific_name",
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Eira barbara",
                 "Eira barbara",
                 "Galictis vittata",
@@ -105,11 +134,10 @@ def test_compute_presence_location(images, deployments):
         deployments,
         groupby="location",
         compute_abundance=False,
-        species_col="scientific_name",
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Eira barbara",
                 "Galictis vittata",
                 "Zentrygon linearis",
@@ -123,11 +151,13 @@ def test_compute_presence_location(images, deployments):
 
 def test_pivot_deployment(images):
     result = compute_detection(
-        images, groupby="deployment", pivot=True, species_col="scientific_name"
+        images,
+        groupby="deployment",
+        pivot=True,
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Eira barbara",
                 "Galictis vittata",
                 "Zentrygon linearis",
@@ -145,11 +175,10 @@ def test_pivot_location(images, deployments):
         deployments,
         groupby="location",
         pivot=True,
-        species_col="scientific_name",
     )
     expected = pd.DataFrame(
         {
-            "scientific_name": [
+            "taxon": [
                 "Eira barbara",
                 "Galictis vittata",
                 "Zentrygon linearis",
@@ -162,5 +191,5 @@ def test_pivot_location(images, deployments):
 
 def test_intact_input(images):
     images_original = images.copy()
-    compute_detection(images, species_col="scientific_name")
+    compute_detection(images)
     pd.testing.assert_frame_equal(images_original, images)

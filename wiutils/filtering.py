@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 
 from . import _domestic, _labels, _utils
+from .extraction import get_lowest_taxon
 
 
 def _remove_wrapper(
@@ -92,21 +93,18 @@ def remove_domestic(images: pd.DataFrame, reset_index: bool = True) -> pd.DataFr
 
 def remove_duplicates(
     images: pd.DataFrame,
-    species_col: str = "scientific_name",
     interval: int = 30,
     unit: str = "minutes",
     reset_index: bool = True,
 ) -> pd.DataFrame:
     """
-    Removes duplicate records (images) from a same species in the same
-    site given a time interval.
+    Removes duplicate records (images) from the same taxon in the same
+    deployment given a time interval.
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images :DataFrame
         DataFrame with the project's images.
-    species_col : str
-        Label of the scientific name column in the images DataFrame.
     interval : int
         Time interval (for a specific time unit).
     unit : str
@@ -132,25 +130,30 @@ def remove_duplicates(
             "unit must be one of ['weeks', 'days', 'hours', 'minutes', 'seconds']"
         )
 
+    images = images.copy()
+    images["taxon"] = get_lowest_taxon(images, return_rank=False)
+
     df = images.copy()
     df[_labels.images.date] = pd.to_datetime(df[_labels.images.date])
 
-    df = df.sort_values([_labels.images.deployment, species_col, _labels.images.date])
-    delta = df.groupby([_labels.images.deployment, species_col])[
+    df = df.sort_values([_labels.images.deployment, "taxon", _labels.images.date])
+    delta = df.groupby([_labels.images.deployment, "taxon"])[
         _labels.images.date
     ].diff()
     mask = (delta >= pd.Timedelta(**{unit: interval})) | (delta.isna())
 
-    images_reference = images.dropna(subset=[species_col])
+    images_reference = images.dropna(subset=["taxon"])
     images_reference = images_reference.sort_values(
-        [_labels.images.deployment, species_col, _labels.images.date]
+        [_labels.images.deployment, "taxon", _labels.images.date]
     )
     df = images_reference.loc[mask]
-    df = pd.concat([df, images[images[species_col].isna()]])
+    df = pd.concat([df, images[images["taxon"].isna()]])
     df = df.sort_index()
 
     if reset_index:
         df = df.reset_index(drop=True)
+
+    df = df.drop(columns="taxon")
 
     return df
 

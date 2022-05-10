@@ -78,17 +78,6 @@ def images():
                 np.nan,
                 "pardalis",
             ],
-            "scientific_name": [
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                np.nan,
-                "Bubulcus ibis",
-                np.nan,
-                "Saimiri sciureus",
-                "Cyanocorax violaceus",
-                np.nan,
-                "Leopardus pardalis",
-            ],
             "timestamp": [
                 "2020-11-24 00:06:26",
                 "2020-11-24 00:54:12",
@@ -117,7 +106,7 @@ def test_groupby_deployment(images):
             "total_images": [3, 6],
             "identified_images": [2, 5],
             "records": [2, 5],
-            "species": [1, 4],
+            "taxa": [1, 5],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -131,7 +120,7 @@ def test_groupby_location(images, deployments):
             "total_images": [9],
             "identified_images": [7],
             "records": [7],
-            "species": [4],
+            "taxa": [5],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -149,7 +138,7 @@ def test_add_records_by_class_deployment(images):
             "records": [2, 5],
             "records_mammalia": [2, 2],
             "records_aves": [0, 3],
-            "species": [1, 4],
+            "taxa": [1, 5],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -167,7 +156,7 @@ def test_add_records_by_class_location(images, deployments):
             "records": [7],
             "records_mammalia": [4],
             "records_aves": [3],
-            "species": [4],
+            "taxa": [5],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -183,9 +172,9 @@ def test_add_species_by_class_deployment(images):
             "total_images": [3, 6],
             "identified_images": [2, 5],
             "records": [2, 5],
-            "species": [1, 4],
-            "species_mammalia": [1, 2],
-            "species_aves": [0, 2],
+            "taxa": [1, 5],
+            "taxa_mammalia": [1, 2],
+            "taxa_aves": [0, 3],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -201,9 +190,9 @@ def test_add_species_by_class_location(images, deployments):
             "total_images": [9],
             "identified_images": [7],
             "records": [7],
-            "species": [4],
-            "species_mammalia": [2],
-            "species_aves": [2],
+            "taxa": [5],
+            "taxa_mammalia": [2],
+            "taxa_aves": [3],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -219,7 +208,7 @@ def test_remove_unidentified_kws(images):
             "total_images": [3, 6],
             "identified_images": [2, 4],
             "records": [2, 4],
-            "species": [1, 4],
+            "taxa": [1, 4],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -235,7 +224,7 @@ def test_remove_duplicates_kws(images):
             "total_images": [3, 6],
             "identified_images": [2, 5],
             "records": [1, 5],
-            "species": [1, 4],
+            "taxa": [1, 5],
         }
     )
     pd.testing.assert_frame_equal(result, expected)

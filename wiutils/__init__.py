@@ -1,5 +1,5 @@
 from wiutils.darwincore import create_dwc_events, create_dwc_records
-from wiutils.extraction import get_scientific_name
+from wiutils.extraction import get_lowest_taxon, get_scientific_name
 from wiutils.filtering import (
     remove_domestic,
     remove_duplicates,

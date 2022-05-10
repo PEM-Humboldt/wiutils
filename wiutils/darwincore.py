@@ -4,8 +4,8 @@ Functions to create Darwin Core tables from a Wildlife Insights project.
 import pandas as pd
 import numpy as np
 
-from . import _dwc, _utils
-from .extraction import get_scientific_name
+from . import _dwc, _labels, _utils
+from .extraction import get_lowest_taxon
 from .filtering import _remove_wrapper
 
 
@@ -123,9 +123,8 @@ def create_dwc_records(
 
     """
     images = images.copy()
-    images["scientific_name"] = get_scientific_name(
-        images, keep_genus=False, add_qualifier=False
-    )
+    images = _utils.taxonomy.replace_unidentified(images)
+    images[_labels.images.name] = images[_labels.images.name].replace("Blank", np.nan)
     images = _remove_wrapper(
         images,
         remove_unidentified,
@@ -137,38 +136,21 @@ def create_dwc_records(
     )
 
     result = pd.merge(images, deployments, on="deployment_id", how="left")
-    result = result.rename(
-        columns={**_dwc.mapping.records, "scientific_name": "scientificName"}
-    )
-
-    remove_values = ["Blank", "No CV Result", "Unknown"]
-    result = result.replace(remove_values, np.nan)
+    result = result.rename(columns=_dwc.mapping.records)
 
     result.loc[result["class"].notna(), "kingdom"] = "Animalia"
     result.loc[result["class"].notna(), "phylum"] = "Chordata"
-    epithets = result["species"].str.split(" ", expand=True)
+
+    taxa, ranks = get_lowest_taxon(images, return_rank=True)
+    result["scientificName"] = taxa
+    result["taxonRank"] = ranks
+
+    epithets = images[_labels.images.epithet].str.split(" ", expand=True)
     result["specificEpithet"] = epithets[0]
     if 1 in epithets.columns:
         result["infraspecificEpithet"] = epithets[1]
     else:
         result["infraspecificEpithet"] = np.nan
-
-    result["taxonRank"] = _utils.taxonomy.compute_taxonomic_rank(result)
-
-    # The Darwin Core standard specifies that the scientificName term
-    # should be the name in the lowest level taxonomic rank that can be
-    # determined. Thus, this taxon is retrieved by indexing the respective
-    # ranks for those images where an identification different from
-    # species was made.
-    mask = (result["scientificName"].isna()) & (result["taxonRank"].notna())
-    sorted_columns = np.argsort(result.columns)
-    column_indices = np.searchsorted(
-        result.columns[sorted_columns], result.loc[mask, "taxonRank"]
-    )
-    indices = sorted_columns[column_indices]
-    result.loc[mask, "scientificName"] = result.loc[mask].values[
-        np.arange(mask.sum()), indices
-    ]
 
     result["eventDate"] = pd.to_datetime(result["timestamp"]).dt.strftime("%Y-%m-%d")
     result["eventTime"] = pd.to_datetime(result["timestamp"]).dt.strftime("%H:%M:%S")
