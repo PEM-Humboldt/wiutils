@@ -38,6 +38,10 @@ plugins:
         python:
           selection:
             docstring_style: numpy
+          setup_commands:
+            - import sys
+            - from unittest.mock import MagicMock as mock
+            - sys.modules["pandas"] = mock()
           rendering:
             show_root_heading: true
 
