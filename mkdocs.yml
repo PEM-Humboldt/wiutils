@@ -1,0 +1,32 @@
+site_name: wiutils
+repo_url: https://github.com/PEM-Humboldt/wiutils
+copyright: Copyright &copy; 2021-2022 Programa de Evaluación y Monitoreo de la Biodiversidad - Instituto de Investigación de Recursos Biológicos Alexander von Humboldt
+
+theme:
+  name: material
+
+nav:
+  - index.md
+  - contribute.md
+
+extra:
+  generator: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          selection:
+            docstring_style: numpy
+          rendering:
+            show_root_heading: true
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
