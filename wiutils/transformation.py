@@ -84,7 +84,7 @@ def compute_count_summary(
     remove_domestic_kws: dict = None,
 ) -> pd.DataFrame:
     """
-    Computes a summary of images, records and species count by deployment.
+    Computes a summary of images, records and taxa count by deployment.
 
     Parameters
     ----------
@@ -187,7 +187,7 @@ def compute_detection(
 ):
     """
     Computes the detection (in terms of abundance or presence) of each
-    species by deployment.
+    taxon by deployment.
 
     Parameters
     ----------
@@ -279,7 +279,7 @@ def compute_detection_history(
 ) -> pd.DataFrame:
     """
     Computes the detection history (in terms of abundance or presence) by
-    species and deployment, grouping observations into specific days-long
+    taxon and deployment, grouping observations into specific days-long
     intervals.
 
     Parameters
@@ -437,7 +437,7 @@ def compute_general_count(
 ):
     """
     Computes the general abundance and number of deployments for each
-    species.
+    taxon.
 
     Parameters
     ----------
