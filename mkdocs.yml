@@ -41,7 +41,13 @@ plugins:
           setup_commands:
             - import sys
             - from unittest.mock import MagicMock as mock
+            - sys.modules["cv2"] = mock()
+            - sys.modules["ffmpeg"] = mock()
+            - sys.modules["matplotlib"] = mock()
+            - sys.modules["numpy"] = mock()
             - sys.modules["pandas"] = mock()
+            - sys.modules["PIL"] = mock()
+            - sys.modules["seaborn"] = mock()
           rendering:
             show_root_heading: true
 
