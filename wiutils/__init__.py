@@ -17,11 +17,11 @@ from wiutils.preprocessing import (
     reduce_image_size,
 )
 from wiutils.reading import read_project
-from wiutils.transformation import (
+from wiutils.summarizing import (
     compute_count_summary,
+    compute_date_ranges,
     compute_detection,
     compute_detection_history,
     compute_general_count,
     compute_hill_numbers,
 )
-from wiutils.verification import compute_date_ranges
