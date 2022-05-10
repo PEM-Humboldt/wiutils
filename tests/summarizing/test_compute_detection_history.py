@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.transformation import compute_detection_history
+from wiutils.summarizing import compute_detection_history
 
 
 @pytest.fixture(scope="function")

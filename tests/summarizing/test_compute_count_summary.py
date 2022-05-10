@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.transformation import compute_count_summary
+from wiutils.summarizing import compute_count_summary
 
 
 @pytest.fixture(scope="function")
