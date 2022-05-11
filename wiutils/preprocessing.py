@@ -197,7 +197,7 @@ def reduce_image_size(
     method : int
         Image resizing method used by PIL. Possible values are:
 
-            - 0: PIL.Image.Resampling.Resampling.NEAREST
+            - 0: PIL.Image.Resampling.NEAREST
             - 1: PIL.Image.Resampling.LANCZOS
             - 2: PIL.Image.Resampling.BILINEAR
             - 3: PIL.Image.Resampling.BICUBIC
