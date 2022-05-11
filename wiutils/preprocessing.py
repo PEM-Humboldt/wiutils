@@ -12,20 +12,6 @@ from PIL import Image, ExifTags
 
 
 def _get_exif_code(tag: str) -> int:
-    """
-    Gets the exif code for a specific tag.
-
-    Parameters
-    ----------
-    tag : str
-        Tag name to get the exif code for.
-
-    Returns
-    -------
-    int
-        Exif code.
-
-    """
     for key, value in ExifTags.TAGS.items():
         if value == tag:
             return key
