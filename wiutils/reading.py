@@ -37,7 +37,7 @@ def load_demo(name) -> tuple:
     elif name == "cristales":
         path = root.joinpath("data/cristales.zip")
     else:
-        raise ValueError("name must be of one ['cajambre']")
+        raise ValueError("name must be of one ['cajambre', 'cristales']")
 
     return read_project(path)
 
