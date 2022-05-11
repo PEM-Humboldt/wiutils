@@ -13,7 +13,7 @@ def translate(df: pd.DataFrame, language: str) -> pd.DataFrame:
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df : DataFrame
         DataFrame to translate values in.
     language : str
         Language to translate values. Possible values are:

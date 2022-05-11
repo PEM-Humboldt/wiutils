@@ -22,7 +22,7 @@ def _remove_wrapper(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
     unidentified : bool
         Whether to remove unidentified images. Wrapper for the
@@ -70,7 +70,7 @@ def remove_domestic(images: pd.DataFrame, reset_index: bool = True) -> pd.DataFr
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
     reset_index : bool
         Whether to reset the index of the resulting DataFrame. If True,
@@ -103,7 +103,7 @@ def remove_duplicates(
 
     Parameters
     ----------
-    images :DataFrame
+    images : DataFrame
         DataFrame with the project's images.
     interval : int
         Time interval (for a specific time unit).
@@ -167,7 +167,7 @@ def remove_inconsistent_dates(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
     deployments : pd.DataFrame
         DataFrame with the project's deployments.
@@ -224,7 +224,7 @@ def remove_unidentified(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
     rank : str
         Taxonomic rank for which images that do not have an identification

@@ -47,13 +47,13 @@ def change_image_timestamp(
 
     Parameters
     ----------
-    image_path : str or pathlib.Path
+    image_path : str or Path
         Relative or absolute path of the image to resample.
-    output_path : str or pathlib.Path
+    output_path : str or Path
         Relative or absolute path of the output image.
     timestamp : str, datetime.datetime or pd.Timestamp
         New timestamp to write to the image's metadata.
-    offset : pd.Offset
+    offset : DateOffset
         Offset to add to or subtract from the original image's timestamp.
         This argument only has effect when no timestamp is specified
     direction : str
@@ -108,9 +108,9 @@ def convert_video_to_images(
 
     Parameters
     ----------
-    video_path : str or pathlib.Path
+    video_path : str or Path
         Relative or absolute path of the video to convert.
-    output_path : str or pathlib.Path
+    output_path : str or Path
         Relative or absolute path of the folder to save the images to. If
         the folder does not exist, it will be created.
     timestamp : str, datetime.datetime or pd.Timestamp
@@ -188,9 +188,9 @@ def reduce_image_size(
 
     Parameters
     ----------
-    image_path : str or pathlib.Path
+    image_path : str or Path
         Relative or absolute path of the image to resample.
-    output_path : str or pathlib.Path
+    output_path : str or Path
         Relative or absolute path of the output image.
     factor : float
         Resampling factor.

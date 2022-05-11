@@ -39,15 +39,29 @@ def _process_groupby_arg(
     images: pd.DataFrame, deployments: pd.DataFrame, groupby: str
 ) -> tuple:
     """
+    Processes the groupby argument of several functions to return the
+    corresponding column label and the merged images DataFrame if that
+    is the case.
 
     Parameters
     ----------
-    images
-    deployments
-    groupby
+    images : DataFrame
+        DataFrame with the project's images.
+    deployments : DataFrame
+        DataFrame with the project's deployments. Must be passed only if
+        groupby is 'location'.
+    groupby : str
+        Level to group results by. Can be one of:
+
+            - 'deployment' to group by deployment (deployment_id)
+            - 'location' to group by location (placename)
 
     Returns
     -------
+    DataFrame
+        Intact or merged images DataFrame
+    str
+        groupby label
 
     """
     if groupby == "deployment":
@@ -88,9 +102,9 @@ def compute_count_summary(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments. Must be passed only if
         groupby is 'location'.
     groupby : str
@@ -307,9 +321,9 @@ def compute_detection(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments. Must be passed only if
         groupby is 'location'.
     groupby : str
@@ -400,9 +414,9 @@ def compute_detection_history(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments.
     date_range : str
         Table to compute the date range from. Possible values are:
@@ -557,9 +571,9 @@ def compute_general_count(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments. Must be passed only if
         groupby is 'location'.
     groupby : str
@@ -649,9 +663,9 @@ def compute_hill_numbers(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments. Must be passed only if
         groupby is 'location'.
     groupby : str
