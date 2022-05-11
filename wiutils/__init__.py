@@ -16,7 +16,7 @@ from wiutils.preprocessing import (
     convert_video_to_images,
     reduce_image_size,
 )
-from wiutils.reading import read_project
+from wiutils.reading import load_demo, read_project
 from wiutils.summarizing import (
     compute_count_summary,
     compute_date_ranges,

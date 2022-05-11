@@ -1,0 +1,20 @@
+project_id,deployment_id,placename,longitude,latitude,start_date,end_date,bait_type,bait_description,feature_type,feature_type_methodology,camera_id,quiet_period,camera_functioning,sensor_height,height_other,sensor_orientation,orientation_other,plot_treatment,plot_treatment_description,detection_distance,subproject_name,subproject_design,event_name,event_description,event_type,recorded_by
+2003124,CTCCR035077,CTCCR03,-73.775759,2.240571,2016-10-26 00:00:00,2016-12-01 00:00:00,None,,None,,2017313,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR135092,CTCCR13,-73.767587,2.26877,2016-10-28 00:00:00,2016-12-04 00:00:00,None,,None,,2017322,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR025073,CTCCR02,-73.778958,2.248476,2016-10-25 00:00:00,2016-12-03 00:00:00,None,,None,,2017312,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR065079,CTCCR06,-73.77789,2.265684,2016-10-26 00:00:00,2016-12-03 00:00:00,None,,None,,2017315,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR095083,CTCCR09,-73.796507,2.275649,2016-11-05 00:00:00,2016-12-09 00:00:00,None,,None,,2017318,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR155091,CTCCR15,-73.773672,2.305999,2016-11-01 00:00:00,2016-12-04 00:00:00,None,,None,,2017324,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR165091,CTCCR16,-73.779773,2.300415,2016-11-07 00:00:00,2016-12-12 00:00:00,None,,None,,2017325,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR145082,CTCCR14,-73.782438,2.309341,2016-10-31 00:00:00,2016-12-13 00:00:00,None,,None,,2017323,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR085074,CTCCR08,-73.791407,2.267635,2016-11-02 00:00:00,2016-12-13 00:00:00,None,,None,,2017317,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR055075,CTCCR05,-73.785761,2.260175,2016-10-29 00:00:00,2016-12-02 00:00:00,None,,None,,2017314,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR115088,CTCCR11,-73.768829,2.247364,2016-11-01 00:00:00,2016-11-27 00:00:00,None,,None,,2017320,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR205081,CTCCR20,-73.774592,2.277144,2016-11-01 00:00:00,2016-12-03 00:00:00,None,,None,,2017329,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR075085,CTCCR07,-73.775139,2.256268,2016-10-27 00:00:00,2016-12-01 00:00:00,None,,None,,2017316,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR175084,CTCCR17,-73.78396,2.292642,2016-10-31 00:00:00,2016-11-04 00:00:00,None,,None,,2017326,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR105080,CTCCR10,-73.799928,2.265173,2016-10-27 00:00:00,2016-12-10 00:00:00,None,,None,,2017319,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR125078,CTCCR12,-73.752587,2.255163,2016-11-15 00:00:00,2016-11-30 00:00:00,None,,None,,2017321,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR015087,CTCCR01,-73.789519,2.251501,2016-11-01 00:00:00,2016-11-30 00:00:00,None,,None,,2017311,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR195086,CTCCR19,-73.781042,2.284029,2016-11-11 00:00:00,2016-11-30 00:00:00,None,,None,,2017328,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
+2003124,CTCCR185090,CTCCR18,-73.7837,2.275322,2016-11-07 00:00:00,2016-11-29 00:00:00,None,,None,,2017327,0,Camera Functioning,Knee height,,Parallel,,,,,,,,,,Angélica Diaz-Pulido
