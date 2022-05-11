@@ -59,6 +59,7 @@ Functions in `wiutils` can be grouped in seven different categories:
 ### Reading
 | Function                                                  | Description                                                                          |
 |-----------------------------------------------------------|--------------------------------------------------------------------------------------|
+| [`load_demo`](reference/reading/#wiutils.load_demo)       | Loads images and deployments from a demo dataset.                                    |
 | [`read_project`](reference/reading/#wiutils.read_project) | Reads images and deployments tables for a specific Wildlife Insights project bundle. |
 
 ### Filtering
@@ -101,6 +102,12 @@ Functions in `wiutils` can be grouped in seven different categories:
 | [`change_image_timestamp`](reference/preprocessing/#wiutils.change_image_timestamp)   | Plots the activity hours of one or multiple taxa by grouping all observations into a 24-hour range. |
 | [`convert_video_to_images`](reference/preprocessing/#wiutils.convert_video_to_images) | Converts a video to images with an associated timestamp.                                            |
 | [`reduce_image_size`](reference/preprocessing/#wiutils.reduce_image_size)             | Reduces image file size by resampling using a given factor.                                         |
+
+## User guide
+Head to the [user guide](guide/index.md) to see usage examples and explanations for the different functions.
+
+## Reference
+Head to the [reference](reference.md) to see all available functions.
 
 ## Wildlife Insights
 Wildlife Insights is *a cloud-based platform that uses machine learning to identify animals in camera trap images*. Apart from helping with image classification, Wildlife Insights allows to store and manage camera trap data and metadata. It also offers the possibility to download this data in a convenient format for further analysis and sharing. To learn more about Wildlife Insights go to <https://www.wildlifeinsights.org/get-started>.
