@@ -33,9 +33,9 @@ def load_demo(name) -> tuple:
     """
     root = pathlib.Path(__file__).parents[0]
     if name == "cajambre":
-        path = root.joinpath("demo/cajambre")
+        path = root.joinpath("data/cajambre.zip")
     elif name == "cristales":
-        path = root.joinpath("demo/cristales")
+        path = root.joinpath("data/cristales.zip")
     else:
         raise ValueError("name must be of one ['cajambre']")
 
