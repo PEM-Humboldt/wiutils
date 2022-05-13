@@ -14,14 +14,50 @@ from .filtering import _remove_wrapper
 from .summarizing import compute_date_ranges, compute_detection_history
 
 
+def _plot_polar(
+    df: pd.DataFrame,
+    y: str,
+    hue: str = None,
+    density: bool = False,
+    kind: str = "hist",
+    fill: bool = True,
+) -> plt.PolarAxes:
+    if hue:
+        unique = df[hue].unique()
+    else:
+        unique = [None]
+
+    width = 2 * np.pi / 24
+    theta = np.arange(24) * width
+    ax = plt.subplot(polar=True)
+    for value in unique:
+        if hue:
+            mask = df[hue] == value
+        else:
+            mask = pd.Series(True, index=df.index)
+        subset = df[mask]
+        hist, edges = np.histogram(subset[y], bins=np.arange(25), density=density)
+        if kind == "area":
+            plt.plot(theta, hist)
+            if fill:
+                plt.fill(theta, hist, alpha=0.25)
+        elif kind == "hist":
+            plt.bar(theta, hist, width, fill=fill)
+        else:
+            raise ValueError("kind must be one of ['area', 'hist']")
+
+    return ax
+
+
 def plot_activity_hours(
     images: pd.DataFrame,
     names: Union[list, str, pd.Series],
-    remove_duplicates: bool = False,
-    remove_duplicates_kws: dict = None,
     kind: str = "kde",
+    polar: bool = False,
     hist_kws: dict = None,
     kde_kws: dict = None,
+    remove_duplicates: bool = False,
+    remove_duplicates_kws: dict = None,
 ) -> Union[plt.Axes, plt.PolarAxes]:
     """
     Plots the activity hours of one or multiple taxa by grouping all
@@ -33,11 +69,6 @@ def plot_activity_hours(
         DataFrame with the project's images.
     names : list, str or Series
         List of names to plot activity hours for.
-    remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the
-        wiutils.remove_duplicates function.
-    remove_duplicates_kws : dict
-        Keyword arguments for the wiutils.remove_duplicates function.
     kind : str
         Type of plot. Values can be:
 
@@ -49,6 +80,11 @@ def plot_activity_hours(
     kde_kws : dict
         Keyword arguments passed to the seaborn.kde() function. Only
         has effect if kind is 'kde'.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
 
     Returns
     -------
@@ -70,7 +106,6 @@ def plot_activity_hours(
         raise ValueError(f"{list(inconsistent_names)} were not found in images.")
 
     images = images.copy()
-
     if remove_duplicates:
         images = _remove_wrapper(
             images, duplicates=True, duplicates_kws=remove_duplicates_kws
@@ -82,26 +117,42 @@ def plot_activity_hours(
     images["hour"] = images[_labels.images.date].dt.hour + (
         images[_labels.images.date].dt.minute / 60
     )
-    images = images[["taxon", "hour"]]
 
-    if kind == "hist":
-        ax = sns.histplot(
-            data=images,
-            x="hour",
-            hue="taxon",
-            binwidth=1,
-            binrange=(0, 24),
-            discrete=False,
-            **hist_kws,
-        )
-    elif kind == "kde":
-        ax = sns.kdeplot(data=images, x="hour", hue="taxon", **kde_kws)
-    else:
-        raise ValueError("kind must be one of ['hist', 'kde']")
-
-    ax.set_xlim(0, 24)
     labels = [f"{h:02}:00" for h in np.arange(0, 24, 2)]
-    ax.set_xticks(range(0, 24, 2), labels=labels)
+
+    if polar:
+        if kind in ("area", "hist"):
+            ax = _plot_polar(images, "hour", hue="taxon", kind=kind)
+        elif kind == "kde":
+            raise ValueError("kind cannot be 'kde' when polar=True.")
+        else:
+            raise ValueError("kind must be one of ['area', 'hist']")
+
+        ax.set_theta_direction(-1)
+        ax.set_theta_zero_location("N")
+        plt.thetagrids(np.arange(0, 360, 360 // 12), labels)
+
+    else:
+        images = images[["taxon", "hour"]]
+        if kind == "area":
+            raise ValueError("kind cannot be 'area' when polar=False.")
+        elif kind == "hist":
+            ax = sns.histplot(
+                data=images,
+                x="hour",
+                hue="taxon",
+                binwidth=1,
+                binrange=(0, 24),
+                discrete=False,
+                **hist_kws,
+            )
+        elif kind == "kde":
+            ax = sns.kdeplot(data=images, x="hour", hue="taxon", **kde_kws)
+        else:
+            raise ValueError("kind must be one of ['hist', 'kde']")
+
+        ax.set_xlim(0, 24)
+        ax.set_xticks(range(0, 24, 2), labels=labels)
 
     return ax
 
