@@ -3,7 +3,8 @@ Functions to plot information from the images and deployments tables.
 """
 from typing import Union
 
-import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -21,7 +22,7 @@ def plot_activity_hours(
     kind: str = "kde",
     hist_kws: dict = None,
     kde_kws: dict = None,
-) -> matplotlib.axes.Axes:
+) -> Union[plt.Axes, plt.PolarAxes]:
     """
     Plots the activity hours of one or multiple taxa by grouping all
     observations into a 24-hour range.
@@ -78,7 +79,9 @@ def plot_activity_hours(
     images["taxon"] = taxa
     images = images.loc[images["taxon"].isin(names), :].reset_index(drop=True)
     images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
-    images["hour"] = images[_labels.images.date].dt.round("H").dt.hour
+    images["hour"] = images[_labels.images.date].dt.hour + (
+        images[_labels.images.date].dt.minute / 60
+    )
     images = images[["taxon", "hour"]]
 
     if kind == "hist":
@@ -87,7 +90,7 @@ def plot_activity_hours(
             x="hour",
             hue="taxon",
             binwidth=1,
-            binrange=(-0.5, 23.5),
+            binrange=(0, 24),
             discrete=False,
             **hist_kws,
         )
@@ -96,8 +99,9 @@ def plot_activity_hours(
     else:
         raise ValueError("kind must be one of ['hist', 'kde']")
 
-    ax.set_xlim(-1, 24)
-    ax.set_xticks(range(0, 24, 2), labels=[f"{h:02}:00" for h in range(0, 24, 2)])
+    ax.set_xlim(0, 24)
+    labels = [f"{h:02}:00" for h in np.arange(0, 24, 2)]
+    ax.set_xticks(range(0, 24, 2), labels=labels)
 
     return ax
 
@@ -108,7 +112,7 @@ def plot_date_ranges(
     source: str = "both",
     compute_date_ranges_kws: dict = None,
     **kwargs,
-) -> matplotlib.axes.Axes:
+) -> plt.Axes:
     """
     Plots deployment date ranges.
 
@@ -179,7 +183,7 @@ def plot_detection_history(
     mask: bool = False,
     compute_detection_history_kws: dict = None,
     heatmap_kws: dict = None,
-) -> matplotlib.axes.Axes:
+) -> plt.Axes:
     """
     Plots detection history matrix for a given species.
 
