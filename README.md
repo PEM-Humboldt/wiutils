@@ -22,7 +22,7 @@ python -c "import wiutils"
 ```
 If this does not throw any error, the installation was successful.
 
-You can use `wiutils` function by importing the package from a Python console or script. For more information about the available functions, check the [documentation](https://wiutils.readthedocs.io).
+You can use `wiutils` functions by importing the package from a Python console or script. For more information about the available functions, check the [documentation](https://wiutils.readthedocs.io).
 
 ## How to contribute
 It is recommended to install the package using a [virtual environment](https://www.python.org/dev/peps/pep-0405/) to avoid tampering other Python installations in your system.

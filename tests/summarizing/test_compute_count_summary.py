@@ -1,11 +1,11 @@
 """
-Test cases for the wiutils.transformation.compute_count_summary function.
+Test cases for the wiutils.summarizing.compute_count_summary function.
 """
 import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.transformation import compute_count_summary
+from wiutils.summarizing import compute_count_summary
 
 
 @pytest.fixture(scope="function")

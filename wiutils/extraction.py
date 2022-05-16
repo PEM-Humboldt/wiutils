@@ -26,7 +26,6 @@ def get_lowest_taxon(
     -------
     Series
         Lowest identified taxon for each image.
-
     Series
         Lowest identified rank for each image.
 
@@ -57,7 +56,7 @@ def get_scientific_name(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
     keep_genus: bool
         Whether to keep the genus as the scientific name in images where

@@ -3,26 +3,70 @@ Functions to plot information from the images and deployments tables.
 """
 from typing import Union
 
-import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
 from . import _labels
 from .extraction import get_lowest_taxon
 from .filtering import _remove_wrapper
-from .transformation import compute_detection_history
-from .verification import compute_date_ranges
+from .summarizing import compute_date_ranges, compute_detection_history
+
+
+def _plot_polar(
+    df: pd.DataFrame,
+    y: str,
+    hue: str = None,
+    density: bool = False,
+    kind: str = "hist",
+    fill: bool = True,
+) -> plt.PolarAxes:
+    if hue:
+        unique_values = df[hue].unique()
+    else:
+        unique_values = [None]
+
+    width = 2 * np.pi / 24
+    ax = plt.subplot(polar=True)
+    handles = []
+    for value in unique_values:
+        if hue:
+            mask = df[hue] == value
+        else:
+            mask = pd.Series(True, index=df.index)
+        subset = df[mask]
+        hist, edges = np.histogram(subset[y], bins=np.arange(25), density=density)
+        if kind == "area":
+            theta = np.arange(24) * width + (width / 2)
+            theta = np.append(theta, theta[0])
+            hist = np.append(hist, hist[0])
+            handle = ax.plot(theta, hist, label=value)
+            if fill:
+                plt.fill(theta, hist, alpha=0.25)
+        elif kind == "hist":
+            theta = np.arange(24) * width
+            handle = ax.bar(theta, hist, width, fill=fill, align="edge", label=value)
+        else:
+            raise ValueError("kind must be one of ['area', 'hist']")
+        handles.append(handle)
+
+    ax.legend()
+
+    return ax
 
 
 def plot_activity_hours(
     images: pd.DataFrame,
     names: Union[list, str, pd.Series],
-    remove_duplicates: bool = False,
-    remove_duplicates_kws: dict = None,
     kind: str = "kde",
+    polar: bool = False,
     hist_kws: dict = None,
     kde_kws: dict = None,
-) -> matplotlib.axes.Axes:
+    polar_kws: dict = None,
+    remove_duplicates: bool = False,
+    remove_duplicates_kws: dict = None,
+) -> Union[plt.Axes, plt.PolarAxes]:
     """
     Plots the activity hours of one or multiple taxa by grouping all
     observations into a 24-hour range.
@@ -33,22 +77,35 @@ def plot_activity_hours(
         DataFrame with the project's images.
     names : list, str or Series
         List of names to plot activity hours for.
-    remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the
-        wiutils.remove_duplicates function.
-    remove_duplicates_kws : dict
-        Keyword arguments for the wiutils.remove_duplicates function.
     kind : str
         Type of plot. Values can be:
 
         - 'hist' for histogram.
         - 'kde' for kernel density estimate plot.
+    polar : bool
+        Whether to use a polar (i.e. circular projection) for the plot.
+        If polar is True, kind must be one of 'area' or 'hist'. Otherwise
+        it must be one of 'hist' or 'kde'.
     hist_kws : dict
         Keyword arguments passed to the seaborn.histplot() function. Only
-        has effect if kind is 'hist'.
+        has effect if kind is 'hist' and polar is False.
     kde_kws : dict
         Keyword arguments passed to the seaborn.kde() function. Only
         has effect if kind is 'kde'.
+    polar_kws : dict
+        Keyword arguments passed to a local function when polar is True,
+        regardless of kind. Possible arguments are:
+
+            - 'density': True or False. Whether to compute density or
+            counts. Default is False.
+            - 'fill': True or False. Whether to fill the area under the
+            line (when kind is 'area') or the rectangles (when kind is
+            'hist'). Default is True.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
 
     Returns
     -------
@@ -63,6 +120,8 @@ def plot_activity_hours(
         hist_kws = {}
     if kde_kws is None:
         kde_kws = {}
+    if polar_kws is None:
+        polar_kws = {}
 
     taxa = get_lowest_taxon(images, return_rank=False)
     inconsistent_names = set(names) - set(taxa)
@@ -70,7 +129,6 @@ def plot_activity_hours(
         raise ValueError(f"{list(inconsistent_names)} were not found in images.")
 
     images = images.copy()
-
     if remove_duplicates:
         images = _remove_wrapper(
             images, duplicates=True, duplicates_kws=remove_duplicates_kws
@@ -79,26 +137,46 @@ def plot_activity_hours(
     images["taxon"] = taxa
     images = images.loc[images["taxon"].isin(names), :].reset_index(drop=True)
     images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
-    images["hour"] = images[_labels.images.date].dt.round("H").dt.hour
-    images = images[["taxon", "hour"]]
+    images["hour"] = images[_labels.images.date].dt.hour + (
+        images[_labels.images.date].dt.minute / 60
+    )
 
-    if kind == "hist":
-        ax = sns.histplot(
-            data=images,
-            x="hour",
-            hue="taxon",
-            binwidth=1,
-            binrange=(-0.5, 23.5),
-            discrete=False,
-            **hist_kws,
-        )
-    elif kind == "kde":
-        ax = sns.kdeplot(data=images, x="hour", hue="taxon", **kde_kws)
+    if polar:
+        if kind in ("area", "hist"):
+            ax = _plot_polar(images, "hour", hue="taxon", kind=kind, **polar_kws)
+        elif kind == "kde":
+            raise ValueError("kind cannot be 'kde' when polar=True.")
+        else:
+            raise ValueError("kind must be one of ['area', 'hist']")
+
+        ax.set_theta_direction(-1)
+        ax.set_theta_zero_location("N")
+        x_labels = [f"{h:02}:00" for h in np.arange(0, 24, 2)]
+        plt.thetagrids(np.arange(0, 360, 360 // 12), x_labels)
+
     else:
-        raise ValueError("kind must be one of ['hist', 'kde']")
+        images = images[["taxon", "hour"]]
+        if kind == "area":
+            raise ValueError("kind cannot be 'area' when polar=False.")
+        elif kind == "hist":
+            ax = sns.histplot(
+                data=images,
+                x="hour",
+                hue="taxon",
+                binwidth=1,
+                binrange=(0, 24),
+                discrete=False,
+                **hist_kws,
+            )
+        elif kind == "kde":
+            ax = sns.kdeplot(data=images, x="hour", hue="taxon", **kde_kws)
+        else:
+            raise ValueError("kind must be one of ['hist', 'kde']")
 
-    ax.set_xlim(-1, 24)
-    ax.set_xticks(range(0, 24, 2), labels=[f"{h:02}:00" for h in range(0, 24, 2)])
+        x_ticks = np.arange(0, 26, 2)
+        x_labels = [f"{h:02}:00" for h in x_ticks]
+        ax.set_xlim(-2, 26)
+        ax.set_xticks(x_ticks, labels=x_labels)
 
     return ax
 
@@ -109,7 +187,7 @@ def plot_date_ranges(
     source: str = "both",
     compute_date_ranges_kws: dict = None,
     **kwargs,
-) -> matplotlib.axes.Axes:
+) -> plt.Axes:
     """
     Plots deployment date ranges.
 
@@ -180,7 +258,7 @@ def plot_detection_history(
     mask: bool = False,
     compute_detection_history_kws: dict = None,
     heatmap_kws: dict = None,
-) -> matplotlib.axes.Axes:
+) -> plt.Axes:
     """
     Plots detection history matrix for a given species.
 

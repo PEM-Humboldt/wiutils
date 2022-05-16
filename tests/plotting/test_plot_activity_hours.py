@@ -102,11 +102,11 @@ def test_hist(images, mocker):
                 "Bradypus variegatus",
                 "Bradypus variegatus",
             ],
-            "hour": [8, 8, 15, 15, 15, 21, 21],
+            "hour": [8.22, 8.25, 15.27, 15.37, 15.25, 21.20, 21.23],
         }
     )
     args, kwargs = seaborn.histplot.call_args
-    pd.testing.assert_frame_equal(kwargs["data"], expected)
+    pd.testing.assert_frame_equal(kwargs["data"], expected, atol=1e-2)
 
 
 def test_kde(images, mocker):
@@ -119,11 +119,11 @@ def test_kde(images, mocker):
                 "Tremarctos ornatus",
                 "Tremarctos ornatus",
             ],
-            "hour": [11, 9, 11],
+            "hour": [11.02, 9.03, 11.22],
         }
     )
     args, kwargs = seaborn.kdeplot.call_args
-    pd.testing.assert_frame_equal(kwargs["data"], expected)
+    pd.testing.assert_frame_equal(kwargs["data"], expected, atol=1e-2)
 
 
 def test_multiple_names(images, mocker):
@@ -145,11 +145,11 @@ def test_multiple_names(images, mocker):
                 "Tremarctos ornatus",
                 "Tremarctos ornatus",
             ],
-            "hour": [8, 8, 15, 15, 15, 21, 21, 11, 9, 11],
+            "hour": [8.22, 8.25, 15.27, 15.37, 15.25, 21.20, 21.23, 11.02, 9.03, 11.22],
         }
     )
     args, kwargs = seaborn.histplot.call_args
-    pd.testing.assert_frame_equal(kwargs["data"], expected)
+    pd.testing.assert_frame_equal(kwargs["data"], expected, atol=1e-2)
 
 
 def test_intact_input(images, mocker):

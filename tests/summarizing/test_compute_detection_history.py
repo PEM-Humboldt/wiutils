@@ -1,11 +1,11 @@
 """
-Test cases for the wiutils.transformation.compute_detection_history function.
+Test cases for the wiutils.summarizing.compute_detection_history function.
 """
 import numpy as np
 import pandas as pd
 import pytest
 
-from wiutils.transformation import compute_detection_history
+from wiutils.summarizing import compute_detection_history
 
 
 @pytest.fixture(scope="function")

@@ -17,35 +17,6 @@ def _remove_wrapper(
     domestic: bool = False,
     domestic_kws: dict = None,
 ):
-    """
-    Wraps some different filter functions into one convenient function.
-
-    Parameters
-    ----------
-    images : pd.DataFrame
-        DataFrame with the project's images.
-    unidentified : bool
-        Whether to remove unidentified images. Wrapper for the
-        wiutils.remove_unidentified function.
-    unidentified_kws : dict
-        Keyword arguments for the wiutils.remove_unidentified function.
-    duplicates : bool
-        Whether to remove duplicates. Wrapper for the
-        wiutils.remove_duplicates function.
-    duplicates_kws : dict
-        Keyword arguments for the wiutils.remove_duplicates function.
-    domestic : bool
-        Whether to remove domestic species. Wrapper for the
-        wiutils.remove_domestic function.
-    domestic_kws : dict
-        Keyword arguments for the wiutils.remove_domestic function.
-
-    Returns
-    -------
-    DataFrame
-        (Un)filtered images.
-
-    """
     if unidentified:
         if unidentified_kws is None:
             unidentified_kws = {}
@@ -70,7 +41,7 @@ def remove_domestic(images: pd.DataFrame, reset_index: bool = True) -> pd.DataFr
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
     reset_index : bool
         Whether to reset the index of the resulting DataFrame. If True,
@@ -103,7 +74,7 @@ def remove_duplicates(
 
     Parameters
     ----------
-    images :DataFrame
+    images : DataFrame
         DataFrame with the project's images.
     interval : int
         Time interval (for a specific time unit).
@@ -167,7 +138,7 @@ def remove_inconsistent_dates(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
     deployments : pd.DataFrame
         DataFrame with the project's deployments.
@@ -224,7 +195,7 @@ def remove_unidentified(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
     rank : str
         Taxonomic rank for which images that do not have an identification

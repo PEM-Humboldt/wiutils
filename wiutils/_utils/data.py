@@ -12,7 +12,7 @@ def rearrange(df: pd.DataFrame, order: Union[list, tuple]) -> pd.DataFrame:
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df : DataFrame
         DataFrame to rearrange.
     order : list or tuple
         Ordered column labels.

@@ -11,6 +11,37 @@ import pandas as pd
 from . import _labels
 
 
+def load_demo(name) -> tuple:
+    """
+    Loads images and deployments from a demo dataset.
+
+    Parameters
+    ----------
+    name : str
+        Demo dataset name. Can be one of:
+
+            - 'cajambre'
+            - 'cristales'
+
+    Returns
+    -------
+    DataFrame
+        Demo images DataFrame
+    DataFrame
+        Demo deployments DataFrame
+
+    """
+    root = pathlib.Path(__file__).parents[0]
+    if name == "cajambre":
+        path = root.joinpath("data/cajambre.zip")
+    elif name == "cristales":
+        path = root.joinpath("data/cristales.zip")
+    else:
+        raise ValueError("name must be of one ['cajambre', 'cristales']")
+
+    return read_project(path)
+
+
 def read_project(path: Union[str, pathlib.Path]) -> tuple:
     """
     Reads images and deployments tables for a specific Wildlife Insights
@@ -24,8 +55,10 @@ def read_project(path: Union[str, pathlib.Path]) -> tuple:
 
     Returns
     -------
-    tuple
-        tuple with the images and the deployments DataFrames.
+    DataFrame
+        Project images DataFrame
+    DataFrame
+        Project deployments DataFrame
 
     """
     if not isinstance(path, pathlib.Path):

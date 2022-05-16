@@ -12,23 +12,6 @@ from .filtering import _remove_wrapper
 
 
 def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> float:
-    """
-    Computes the corresponding diversity index (from the Hill numbers of
-    order q or effective number of species) for a given value of q.
-
-    Parameters
-    ----------
-    p : list, tuple or array
-        Proportional abundance values for each species.
-    q : int
-        Value of q to compute the diversity index for.
-
-    Returns
-    -------
-    float
-        Diversity index for a given value of q.
-
-    """
     if q == 1:
         return np.exp(-np.sum(p * np.log(p)))
     else:
@@ -38,18 +21,6 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
 def _process_groupby_arg(
     images: pd.DataFrame, deployments: pd.DataFrame, groupby: str
 ) -> tuple:
-    """
-
-    Parameters
-    ----------
-    images
-    deployments
-    groupby
-
-    Returns
-    -------
-
-    """
     if groupby == "deployment":
         groupby_label = _labels.images.deployment
     elif groupby == "location":
@@ -84,13 +55,13 @@ def compute_count_summary(
     remove_domestic_kws: dict = None,
 ) -> pd.DataFrame:
     """
-    Computes a summary of images, records and species count by deployment.
+    Computes a summary of images, records and taxa count by deployment.
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments. Must be passed only if
         groupby is 'location'.
     groupby : str
@@ -172,6 +143,122 @@ def compute_count_summary(
     return result
 
 
+def compute_date_ranges(
+    images: pd.DataFrame = None,
+    deployments: pd.DataFrame = None,
+    source: str = "both",
+    compute_delta: bool = False,
+    pivot: bool = False,
+    remove_unidentified: bool = False,
+    remove_unidentified_kws: dict = None,
+    remove_duplicates: bool = False,
+    remove_duplicates_kws: dict = None,
+    remove_domestic: bool = False,
+    remove_domestic_kws: dict = None,
+) -> pd.DataFrame:
+    """
+    Computes deployment date ranges using information from either images,
+    deployments or both.
+
+    Parameters
+    ----------
+    images : DataFrame
+        DataFrame with the project's images.
+    deployments : DataFrame
+        DataFrame with the project's deployments.
+    source : bool
+        Source to plot date ranges from: Values can be:
+
+            - 'images' to plot date ranges from images (i.e. first image
+            to last image taken).
+            - 'deployments' to plot date ranges from deployments
+            information (i.e. start date and end date).
+            - 'both' to plot both sources in two different subplots.
+    compute_delta : bool
+        Whether to compute the delta (in days) between the start and end
+        dates.
+    pivot : bool
+        Whether to pivot (reshape from long to wide format) the resulting
+        DataFrame.
+    remove_unidentified : bool
+        Whether to remove unidentified images. Wrapper for the
+        wiutils.remove_unidentified function.
+    remove_unidentified_kws : dict
+        Keyword arguments for the wiutils.remove_unidentified function.
+    remove_duplicates : bool
+        Whether to remove duplicates. Wrapper for the
+        wiutils.remove_duplicates function.
+    remove_duplicates_kws : dict
+        Keyword arguments for the wiutils.remove_duplicates function.
+    remove_domestic : bool
+        Whether to remove domestic species. Wrapper for the
+        wiutils.remove_domestic function.
+    remove_domestic_kws : dict
+        Keyword arguments for the wiutils.remove_domestic function.
+
+    Returns
+    -------
+    DataFrame
+        DataFrame with date ranges.
+
+    """
+    df = pd.DataFrame()
+
+    if source == "images" or source == "both":
+        if images is None:
+            raise ValueError("images DataFrame must be provided.")
+        images = images.copy()
+        images = _remove_wrapper(
+            images,
+            remove_unidentified,
+            remove_unidentified_kws,
+            remove_duplicates,
+            remove_duplicates_kws,
+            remove_domestic,
+            remove_domestic_kws,
+        )
+        images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
+        images[_labels.images.date] = pd.to_datetime(images[_labels.images.date].dt.date)
+        dates = images.groupby(_labels.images.deployment)[_labels.images.date].agg(
+            start_date="min", end_date="max"
+        )
+        dates["source"] = "images"
+        df = pd.concat([df, dates.reset_index()], ignore_index=True)
+
+    if source == "deployments" or source == "both":
+        if deployments is None:
+            raise ValueError("deployments DataFrame must be provided.")
+        deployments = deployments.copy()
+        deployments[_labels.deployments.start] = pd.to_datetime(
+            deployments[_labels.deployments.start]
+        )
+        deployments[_labels.deployments.end] = pd.to_datetime(
+            deployments[_labels.deployments.end]
+        )
+        dates = deployments.loc[
+            :,
+            [
+                _labels.deployments.deployment,
+                _labels.deployments.start,
+                _labels.deployments.end,
+            ],
+        ]
+        dates["source"] = "deployments"
+        df = pd.concat([df, dates], ignore_index=True)
+
+    if source not in ("images", "deployments", "both"):
+        raise ValueError("source must be one of ['images', 'deployments', 'both']")
+
+    if compute_delta:
+        delta = df["end_date"] - df["start_date"]
+        df["delta"] = delta.dt.days
+
+    if pivot:
+        df = df.pivot(index="deployment_id", columns="source")
+
+    return df
+
+
 def compute_detection(
     images: pd.DataFrame,
     deployments: pd.DataFrame = None,
@@ -187,13 +274,13 @@ def compute_detection(
 ):
     """
     Computes the detection (in terms of abundance or presence) of each
-    species by deployment.
+    taxon by deployment.
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments. Must be passed only if
         groupby is 'location'.
     groupby : str
@@ -279,14 +366,14 @@ def compute_detection_history(
 ) -> pd.DataFrame:
     """
     Computes the detection history (in terms of abundance or presence) by
-    species and deployment, grouping observations into specific days-long
+    taxon and deployment, grouping observations into specific days-long
     intervals.
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments.
     date_range : str
         Table to compute the date range from. Possible values are:
@@ -437,13 +524,13 @@ def compute_general_count(
 ):
     """
     Computes the general abundance and number of deployments for each
-    species.
+    taxon.
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments. Must be passed only if
         groupby is 'location'.
     groupby : str
@@ -533,9 +620,9 @@ def compute_hill_numbers(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments. Must be passed only if
         groupby is 'location'.
     groupby : str

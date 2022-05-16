@@ -1,10 +1,10 @@
 """
-Test cases for the wiutils.transformation.compute_hill_numbers function.
+Test cases for the wiutils.summarizing.compute_hill_numbers function.
 """
 import pandas as pd
 import pytest
 
-from wiutils.transformation import compute_hill_numbers
+from wiutils.summarizing import compute_hill_numbers
 
 
 @pytest.fixture(scope="function")

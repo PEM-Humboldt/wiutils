@@ -1,10 +1,10 @@
 """
-Test cases for the wiutils.transformation.compute_general_count function.
+Test cases for the wiutils.summarizing.compute_general_count function.
 """
 import pandas as pd
 import pytest
 
-from wiutils.transformation import compute_general_count
+from wiutils.summarizing import compute_general_count
 
 
 @pytest.fixture(scope="function")

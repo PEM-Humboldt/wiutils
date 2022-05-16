@@ -1,10 +1,10 @@
 """
-Test cases for the wiutils.transformation.compute_detection function.
+Test cases for the wiutils.summarizing.compute_detection function.
 """
 import pandas as pd
 import pytest
 
-from wiutils.transformation import compute_detection
+from wiutils.summarizing import compute_detection
 
 
 @pytest.fixture(scope="function")

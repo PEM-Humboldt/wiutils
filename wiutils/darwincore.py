@@ -18,7 +18,7 @@ def create_dwc_events(
 
     Parameters
     ----------
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments.
     remove_empty_optionals : bool
         Whether to remove empty optional columns.
@@ -87,9 +87,9 @@ def create_dwc_records(
 
     Parameters
     ----------
-    images : pd.DataFrame
+    images : DataFrame
         DataFrame with the project's images.
-    deployments : pd.DataFrame
+    deployments : DataFrame
         DataFrame with the project's deployments.
     remove_empty_optionals : bool
         Whether to remove empty optional columns.
