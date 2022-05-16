@@ -45,8 +45,8 @@ If you prefer to install `wiutils` from source, you'll need to install it from t
 Functions in `wiutils` can be grouped in seven different categories:
 
 1. **Reading**: functions to read information from WI projects into DataFrames.
-2. **Filtering**: functions to filter WI images based on different conditions.
-3. **Extraction**: functions for extracting information based on different WI image's columns.
+2. **Extraction**: functions for extracting information based on different WI image's columns.
+3. **Filtering**: functions to filter WI images based on different conditions.
 4. **Summarizing**: functions to summarize (*i.e.* create new tables) WI data.
 5. **Plotting**: functions to plot information from the images and deployments tables.
 6. **Darwin Core**: functions to translate WI data to the Darwin Core standard.
@@ -59,39 +59,39 @@ Functions in `wiutils` can be grouped in seven different categories:
 ### Reading
 | Function                                                  | Description                                                                          |
 |-----------------------------------------------------------|--------------------------------------------------------------------------------------|
-| [`load_demo`](reference/reading/#wiutils.load_demo)       | Loads images and deployments from a demo dataset.                                    |
-| [`read_project`](reference/reading/#wiutils.read_project) | Reads images and deployments tables for a specific Wildlife Insights project bundle. |
-
-### Filtering
-| Function                                                                              | Description                                                                                          |
-|---------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| [`remove_domestic`](reference/filtering/#wiutils.remove_domestic)                     | Removes images where the identification corresponds to a domestic species.                           |
-| [`remove_duplicates`](reference/filtering/#wiutils.remove_duplicates)                 | Removes duplicate records (images) from the same taxon in the same deployment given a time interval. |
-| [`remove_inconsistent_dates`](reference/filtering/#wiutils.remove_inconsistent_dates) | Removes images where the timestamp is outside the date range of the corresponding deployment.        |
-| [`remove unidentified`](reference/filtering/#wiutils.remove_unidentified)             | Removes unidentified (up to a specific taxonomic rank) images.                                       |
+| [`load_demo`](reference/#wiutils.reading.load_demo)       | Loads images and deployments from a demo dataset.                                    |
+| [`read_project`](reference/#wiutils.reading.read_project) | Reads images and deployments tables for a specific Wildlife Insights project bundle. |
 
 ### Extraction
 | Function                                                                   | Description                                                                                          |
 |----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| [`get_lowest_taxon`](reference/extraction/#wiutils.get_lowest_taxon)       | Gets the lowest identified taxa and ranks.                                                           |
-| [`get_scientific_name`](reference/extraction/#wiutils.get_scientific_name) | Gets the scientific name of each image by concatenating their respective genus and specific epithet. |
+| [`get_date_ranges`](reference/#wiutils.extraction.get_date_ranges)         | Gets deployment date ranges using information from either images, deployments or both.               |
+| [`get_lowest_taxon`](reference/#wiutils.extraction.get_lowest_taxon)       | Gets the lowest identified taxa and ranks.                                                           |
+| [`get_scientific_name`](reference/#wiutils.extraction.get_scientific_name) | Gets the scientific name of each image by concatenating their respective genus and specific epithet. |
+
+### Filtering
+| Function                                                                              | Description                                                                                          |
+|---------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| [`remove_domestic`](reference/#wiutils.filtering.remove_domestic)                     | Removes images where the identification corresponds to a domestic species.                           |
+| [`remove_duplicates`](reference/#wiutils.filtering.remove_duplicates)                 | Removes duplicate records (images) from the same taxon in the same deployment given a time interval. |
+| [`remove_inconsistent_dates`](reference/#wiutils.filtering.remove_inconsistent_dates) | Removes images where the timestamp is outside the date range of the corresponding deployment.        |
+| [`remove unidentified`](reference/#wiutils.filtering.remove_unidentified)             | Removes unidentified (up to a specific taxonomic rank) images.                                       |
 
 ### Summarizing
 | Function                                                                                | Description                                                                                                                                          |
 |-----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`compute_count_summary`](reference/summarizing/#wiutils.compute_count_summary)         | Computes a summary of images, records and taxa count by deployment                                                                                   |
-| [`compute_date_ranges`](reference/summarizing/#wiutils.compute_date_ranges)             | Computes deployment date ranges using information from either images, deployments or both                                                            |
-| [`compute_detection`](reference/summarizing/#wiutils.compute_detection)                 | Computes the detection (in terms of abundance or presence)of each taxon by deployment.                                                               |
-| [`compute_detection_history`](reference/summarizing/#wiutils.compute_detection_history) | Computes the detection history (in terms of abundance or presence) by taxon and deployment, grouping observations into specific days-long intervals. |
-| [`compute_general_count`](reference/summarizing/#wiutils.compute_general_count)         | Computes the general abundance and number of deployments for each taxon.                                                                             |
-| [`compute_hill_numbers`](reference/summarizing/#wiutils.compute_hill_numbers)           | Computes the Hill numbers of order q (also called effective number of species) by site for some given values of q.                                   |
+| [`compute_count_summary`](reference/#wiutils.summarizing.compute_count_summary)         | Computes a summary of images, records and taxa count by deployment.                                                                                  |
+| [`compute_detection`](reference/#wiutils.summarizing.compute_detection)                 | Computes the detection (in terms of abundance or presence)of each taxon by deployment.                                                               |
+| [`compute_detection_history`](reference/#wiutils.summarizing.compute_detection_history) | Computes the detection history (in terms of abundance or presence) by taxon and deployment, grouping observations into specific days-long intervals. |
+| [`compute_general_count`](reference/#wiutils.summarizing.compute_general_count)         | Computes the general abundance and number of deployments for each taxon.                                                                             |
+| [`compute_hill_numbers`](reference/#wiutils.summarizing.compute_hill_numbers)           | Computes the Hill numbers of order q (also called effective number of species) by site for some given values of q.                                   |
 
 ### Plotting
-| Function                                                                       | Description                                                                                         |
-|--------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
-| [`plot_activity_hours`](reference/plotting/#wiutils.plot_activity_hours)       | Plots the activity hours of one or multiple taxa by grouping all observations into a 24-hour range. |
-| [`plot_date_ranges`](reference/plotting/#wiutils.plot_date_ranges)             | Plots deployment date ranges.                                                                       |
-| [`plot_detection_history`](reference/plotting/#wiutils.plot_detection_history) | Plots detection history matrix for a given species.                                                 |
+| Function                                                                        | Description                                                                                         |
+|---------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| [`plot_activity_hours`](reference/#wiutils.plotting.plot_activity_hours)        | Plots the activity hours of one or multiple taxa by grouping all observations into a 24-hour range. |
+| [`plot_date_ranges`](reference/#wiutils.plotting.plot_date_ranges)              | Plots deployment date ranges.                                                                       |
+| [`plot_detection_history`](reference/#wiutils.plotting.plot_detection_history)  | Plots detection history matrix for a given species.                                                 |
 
 ### Darwin Core
 
@@ -99,9 +99,9 @@ Functions in `wiutils` can be grouped in seven different categories:
 ### Preprocessing
 | Function                                                                              | Changes an image's associated timestamp metadata for a new timestamp.                               |
 |---------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
-| [`change_image_timestamp`](reference/preprocessing/#wiutils.change_image_timestamp)   | Plots the activity hours of one or multiple taxa by grouping all observations into a 24-hour range. |
-| [`convert_video_to_images`](reference/preprocessing/#wiutils.convert_video_to_images) | Converts a video to images with an associated timestamp.                                            |
-| [`reduce_image_size`](reference/preprocessing/#wiutils.reduce_image_size)             | Reduces image file size by resampling using a given factor.                                         |
+| [`change_image_timestamp`](reference/#wiutils.preprocessing.change_image_timestamp)   | Plots the activity hours of one or multiple taxa by grouping all observations into a 24-hour range. |
+| [`convert_video_to_images`](reference/#wiutils.preprocessing.convert_video_to_images) | Converts a video to images with an associated timestamp.                                            |
+| [`reduce_image_size`](reference/#wiutils.preprocessing.reduce_image_size)             | Reduces image file size by resampling using a given factor.                                         |
 
 ## User guide
 Head to the [user guide](guide/index.md) to see usage examples and explanations for the different functions.
@@ -111,5 +111,3 @@ Head to the [reference](reference.md) to see all available functions.
 
 ## Wildlife Insights
 Wildlife Insights is *a cloud-based platform that uses machine learning to identify animals in camera trap images*. Apart from helping with image classification, Wildlife Insights allows to store and manage camera trap data and metadata. It also offers the possibility to download this data in a convenient format for further analysis and sharing. To learn more about Wildlife Insights go to <https://www.wildlifeinsights.org/get-started>.
-
-
