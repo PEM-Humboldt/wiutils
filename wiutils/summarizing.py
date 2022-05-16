@@ -15,7 +15,7 @@ def _compute_q_diversity_index(p: Union[list, tuple, np.ndarray], q: int) -> flo
     if q == 1:
         return np.exp(-np.sum(p * np.log(p)))
     else:
-        return np.sum(p ** q) ** (1 / (1 - q))
+        return np.sum(p**q) ** (1 / (1 - q))
 
 
 def _process_groupby_arg(
@@ -100,7 +100,9 @@ def compute_count_summary(
     if remove_domestic:
         if remove_domestic_kws is None:
             remove_domestic_kws = {}
-        images = _remove_wrapper(images, domestic=True, domestic_kws=remove_domestic_kws)
+        images = _remove_wrapper(
+            images, domestic=True, domestic_kws=remove_domestic_kws
+        )
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     result = pd.DataFrame(index=sorted(images[groupby_label].unique()))
@@ -125,7 +127,9 @@ def compute_count_summary(
             )
 
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
-    result = result.join(images.groupby(groupby_label)["taxon"].nunique().rename("taxa"))
+    result = result.join(
+        images.groupby(groupby_label)["taxon"].nunique().rename("taxa")
+    )
     if add_species_by_class:
         classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
@@ -218,7 +222,9 @@ def compute_date_ranges(
             remove_domestic_kws,
         )
         images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
-        images[_labels.images.date] = pd.to_datetime(images[_labels.images.date].dt.date)
+        images[_labels.images.date] = pd.to_datetime(
+            images[_labels.images.date].dt.date
+        )
         dates = images.groupby(_labels.images.deployment)[_labels.images.date].agg(
             start_date="min", end_date="max"
         )
@@ -587,9 +593,7 @@ def compute_general_count(
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
-    result = images.groupby("taxon").agg(
-        {"taxon": "size", groupby_label: "nunique"}
-    )
+    result = images.groupby("taxon").agg({"taxon": "size", groupby_label: "nunique"})
     result = result.rename(columns={"taxon": "images", groupby_label: f"{groupby}s"})
     result = result.reset_index()
 

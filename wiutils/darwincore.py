@@ -1,8 +1,8 @@
 """
 Functions to create Darwin Core tables from a Wildlife Insights project.
 """
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from . import _dwc, _labels, _utils
 from .extraction import get_lowest_taxon
@@ -10,7 +10,9 @@ from .filtering import _remove_wrapper
 
 
 def create_dwc_events(
-    deployments: pd.DataFrame, remove_empty_optionals: bool = False, language: str = "en"
+    deployments: pd.DataFrame,
+    remove_empty_optionals: bool = False,
+    language: str = "en",
 ) -> pd.DataFrame:
     """
     Creates an events Darwin Core compliant table from Wildlife Insights

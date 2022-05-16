@@ -8,8 +8,8 @@ from wiutils.filtering import (
 )
 from wiutils.plotting import (
     plot_activity_hours,
-    plot_detection_history,
     plot_date_ranges,
+    plot_detection_history,
 )
 from wiutils.preprocessing import (
     change_image_timestamp,

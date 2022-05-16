@@ -8,7 +8,7 @@ from typing import Union
 import cv2
 import ffmpeg
 import pandas as pd
-from PIL import Image, ExifTags
+from PIL import ExifTags, Image
 
 
 def _get_exif_code(tag: str) -> int:
@@ -156,7 +156,9 @@ def convert_video_to_images(
         timestamp = start + pd.Timedelta(milliseconds=video.get(cv2.CAP_PROP_POS_MSEC))
         exif[datetime_code] = timestamp.strftime("%Y:%m:%d %H:%M:%S")
         name = video_path.stem + "_" + str(count).zfill(width) + f".{ext}"
-        image.save(output_path.joinpath(name).as_posix(), format=image_format, exif=exif)
+        image.save(
+            output_path.joinpath(name).as_posix(), format=image_format, exif=exif
+        )
         if offset:
             video.set(cv2.CAP_PROP_POS_MSEC, count * (offset * 1e3))
         flag, arr = video.read()

@@ -6,7 +6,6 @@ import pandas as pd
 
 from .. import _labels
 
-
 taxonomy_columns = [
     _labels.images.class_,
     _labels.images.order,
