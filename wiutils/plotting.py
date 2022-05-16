@@ -23,14 +23,14 @@ def _plot_polar(
     fill: bool = True,
 ) -> plt.PolarAxes:
     if hue:
-        unique = df[hue].unique()
+        unique_values = df[hue].unique()
     else:
-        unique = [None]
+        unique_values = [None]
 
     width = 2 * np.pi / 24
-    theta = np.arange(24) * width
     ax = plt.subplot(polar=True)
-    for value in unique:
+    handles = []
+    for value in unique_values:
         if hue:
             mask = df[hue] == value
         else:
@@ -38,13 +38,20 @@ def _plot_polar(
         subset = df[mask]
         hist, edges = np.histogram(subset[y], bins=np.arange(25), density=density)
         if kind == "area":
-            plt.plot(theta, hist)
+            theta = np.arange(24) * width + (width / 2)
+            theta = np.append(theta, theta[0])
+            hist = np.append(hist, hist[0])
+            handle = ax.plot(theta, hist, label=value)
             if fill:
                 plt.fill(theta, hist, alpha=0.25)
         elif kind == "hist":
-            plt.bar(theta, hist, width, fill=fill)
+            theta = np.arange(24) * width
+            handle = ax.bar(theta, hist, width, fill=fill, align="edge", label=value)
         else:
             raise ValueError("kind must be one of ['area', 'hist']")
+        handles.append(handle)
+
+    ax.legend()
 
     return ax
 
@@ -74,6 +81,10 @@ def plot_activity_hours(
 
         - 'hist' for histogram.
         - 'kde' for kernel density estimate plot.
+    polar : bool
+        Whether to use a polar (i.e. circular projection) for the plot.
+        If polar is True, kind must be one of 'area' or 'hist'. Otherwise
+        it must be one of 'hist' or 'kde'.
     hist_kws : dict
         Keyword arguments passed to the seaborn.histplot() function. Only
         has effect if kind is 'hist'.
@@ -118,8 +129,6 @@ def plot_activity_hours(
         images[_labels.images.date].dt.minute / 60
     )
 
-    labels = [f"{h:02}:00" for h in np.arange(0, 24, 2)]
-
     if polar:
         if kind in ("area", "hist"):
             ax = _plot_polar(images, "hour", hue="taxon", kind=kind)
@@ -130,7 +139,8 @@ def plot_activity_hours(
 
         ax.set_theta_direction(-1)
         ax.set_theta_zero_location("N")
-        plt.thetagrids(np.arange(0, 360, 360 // 12), labels)
+        x_labels = [f"{h:02}:00" for h in np.arange(0, 24, 2)]
+        plt.thetagrids(np.arange(0, 360, 360 // 12), x_labels)
 
     else:
         images = images[["taxon", "hour"]]
@@ -151,8 +161,10 @@ def plot_activity_hours(
         else:
             raise ValueError("kind must be one of ['hist', 'kde']")
 
-        ax.set_xlim(0, 24)
-        ax.set_xticks(range(0, 24, 2), labels=labels)
+        x_ticks = np.arange(0, 26, 2)
+        x_labels = [f"{h:02}:00" for h in x_ticks]
+        ax.set_xlim(-2, 26)
+        ax.set_xticks(x_ticks, labels=x_labels)
 
     return ax
 
