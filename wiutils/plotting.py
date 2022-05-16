@@ -63,6 +63,7 @@ def plot_activity_hours(
     polar: bool = False,
     hist_kws: dict = None,
     kde_kws: dict = None,
+    polar_kws: dict = None,
     remove_duplicates: bool = False,
     remove_duplicates_kws: dict = None,
 ) -> Union[plt.Axes, plt.PolarAxes]:
@@ -87,10 +88,19 @@ def plot_activity_hours(
         it must be one of 'hist' or 'kde'.
     hist_kws : dict
         Keyword arguments passed to the seaborn.histplot() function. Only
-        has effect if kind is 'hist'.
+        has effect if kind is 'hist' and polar is False.
     kde_kws : dict
         Keyword arguments passed to the seaborn.kde() function. Only
         has effect if kind is 'kde'.
+    polar_kws : dict
+        Keyword arguments passed to a local function when polar is True,
+        regardless of kind. Possible arguments are:
+
+            - 'density': True or False. Whether to compute density or
+            counts. Default is False.
+            - 'fill': True or False. Whether to fill the area under the
+            line (when kind is 'area') or the rectangles (when kind is
+            'hist'). Default is True.
     remove_duplicates : bool
         Whether to remove duplicates. Wrapper for the
         wiutils.remove_duplicates function.
@@ -110,6 +120,8 @@ def plot_activity_hours(
         hist_kws = {}
     if kde_kws is None:
         kde_kws = {}
+    if polar_kws is None:
+        polar_kws = {}
 
     taxa = get_lowest_taxon(images, return_rank=False)
     inconsistent_names = set(names) - set(taxa)
@@ -131,7 +143,7 @@ def plot_activity_hours(
 
     if polar:
         if kind in ("area", "hist"):
-            ax = _plot_polar(images, "hour", hue="taxon", kind=kind)
+            ax = _plot_polar(images, "hour", hue="taxon", kind=kind, **polar_kws)
         elif kind == "kde":
             raise ValueError("kind cannot be 'kde' when polar=True.")
         else:
