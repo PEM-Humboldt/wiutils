@@ -6,7 +6,6 @@ import pandas as pd
 
 from . import _dwc, _labels, _utils
 from .extraction import get_lowest_taxon
-from .filtering import _remove_wrapper
 
 
 def create_dwc_events(
@@ -76,12 +75,6 @@ def create_dwc_records(
     deployments: pd.DataFrame,
     remove_empty_optionals: bool = False,
     language: str = "en",
-    remove_unidentified: bool = False,
-    remove_unidentified_kws: dict = None,
-    remove_duplicates: bool = False,
-    remove_duplicates_kws: dict = None,
-    remove_domestic: bool = False,
-    remove_domestic_kws: dict = None,
 ) -> pd.DataFrame:
     """
     Creates a records Darwin Core compliant table from Wildlife Insights
@@ -102,21 +95,6 @@ def create_dwc_records(
             - 'es' for spanish
         Keep in mind that regardless of the value, column names will be
         kept in english to comply with the Darwin Core standard.
-    remove_unidentified : bool
-        Whether to remove unidentified images. Wrapper for the
-        wiutils.remove_unidentified function.
-    remove_unidentified_kws : dict
-        Keyword arguments for the wiutils.remove_unidentified function.
-    remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the
-        wiutils.remove_duplicates function.
-    remove_duplicates_kws : dict
-        Keyword arguments for the wiutils.remove_duplicates function.
-    remove_domestic : bool
-        Whether to remove domestic species. Wrapper for the
-        wiutils.remove_domestic function.
-    remove_domestic_kws : dict
-        Keyword arguments for the wiutils.remove_domestic function.
 
     Returns
     -------
@@ -127,15 +105,6 @@ def create_dwc_records(
     images = images.copy()
     images = _utils.taxonomy.replace_unidentified(images)
     images[_labels.images.name] = images[_labels.images.name].replace("Blank", np.nan)
-    images = _remove_wrapper(
-        images,
-        remove_unidentified,
-        remove_unidentified_kws,
-        remove_duplicates,
-        remove_duplicates_kws,
-        remove_domestic,
-        remove_domestic_kws,
-    )
 
     result = pd.merge(images, deployments, on="deployment_id", how="left")
     result = result.rename(columns=_dwc.mapping.records)

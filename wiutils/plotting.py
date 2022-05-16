@@ -9,9 +9,8 @@ import pandas as pd
 import seaborn as sns
 
 from . import _labels
-from .extraction import get_lowest_taxon
-from .filtering import _remove_wrapper
-from .summarizing import compute_date_ranges, compute_detection_history
+from .extraction import get_date_ranges, get_lowest_taxon
+from .summarizing import compute_detection_history
 
 
 def _plot_polar(
@@ -64,8 +63,6 @@ def plot_activity_hours(
     hist_kws: dict = None,
     kde_kws: dict = None,
     polar_kws: dict = None,
-    remove_duplicates: bool = False,
-    remove_duplicates_kws: dict = None,
 ) -> Union[plt.Axes, plt.PolarAxes]:
     """
     Plots the activity hours of one or multiple taxa by grouping all
@@ -101,11 +98,6 @@ def plot_activity_hours(
             - 'fill': True or False. Whether to fill the area under the
             line (when kind is 'area') or the rectangles (when kind is
             'hist'). Default is True.
-    remove_duplicates : bool
-        Whether to remove duplicates. Wrapper for the
-        wiutils.remove_duplicates function.
-    remove_duplicates_kws : dict
-        Keyword arguments for the wiutils.remove_duplicates function.
 
     Returns
     -------
@@ -129,11 +121,6 @@ def plot_activity_hours(
         raise ValueError(f"{list(inconsistent_names)} were not found in images.")
 
     images = images.copy()
-    if remove_duplicates:
-        images = _remove_wrapper(
-            images, duplicates=True, duplicates_kws=remove_duplicates_kws
-        )
-
     images["taxon"] = taxa
     images = images.loc[images["taxon"].isin(names), :].reset_index(drop=True)
     images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
@@ -185,7 +172,6 @@ def plot_date_ranges(
     images: pd.DataFrame = None,
     deployments: pd.DataFrame = None,
     source: str = "both",
-    compute_date_ranges_kws: dict = None,
     **kwargs,
 ) -> plt.Axes:
     """
@@ -205,11 +191,9 @@ def plot_date_ranges(
             - 'deployments' to plot date ranges from deployments
             information (i.e. start date and end date).
             - 'both' to plot both sources in two different subplots.
-    compute_date_ranges_kws : dict
-        Keyword arguments passed to the wiutils.compute_date_ranges
-        function. Only keywords related to image filtering should be
-        passed.
-    kwargs
+
+    kwargs : dict
+        Keyword arguments passed to the sns.relplot() function.
 
     Returns
     -------
@@ -217,16 +201,12 @@ def plot_date_ranges(
         Plot axes.
 
     """
-    if compute_date_ranges_kws is None:
-        compute_date_ranges_kws = {}
-
-    df = compute_date_ranges(
+    df = get_date_ranges(
         images,
         deployments,
         source,
         compute_delta=False,
         pivot=False,
-        **compute_date_ranges_kws,
     )
 
     df = pd.melt(

@@ -1,10 +1,10 @@
 """
-Test cases for the wiutils.summarizing.compute_date_ranges function.
+Test cases for the wiutils.summarizing.get_date_ranges function.
 """
 import pandas as pd
 import pytest
 
-from wiutils.summarizing import compute_date_ranges
+from wiutils.extraction import get_date_ranges
 
 
 @pytest.fixture()
@@ -49,7 +49,7 @@ def deployments():
 
 
 def test_images(images):
-    result = compute_date_ranges(images=images, source="images")
+    result = get_date_ranges(images=images, source="images")
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "002", "003"],
@@ -74,7 +74,7 @@ def test_images(images):
 
 
 def test_deployments(deployments):
-    result = compute_date_ranges(deployments=deployments, source="deployments")
+    result = get_date_ranges(deployments=deployments, source="deployments")
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "002", "003"],
@@ -99,7 +99,7 @@ def test_deployments(deployments):
 
 
 def test_both(images, deployments):
-    result = compute_date_ranges(images=images, deployments=deployments, source="both")
+    result = get_date_ranges(images=images, deployments=deployments, source="both")
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "002", "003", "001", "002", "003"],
@@ -137,7 +137,7 @@ def test_both(images, deployments):
 
 
 def test_compute_delta(images):
-    result = compute_date_ranges(images=images, source="images", compute_delta=True)
+    result = get_date_ranges(images=images, source="images", compute_delta=True)
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "002", "003"],
@@ -163,7 +163,7 @@ def test_compute_delta(images):
 
 
 def test_pivot(images, deployments):
-    result = compute_date_ranges(
+    result = get_date_ranges(
         images=images, deployments=deployments, source="both", pivot=True
     )
     expected = pd.DataFrame(
@@ -189,21 +189,21 @@ def test_pivot(images, deployments):
 def test_intact_input(images, deployments):
     images_original = images.copy()
     deployments_original = deployments.copy()
-    compute_date_ranges(images=images, deployments=deployments, source="both")
+    get_date_ranges(images=images, deployments=deployments, source="both")
     pd.testing.assert_frame_equal(images_original, images)
     pd.testing.assert_frame_equal(deployments_original, deployments)
 
 
 def test_invalid_source(images, deployments):
     with pytest.raises(ValueError):
-        compute_date_ranges(images=images, deployments=deployments, source="records")
+        get_date_ranges(images=images, deployments=deployments, source="records")
 
 
 def test_no_images(deployments):
     with pytest.raises(ValueError):
-        compute_date_ranges(deployments=deployments, source="both")
+        get_date_ranges(deployments=deployments, source="both")
 
 
 def test_no_deployments(images):
     with pytest.raises(ValueError):
-        compute_date_ranges(images=images, source="both")
+        get_date_ranges(images=images, source="both")

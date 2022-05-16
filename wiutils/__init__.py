@@ -1,5 +1,5 @@
 from wiutils.darwincore import create_dwc_events, create_dwc_records
-from wiutils.extraction import get_lowest_taxon, get_scientific_name
+from wiutils.extraction import get_date_ranges, get_lowest_taxon, get_scientific_name
 from wiutils.filtering import (
     remove_domestic,
     remove_duplicates,
@@ -19,7 +19,6 @@ from wiutils.preprocessing import (
 from wiutils.reading import load_demo, read_project
 from wiutils.summarizing import (
     compute_count_summary,
-    compute_date_ranges,
     compute_detection,
     compute_detection_history,
     compute_general_count,
