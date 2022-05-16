@@ -108,9 +108,7 @@ def remove_duplicates(
     df[_labels.images.date] = pd.to_datetime(df[_labels.images.date])
 
     df = df.sort_values([_labels.images.deployment, "taxon", _labels.images.date])
-    delta = df.groupby([_labels.images.deployment, "taxon"])[
-        _labels.images.date
-    ].diff()
+    delta = df.groupby([_labels.images.deployment, "taxon"])[_labels.images.date].diff()
     mask = (delta >= pd.Timedelta(**{unit: interval})) | (delta.isna())
 
     images_reference = images.dropna(subset=["taxon"])
