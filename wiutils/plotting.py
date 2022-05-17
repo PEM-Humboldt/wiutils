@@ -1,8 +1,10 @@
 """
 Functions to plot information from the images and deployments tables.
 """
+import pathlib
 from typing import Union
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -11,6 +13,8 @@ import seaborn as sns
 from . import _labels
 from .extraction import get_date_ranges, get_lowest_taxon
 from .summarizing import compute_detection_history
+
+CONFIG_FILE = pathlib.Path(__file__).parents[0].joinpath("config/mplstyle")
 
 
 def _plot_polar(
@@ -29,7 +33,7 @@ def _plot_polar(
     width = 2 * np.pi / 24
     ax = plt.subplot(polar=True)
     handles = []
-    for value in unique_values:
+    for i, value in enumerate(unique_values):
         if hue:
             mask = df[hue] == value
         else:
@@ -45,7 +49,24 @@ def _plot_polar(
                 plt.fill(theta, hist, alpha=0.25)
         elif kind == "hist":
             theta = np.arange(24) * width
-            handle = ax.bar(theta, hist, width, fill=fill, align="edge", label=value)
+            if fill:
+                edgecolor = "black"
+                linewidth = 0.75
+            else:
+                edgecolor = f"C{i}"
+                linewidth = 1
+            handle = ax.bar(
+                theta,
+                hist,
+                width,
+                fill=fill,
+                align="edge",
+                label=value,
+                edgecolor=edgecolor,
+                linewidth=linewidth,
+                alpha=0.75,
+                zorder=2,
+            )
         else:
             raise ValueError("kind must be one of ['area', 'hist']")
         handles.append(handle)
@@ -55,6 +76,7 @@ def _plot_polar(
     return ax
 
 
+@mpl.rc_context(fname=CONFIG_FILE)
 def plot_activity_hours(
     images: pd.DataFrame,
     names: Union[list, str, pd.Series],
