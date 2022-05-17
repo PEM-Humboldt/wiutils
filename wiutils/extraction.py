@@ -187,3 +187,43 @@ def get_scientific_name(
             names.loc[mask] += " sp."
 
     return names
+
+
+def get_deployment_season(deployments: pd.DataFrame, sort: bool = True) -> pd.DataFrame:
+    """
+    Gets the season number by deployment.
+
+    Parameters
+    ----------
+    deployments : DataFrame
+        DataFrame with the project's deployments.
+    sort : bool
+        Whether to sort result by place name and start date. If False,
+        the order is the same as the original deployments table.
+
+    Returns
+    -------
+    DataFrame
+        Subset of the deployments table with a column indicating season
+        number by deployment.
+
+    """
+    deployments = deployments.copy()
+
+    deployments = deployments.sort_values(
+        [_labels.deployments.location, _labels.deployments.start]
+    )
+
+    n_seasons = deployments.groupby(_labels.deployments.location)[
+        _labels.deployments.deployment
+    ].nunique()
+    deployments["season"] = np.hstack([np.arange(1, n + 1) for n in n_seasons])
+
+    result = deployments[
+        [_labels.deployments.location, _labels.deployments.deployment, "season"]
+    ]
+
+    if sort:
+        return result.reset_index(drop=True)
+    else:
+        result.sort_index()
