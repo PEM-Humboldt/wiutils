@@ -1,5 +1,5 @@
 """
-Test cases for the wiutils.summarizing.get_date_ranges function.
+Test cases for the wiutils.extraction.get_date_ranges function.
 """
 import pandas as pd
 import pytest
