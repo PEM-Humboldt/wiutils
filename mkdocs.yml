@@ -19,8 +19,8 @@ nav:
   - User guide:
       - guide/index.md
       - Reading: guide/reading.md
-      - Filtering: guide/filtering.md
       - Extraction: guide/extraction.md
+      - Filtering: guide/filtering.md
       - Summarizing: guide/summarizing.md
       - Plotting: guide/plotting.md
       - Darwin Core: guide/darwincore.md

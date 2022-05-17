@@ -8,31 +8,6 @@ from . import _domestic, _labels, _utils
 from .extraction import get_lowest_taxon
 
 
-def _remove_wrapper(
-    images: pd.DataFrame,
-    unidentified: bool = False,
-    unidentified_kws: dict = None,
-    duplicates: bool = False,
-    duplicates_kws: dict = None,
-    domestic: bool = False,
-    domestic_kws: dict = None,
-):
-    if unidentified:
-        if unidentified_kws is None:
-            unidentified_kws = {}
-        images = remove_unidentified(images, **unidentified_kws)
-    if duplicates:
-        if duplicates_kws is None:
-            duplicates_kws = {}
-        images = remove_duplicates(images, **duplicates_kws)
-    if domestic:
-        if domestic_kws is None:
-            domestic_kws = {}
-        images = remove_domestic(images, **domestic_kws)
-
-    return images
-
-
 def remove_domestic(images: pd.DataFrame, reset_index: bool = True) -> pd.DataFrame:
     """
     Removes images where the identification corresponds to a domestic
