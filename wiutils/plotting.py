@@ -255,6 +255,7 @@ def plot_date_ranges(
     return g.axes
 
 
+@mpl.rc_context(fname=CONFIG_FILE)
 def plot_detection_history(
     images: pd.DataFrame,
     deployments: pd.DataFrame,
