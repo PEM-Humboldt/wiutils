@@ -1,3 +1,6 @@
+## This configuration file has been adapted from the styles found on
+## https://github.com/garrettj403/SciencePlots
+
 ## ***************************************************************************
 ## * LINES                                                                   *
 ## ***************************************************************************
@@ -7,9 +10,6 @@ lines.linewidth: 1.0
 ## * PATCHES                                                                 *
 ## ***************************************************************************
 patch.linewidth: 0.75
-#patch.facecolor: C0
-#patch.edgecolor: C0
-#patch.force_edgecolor: False
 
 ## ***************************************************************************
 ## * FONT                                                                    *
