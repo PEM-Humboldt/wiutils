@@ -190,6 +190,7 @@ def plot_activity_hours(
     return ax
 
 
+@mpl.rc_context(fname=CONFIG_FILE)
 def plot_date_ranges(
     images: pd.DataFrame = None,
     deployments: pd.DataFrame = None,
@@ -247,6 +248,7 @@ def plot_date_ranges(
         kind="line",
         units=_labels.deployments.deployment,
         estimator=None,
+        facet_kws=dict(despine=False),
         **kwargs,
     )
 
