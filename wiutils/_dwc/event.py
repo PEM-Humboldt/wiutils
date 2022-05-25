@@ -13,7 +13,6 @@ mapping = {
     "placename": "parentEventID",
     "event_description": "eventRemarks",
     "country_code": "countryCode",
-    "feature_type": "locationRemarks",
     "latitude": "decimalLatitude",
     "longitude": "decimalLongitude",
 }
@@ -28,7 +27,6 @@ order = [
     "eventDate",
     "eventRemarks",
     "countryCode",
-    "locationRemarks",
     "decimalLatitude",
     "decimalLongitude",
     "geodeticDatum",
