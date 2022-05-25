@@ -215,7 +215,7 @@ def plot_date_ranges(
             information (i.e. start date and end date).
             - 'both' to plot both sources in two different subplots.
 
-    kwargs : dict
+    kwargs
         Keyword arguments passed to the sns.relplot() function.
 
     Returns

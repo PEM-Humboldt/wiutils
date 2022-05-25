@@ -95,13 +95,15 @@ def read_bundle(path: Union[str, pathlib.Path]) -> tuple:
 
 def read_cameras(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
     """
-    Reads cameras table from a specific Wildlife Insights project bundle.
+    Reads the cameras' table from a specific Wildlife Insights project bundle.
 
     Parameters
     ----------
     path : str or Path
         Absolute or relative path of the project bundle. Can be a folder
         with all the respective csv files inside or a zip file.
+    kwargs
+        Keyword arguments passed to the pd.read_csv function.
 
     Returns
     -------
@@ -114,7 +116,7 @@ def read_cameras(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
 
 def read_deployments(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
     """
-    Reads deployments table from a specific Wildlife Insights project
+    Reads the deployments' table from a specific Wildlife Insights project
     bundle. Start and end column values are automatically parsed as dates.
 
     Parameters
@@ -122,6 +124,8 @@ def read_deployments(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
     path : str or Path
         Absolute or relative path of the project bundle. Can be a folder
         with all the respective csv files inside or a zip file.
+    kwargs
+        Keyword arguments passed to the pd.read_csv function.
 
     Returns
     -------
@@ -137,14 +141,16 @@ def read_deployments(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
 
 def read_images(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
     """
-    Reads images table from a specific Wildlife Insights project bundle.
-    Timestamp column values are automatically parsed as dates.
+    Reads the images' table from a specific Wildlife Insights project
+    bundle. Timestamp column values are automatically parsed as dates.
 
     Parameters
     ----------
     path : str or Path
         Absolute or relative path of the project bundle. Can be a folder
         with all the respective csv files inside or a zip file.
+    kwargs
+        Keyword arguments passed to the pd.read_csv function.
 
     Returns
     -------
@@ -165,6 +171,8 @@ def read_projects(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
     path : str or Path
         Absolute or relative path of the project bundle. Can be a folder
         with all the respective csv files inside or a zip file.
+    kwargs
+        Keyword arguments passed to the pd.read_csv function.
 
     Returns
     -------
