@@ -1,14 +1,29 @@
 """
 Functions to read information from WI projects.
 """
+import os
 import pathlib
-import shutil
-import tempfile
+import zipfile
 from typing import Union
 
 import pandas as pd
 
 from . import _labels
+
+
+def _read_file(path: Union[str, pathlib.Path], name, **kwargs) -> pd.DataFrame:
+    if not isinstance(path, pathlib.Path):
+        path = pathlib.Path(path)
+
+    if path.is_file():
+        if not path.suffix == ".zip":
+            raise ValueError("path must be either a folder or a .zip file.")
+        with zipfile.ZipFile(path) as z:
+            path = z.open(os.path.join(path.stem, f"{name}.csv"))
+    else:
+        path = path.joinpath(f"{name}.csv")
+
+    return pd.read_csv(path, **kwargs)
 
 
 def load_demo(name) -> tuple:
@@ -26,9 +41,13 @@ def load_demo(name) -> tuple:
     Returns
     -------
     DataFrame
-        Demo images DataFrame
+        Demo cameras dataframe
     DataFrame
-        Demo deployments DataFrame
+        Demo deployments dataframe
+    DataFrame
+        Demo images dataframe
+    DataFrame
+        Demo projects dataframe
 
     """
     root = pathlib.Path(__file__).parents[0]
@@ -39,10 +58,10 @@ def load_demo(name) -> tuple:
     else:
         raise ValueError("name must be of one ['cajambre', 'cristales']")
 
-    return read_project(path)
+    return read_bundle(path)
 
 
-def read_project(path: Union[str, pathlib.Path]) -> tuple:
+def read_bundle(path: Union[str, pathlib.Path]) -> tuple:
     """
     Reads images and deployments tables for a specific Wildlife Insights
     project bundle.
@@ -56,29 +75,100 @@ def read_project(path: Union[str, pathlib.Path]) -> tuple:
     Returns
     -------
     DataFrame
-        Project images DataFrame
+        Bundle cameras dataframe
     DataFrame
-        Project deployments DataFrame
+        Bundle deployments dataframe
+    DataFrame
+        Bundle images dataframe
+    DataFrame
+        Bundle projects dataframe
 
     """
-    if not isinstance(path, pathlib.Path):
-        path = pathlib.Path(path)
+    cameras = read_cameras(path)
+    deployments = read_deployments(path)
+    images = read_images(path)
+    projects = read_projects(path)
 
-    temp_folder = None
-    if path.is_file():
-        if not path.suffix == ".zip":
-            raise ValueError("path must be either a folder or a .zip file.")
-        temp_folder = tempfile.mkdtemp()
-        shutil.unpack_archive(path, temp_folder)
-        path = pathlib.Path(temp_folder).joinpath(path.stem)
+    return cameras, deployments, images, projects
 
-    images = pd.read_csv(path.joinpath("images.csv"), parse_dates=[_labels.images.date])
-    deployments = pd.read_csv(
-        path.joinpath("deployments.csv"),
-        parse_dates=[_labels.deployments.start, _labels.deployments.end],
+
+def read_cameras(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
+    """
+    Reads cameras table from a specific Wildlife Insights project bundle.
+
+    Parameters
+    ----------
+    path : str or Path
+        Absolute or relative path of the project bundle. Can be a folder
+        with all the respective csv files inside or a zip file.
+
+    Returns
+    -------
+    DataFrame
+        Bundle cameras dataframe
+
+    """
+    return _read_file(path, "cameras", **kwargs)
+
+
+def read_deployments(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
+    """
+    Reads deployments table from a specific Wildlife Insights project
+    bundle. Start and end column values are automatically parsed as dates.
+
+    Parameters
+    ----------
+    path : str or Path
+        Absolute or relative path of the project bundle. Can be a folder
+        with all the respective csv files inside or a zip file.
+
+    Returns
+    -------
+    DataFrame
+        Bundle deployments dataframe
+
+    """
+    kwargs.update(
+        dict(parse_dates=[_labels.deployments.start, _labels.deployments.end])
     )
+    return _read_file(path, "deployments", **kwargs)
 
-    if temp_folder:
-        shutil.rmtree(temp_folder)
 
-    return images, deployments
+def read_images(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
+    """
+    Reads images table from a specific Wildlife Insights project bundle.
+    Timestamp column values are automatically parsed as dates.
+
+    Parameters
+    ----------
+    path : str or Path
+        Absolute or relative path of the project bundle. Can be a folder
+        with all the respective csv files inside or a zip file.
+
+    Returns
+    -------
+    DataFrame
+        Bundle images dataframe
+
+    """
+    kwargs.update(dict(parse_dates=[_labels.images.date]))
+    return _read_file(path, "images", **kwargs)
+
+
+def read_projects(path: Union[str, pathlib.Path], **kwargs) -> pd.DataFrame:
+    """
+    Reads projects table from a specific Wildlife Insights project bundle.
+
+    Parameters
+    ----------
+    path : str or Path
+        Absolute or relative path of the project bundle. Can be a folder
+        with all the respective csv files inside or a zip file.
+
+    Returns
+    -------
+    DataFrame
+        Bundle projects dataframe
+
+    """
+    return _read_file(path, "projects", **kwargs)
