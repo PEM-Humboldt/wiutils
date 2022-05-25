@@ -57,10 +57,14 @@ Functions in `wiutils` can be grouped in seven different categories:
     Preprocessing functions are the only functions that do not need WI data as an input; rather they work on images and videos to preprocess data before uploading it to Wildlife Insights.
 
 ### Reading
-| Function                                                  | Description                                                                          |
-|-----------------------------------------------------------|--------------------------------------------------------------------------------------|
-| [`load_demo`](reference/#wiutils.reading.load_demo)       | Loads images and deployments from a demo dataset.                                    |
-| [`read_project`](reference/#wiutils.reading.read_project) | Reads images and deployments tables for a specific Wildlife Insights project bundle. |
+| Function                                                          | Description                                                                                                  |
+|-------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| [`load_demo`](reference/#wiutils.reading.load_demo)               | Loads the cameras, deployments, images and projects tables from a demo dataset.                              |
+| [`read_bundle`](reference/#wiutils.reading.read_bundle)           | Reads the cameras, deployments, images and projects tables from a specific Wildlife Insights project bundle. |
+| [`read_cameras`](reference/#wiutils.reading.read_cameras)         | Reads cameras table from a specific Wildlife Insights project bundle.                                        |
+| [`read_deployments`](reference/#wiutils.reading.read_deployments) | Reads deployments table from a specific Wildlife Insights project bundle.                                    |
+| [`read_images`](reference/#wiutils.reading.read_images)           | Reads images table from a specific Wildlife Insights project bundle.                                         |
+| [`read_projects`](reference/#wiutils.reading.read_projects)       | Reads projects table from a specific Wildlife Insights project bundle.                                       |
 
 ### Extraction
 | Function                                                                   | Description                                                                                          |
