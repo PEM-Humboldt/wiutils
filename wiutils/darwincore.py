@@ -1,11 +1,116 @@
 """
-Functions to create Darwin Core tables from a Wildlife Insights project.
+Functions to create different core and extension tables following the
+Darwin Core (DwC) standard from a Wildlife Insights data.
 """
+import json
+import pathlib
+
 import numpy as np
 import pandas as pd
 
 from . import _dwc, _labels, _utils
 from .extraction import get_lowest_taxon
+
+
+def _translate(df: pd.DataFrame, language: str) -> pd.DataFrame:
+    if language == "en":
+        return df
+    elif language in ("es",):
+        words = _dwc.nls.es.words
+    else:
+        raise ValueError("language must be one of ['en', 'es'].")
+
+    existing_columns = set(words.keys()) & set(df.columns)
+    for column in existing_columns:
+        df[column] = df[column].replace(words[column], regex=True)
+
+    return df
+
+
+def create_dwc_archive(
+    cameras: pd.DataFrame,
+    deployments: pd.DataFrame,
+    images: pd.DataFrame,
+    projects: pd.DataFrame,
+    language: str = "en",
+) -> tuple:
+    """
+
+    Parameters
+    ----------
+    cameras
+    deployments
+    images
+    projects
+    language
+
+    Returns
+    -------
+
+    """
+    event = create_dwc_event(deployments, projects, language)
+
+    return (event,)
+
+
+def create_dwc_event(
+    deployments: pd.DataFrame,
+    projects: pd.DataFrame,
+    language: str = "en",
+) -> pd.DataFrame:
+    """
+
+    Parameters
+    ----------
+    deployments
+    projects
+    language
+
+    Returns
+    -------
+
+    """
+    df = pd.merge(deployments, projects, on=_labels.deployments.project_id, how="left")
+    df[_labels.deployments.start] = pd.to_datetime(df[_labels.deployments.start])
+    df[_labels.deployments.end] = pd.to_datetime(df[_labels.deployments.end])
+
+    core = df.rename(columns=_dwc.event.mapping)
+    core = core[core.columns[core.columns.isin(_dwc.event.order)]]
+
+    for term, value in _dwc.event.constants.items():
+        core[term] = value
+
+    delta = df[_labels.deployments.end] - df[_labels.deployments.start]
+    core["samplingEffort"] = delta.dt.days.astype(str) + " trap-nights"
+
+    core["eventDate"] = (
+        df[_labels.deployments.start].dt.strftime("%Y-%m-%d")
+        + "/"
+        + df[_labels.deployments.end].dt.strftime("%Y-%m-%d")
+    )
+
+    with open(pathlib.Path(__file__).parent.joinpath("_dwc/countries.json")) as f:
+        countries = pd.DataFrame(json.load(f))
+        core["countryCode"] = core["countryCode"].map(
+            countries.set_index("alpha-3")["alpha-2"]
+        )
+
+    core = _translate(core, language)
+    core = core.reindex(columns=_dwc.event.order)
+
+    return core
+
+
+def create_dwc_measurement():
+    pass
+
+
+def create_dwc_multimedia():
+    pass
+
+
+def create_dwc_occurrence():
+    pass
 
 
 def create_dwc_events(
@@ -39,7 +144,7 @@ def create_dwc_events(
     """
     deployments = deployments.copy()
 
-    result = deployments.rename(columns=_dwc.mapping.events)
+    result = deployments.rename(columns=_dwc.mapping.event)
 
     start_date = pd.to_datetime(result["start_date"])
     end_date = pd.to_datetime(result["end_date"])

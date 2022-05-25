@@ -1,16 +1,26 @@
 """
-Field mapping between Wildlife Insights and the Darwin Core standard.
+Field to term mapping between Wildlife Insights and the Darwin Core
+standard.
 """
-events = {
+event = {
     "deployment_id": "eventID",
     "placename": "parentEventID",
-    "event_name": "eventRemarks",
+    "event_description": "eventRemarks",
+    "country_code": "countryCode",
     "feature_type": "locationRemarks",
     "latitude": "decimalLatitude",
     "longitude": "decimalLongitude",
 }
 
-records = {
+multimedia = {
+    "image_id": "identifier",
+    "timestamp": "created",
+    "recorded_by": "creator",
+    "identified_by": "contributor",
+    "license": "license",
+}
+
+occurrence = {
     "placename": "parentEventID",
     "deployment_id": "eventID",
     "individual_animal_notes": "occurrenceRemarks",
