@@ -29,10 +29,10 @@ def _process_groupby_arg(
             images = pd.merge(
                 images,
                 deployments[
-                    [_labels.deployments.deployment, _labels.deployments.location]
+                    [_labels.deployments.deployment_id, _labels.deployments.location]
                 ],
                 left_on=_labels.images.deployment,
-                right_on=_labels.deployments.deployment,
+                right_on=_labels.deployments.deployment_id,
                 how="left",
             )
         else:

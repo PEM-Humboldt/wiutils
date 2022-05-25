@@ -141,7 +141,7 @@ def remove_inconsistent_dates(
         df,
         deployments[
             [
-                _labels.deployments.deployment,
+                _labels.deployments.deployment_id,
                 _labels.deployments.start,
                 _labels.deployments.end,
             ]

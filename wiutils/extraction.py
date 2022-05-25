@@ -76,7 +76,7 @@ def get_date_ranges(
         dates = deployments.loc[
             :,
             [
-                _labels.deployments.deployment,
+                _labels.deployments.deployment_id,
                 _labels.deployments.start,
                 _labels.deployments.end,
             ],

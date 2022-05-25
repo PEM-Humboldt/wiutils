@@ -234,7 +234,7 @@ def plot_date_ranges(
 
     df = pd.melt(
         df,
-        id_vars=[_labels.deployments.deployment, "source"],
+        id_vars=[_labels.deployments.deployment_id, "source"],
         value_vars=[_labels.deployments.start, _labels.deployments.end],
     )
     df = df.rename(columns={"value": "date"})
@@ -243,10 +243,10 @@ def plot_date_ranges(
     g = sns.relplot(
         data=df,
         x="date",
-        y=_labels.deployments.deployment,
+        y=_labels.deployments.deployment_id,
         row="source",
         kind="line",
-        units=_labels.deployments.deployment,
+        units=_labels.deployments.deployment_id,
         estimator=None,
         facet_kws=dict(despine=False),
         **kwargs,
