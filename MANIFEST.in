@@ -1,1 +1,2 @@
+include wiutils/config/mplstyle
 include wiutils/data/*.zip
