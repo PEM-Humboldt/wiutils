@@ -1,5 +1,6 @@
 """
-
+Mapping from WI fields to DwC terms, constant values and term order for
+the Darwin Core Event dataframe creation.
 """
 constants = {
     "samplingProtocol": "camera trap",

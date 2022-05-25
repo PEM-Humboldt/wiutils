@@ -1,1 +1,1 @@
-from wiutils._dwc import event, nls
+from wiutils._dwc import event, measurement, multimedia, nls
