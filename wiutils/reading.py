@@ -28,7 +28,8 @@ def _read_file(path: Union[str, pathlib.Path], name, **kwargs) -> pd.DataFrame:
 
 def load_demo(name) -> tuple:
     """
-    Loads images and deployments from a demo dataset.
+    Loads the cameras, deployments, images and projects tables from a
+    demo dataset.
 
     Parameters
     ----------
@@ -63,8 +64,8 @@ def load_demo(name) -> tuple:
 
 def read_bundle(path: Union[str, pathlib.Path]) -> tuple:
     """
-    Reads images and deployments tables for a specific Wildlife Insights
-    project bundle.
+    Reads the cameras, deployments, images and projects tables from a
+    specific Wildlife Insights project bundle.
 
     Parameters
     ----------
