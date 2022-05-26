@@ -5,6 +5,8 @@ the Darwin Core Occurrence dataframe creation.
 constants = {
     "basisOfRecord": "MachineObservation",
     "preparations": "photograph",
+    "kingdom": "Animalia",
+    "phylum": "Chordata",
 }
 
 mapping = {
