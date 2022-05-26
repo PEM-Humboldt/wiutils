@@ -8,7 +8,7 @@ import pathlib
 import numpy as np
 import pandas as pd
 
-from . import _dwc, _labels, _utils
+from . import _dwc, _labels
 from .extraction import get_lowest_taxon
 from .filtering import remove_duplicates, remove_unidentified
 
@@ -285,16 +285,14 @@ def create_dwc_occurrence(
     """
     if remove_duplicate_kws is None:
         remove_duplicate_kws = {}
+    remove_duplicate_kws.update(dict(reset_index=False))
 
     images = images.copy()
     images = remove_unidentified(images, rank="class")
-    images = remove_duplicates(images, **remove_duplicate_kws)
-    # TODO make sure to keep images that were removed in other variable
-    # in order to get their location.
-    taxa, ranks = get_lowest_taxon(images, return_rank=True)
+    filtered = remove_duplicates(images, **remove_duplicate_kws)
 
     df = pd.merge(
-        images,
+        filtered,
         deployments.drop(columns=_labels.deployments.project_id),
         on=_labels.images.deployment_id,
         how="left",
@@ -311,91 +309,21 @@ def create_dwc_occurrence(
     core["eventDate"] = df[_labels.images.date].dt.strftime("%Y-%m-%d")
     core["eventTime"] = df[_labels.images.date].dt.strftime("%H:%M:%S")
 
+    images.loc[filtered.index, "__seq"] = np.arange(len(filtered))
+    images["__seq"] = images["__seq"].fillna(method="ffill")
+    images[_labels.images.url] = _gs_to_https(images[_labels.images.url])
+    core["associatedMedia"] = images.groupby("__seq").agg(
+        {_labels.images.url: "|".join}
+    )
+
+    taxa, ranks = get_lowest_taxon(filtered, return_rank=True)
+    epithets = filtered[_labels.images.species].str.split(" ", expand=True)
     core["scientificName"] = taxa
     core["taxonRank"] = ranks
+    core["specificEpithet"] = epithets[0]
+    core["infraspecificEpithet"] = epithets.get(1, np.nan)
 
     core = _translate(core, language)
     core = core.reindex(columns=_dwc.occurrence.order)
 
     return core
-
-
-def create_dwc_records(
-    images: pd.DataFrame,
-    deployments: pd.DataFrame,
-    remove_empty_optionals: bool = False,
-    language: str = "en",
-) -> pd.DataFrame:
-    """
-    Creates a records Darwin Core compliant table from Wildlife Insights
-    images and deployments information.
-
-    Parameters
-    ----------
-    images : DataFrame
-        DataFrame with the project's images.
-    deployments : DataFrame
-        DataFrame with the project's deployments.
-    remove_empty_optionals : bool
-        Whether to remove empty optional columns.
-    language : str
-        Language of the result's values. Possible values are:
-
-            - 'en' for english
-            - 'es' for spanish
-        Keep in mind that regardless of the value, column names will be
-        kept in english to comply with the Darwin Core standard.
-
-    Returns
-    -------
-    DataFrame
-        Darwin Core standard compliant records table.
-
-    """
-    images = images.copy()
-    images = _utils.taxonomy.replace_unidentified(images)
-    images[_labels.images.name] = images[_labels.images.name].replace("Blank", np.nan)
-
-    result = pd.merge(images, deployments, on="deployment_id", how="left")
-    result = result.rename(columns=_dwc.mapping.records)
-
-    result.loc[result["class"].notna(), "kingdom"] = "Animalia"
-    result.loc[result["class"].notna(), "phylum"] = "Chordata"
-
-    taxa, ranks = get_lowest_taxon(images, return_rank=True)
-    result["scientificName"] = taxa
-    result["taxonRank"] = ranks
-
-    epithets = images[_labels.images.species].str.split(" ", expand=True)
-    result["specificEpithet"] = epithets[0]
-    if 1 in epithets.columns:
-        result["infraspecificEpithet"] = epithets[1]
-    else:
-        result["infraspecificEpithet"] = np.nan
-
-    result["eventDate"] = pd.to_datetime(result["timestamp"]).dt.strftime("%Y-%m-%d")
-    result["eventTime"] = pd.to_datetime(result["timestamp"]).dt.strftime("%H:%M:%S")
-
-    mask = (result["organismQuantity"] >= 1) & (result["taxonRank"].notna())
-    result.loc[~mask, "organismQuantity"] = np.nan
-    result.loc[mask, "organismQuantityType"] = "individuals"
-
-    for column, value in _dwc.constants.records.items():
-        result[column] = value
-
-    if remove_empty_optionals:
-        is_empty = result.isna().all()
-        is_optional = result.columns.isin(_dwc.optional.records)
-        subset = result.columns[~(is_empty & is_optional)]
-        result = result[subset]
-
-    if language == "en":
-        pass
-    elif language == "es":
-        result = _utils.language.translate(result, language)
-    else:
-        raise ValueError("language must be one of ['en', 'es'].")
-
-    result = _utils.data.rearrange(result, _dwc.order.records)
-
-    return result
