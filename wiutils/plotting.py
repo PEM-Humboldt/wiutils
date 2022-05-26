@@ -305,7 +305,7 @@ def plot_detection_history(
     )
     result = result[result["taxon"] == name]
     result = result.drop(columns="taxon")
-    result = result.set_index(_labels.images.deployment)
+    result = result.set_index(_labels.images.deployment_id)
 
     if not mask:
         result = result.fillna(0)

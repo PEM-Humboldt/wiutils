@@ -1,7 +1,7 @@
 """
 Column labels in the images file.
 """
-deployment = "deployment_id"
+deployment_id = "deployment_id"
 date = "timestamp"
 class_ = "class"
 order = "order"

@@ -57,7 +57,7 @@ def get_date_ranges(
         images[_labels.images.date] = pd.to_datetime(
             images[_labels.images.date].dt.date
         )
-        dates = images.groupby(_labels.images.deployment)[_labels.images.date].agg(
+        dates = images.groupby(_labels.images.deployment_id)[_labels.images.date].agg(
             start_date="min", end_date="max"
         )
         dates["source"] = "images"
