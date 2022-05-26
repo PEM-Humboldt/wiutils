@@ -161,7 +161,7 @@ def get_scientific_name(
         Series with the corresponding scientific names.
 
     """
-    names = pd.Series(np.nan, index=np.arange(len(images)), dtype=str)
+    names = pd.Series(np.nan, index=images.index, dtype=str)
 
     exclude = ["No CV Result", "Unknown"]
     has_genus = (
