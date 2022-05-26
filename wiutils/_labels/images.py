@@ -1,11 +1,12 @@
 """
 Column labels in the images file.
 """
+project_id = "project_id"
 deployment_id = "deployment_id"
 date = "timestamp"
 class_ = "class"
 order = "order"
 family = "family"
 genus = "genus"
-epithet = "species"
+species = "species"
 name = "common_name"

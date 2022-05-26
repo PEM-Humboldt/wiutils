@@ -122,8 +122,8 @@ def test_rank_genus(images):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_rank_epithet(images):
-    result = remove_unidentified(images, rank="epithet", reset_index=True)
+def test_rank_species(images):
+    result = remove_unidentified(images, rank="species", reset_index=True)
     expected = pd.DataFrame(
         {
             "class": ["Mammalia"],

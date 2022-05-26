@@ -169,15 +169,15 @@ def get_scientific_name(
         & images[_labels.images.genus].notna()
     )
     has_epithet = (
-        ~images[_labels.images.epithet].isin(exclude)
-        & images[_labels.images.epithet].notna()
+        ~images[_labels.images.species].isin(exclude)
+        & images[_labels.images.species].notna()
     )
 
     mask = has_genus & has_epithet
     names.loc[mask] = (
         images.loc[mask, _labels.images.genus]
         + " "
-        + images.loc[mask, _labels.images.epithet]
+        + images.loc[mask, _labels.images.species]
     )
 
     if keep_genus:

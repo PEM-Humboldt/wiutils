@@ -11,7 +11,7 @@ taxonomy_columns = [
     _labels.images.order,
     _labels.images.family,
     _labels.images.genus,
-    _labels.images.epithet,
+    _labels.images.species,
 ]
 
 
@@ -42,7 +42,7 @@ def compute_taxonomic_rank(images: pd.DataFrame) -> pd.Series:
     # Because there is no column for infraspecific epithet, it is assumed
     # that all the records with two words on the species column has
     # a subspecies rank.
-    words = images[_labels.images.epithet].str.split(" ").str.len()
+    words = images[_labels.images.species].str.split(" ").str.len()
     ranks.loc[words == 2] = "subspecies"
 
     return ranks
@@ -64,7 +64,7 @@ def get_taxonomy_columns(rank: str) -> list:
         List with columns names for the taxonomic ranks.
 
     """
-    if rank == "epithet":
+    if rank == "species":
         columns = taxonomy_columns[-1:]
     elif rank == "genus":
         columns = taxonomy_columns[-2:]
@@ -76,7 +76,7 @@ def get_taxonomy_columns(rank: str) -> list:
         columns = taxonomy_columns[-5:]
     else:
         raise ValueError(
-            "min_rank must be one of: ['epithet', 'genus', 'family', 'order', 'class']."
+            "min_rank must be one of: ['species', 'genus', 'family', 'order', 'class']."
         )
 
     return columns

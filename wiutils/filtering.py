@@ -176,7 +176,7 @@ def remove_unidentified(
         Taxonomic rank for which images that do not have an identification
         will be removed. Possible values are:
 
-            - 'epithet'
+            - 'species'
             - 'genus'
             - 'family'
             - 'order'
