@@ -10,6 +10,7 @@ import pandas as pd
 
 from . import _dwc, _labels, _utils
 from .extraction import get_lowest_taxon
+from .filtering import remove_duplicates, remove_unidentified
 
 
 def _gs_to_https(location: pd.Series) -> pd.Series:
@@ -41,8 +42,12 @@ def create_dwc_archive(
     images: pd.DataFrame,
     projects: pd.DataFrame,
     language: str = "en",
+    remove_duplicate_kws: dict = None,
 ) -> tuple:
     """
+    Creates a Darwin Core Archive consisting of four different cores and
+    extensions: Event, Occurrence, Measurement or Facts and Simple
+    Multimedia.
 
     Parameters
     ----------
@@ -61,11 +66,16 @@ def create_dwc_archive(
             - 'es' for spanish
         Keep in mind that regardless of the value, terms will be kept in
         english to comply with the Darwin Core standard.
+    remove_duplicate_kws : dict
+        Keyword arguments passed to the wiutils.remove_duplicate function.
+        Used for the creation of the Occurrence Core.
 
     Returns
     -------
     DataFrame
         Darwin Core Event dataframe.
+    DataFrame
+        Darwin Core Occurrence dataframe.
     DataFrame
         Darwin Core Measurement or Facts dataframe.
     DataFrame
@@ -73,10 +83,13 @@ def create_dwc_archive(
 
     """
     event = create_dwc_event(deployments, projects, language)
+    occurrence = create_dwc_occurrence(
+        images, deployments, projects, language, remove_duplicate_kws
+    )
     measurement = create_dwc_measurement(cameras, deployments)
     multimedia = create_dwc_multimedia(images)
 
-    return event, measurement, multimedia
+    return event, occurrence, measurement, multimedia
 
 
 def create_dwc_event(
@@ -141,7 +154,7 @@ def create_dwc_event(
 
 
 def create_dwc_measurement(
-    cameras: pd.DataFrame, deployments: pd.DataFrame, language: str = "en"
+    deployments: pd.DataFrame, cameras: pd.DataFrame, language: str = "en"
 ) -> pd.DataFrame:
     """
     Creates a Darwin Core Measurement or Facts dataframe from cameras and
@@ -150,10 +163,10 @@ def create_dwc_measurement(
 
     Parameters
     ----------
-    cameras : DataFrame
-        Dataframe with the bundle's cameras.
     deployments : DataFrame
         Dataframe with the bundle's deployments.
+    cameras : DataFrame
+        Dataframe with the bundle's cameras.
     language : str
         Language of the result's values. Possible values are:
 
@@ -193,12 +206,13 @@ def create_dwc_multimedia(images: pd.DataFrame, language: str = "en") -> pd.Data
     """
     Creates a Darwin Core Simple Multimedia dataframe from images
     information. See https://rs.gbif.org/extension/gbif/1.0/multimedia.xml
-    for more information about this extension.
+    for more information about this extension. The result includes
+    information from all the bundle's images.
 
     Parameters
     ----------
     images : DataFrame
-        Dataframe with the bundle's cameras.
+        Dataframe with the bundle's images.
     language : str
         Language of the result's values. Possible values are:
 
@@ -222,7 +236,6 @@ def create_dwc_multimedia(images: pd.DataFrame, language: str = "en") -> pd.Data
         extension[term] = value
 
     extension["location"] = _gs_to_https(extension["location"])
-
     extension["title"] = get_lowest_taxon(images, return_rank=False).fillna(
         "Blank or unidentified"
     )
@@ -233,8 +246,78 @@ def create_dwc_multimedia(images: pd.DataFrame, language: str = "en") -> pd.Data
     return extension
 
 
-def create_dwc_occurrence():
-    pass
+def create_dwc_occurrence(
+    images: pd.DataFrame,
+    deployments: pd.DataFrame,
+    projects: pd.DataFrame,
+    language: str = "en",
+    remove_duplicate_kws: dict = None,
+) -> pd.DataFrame:
+    """
+    Creates a Darwin Core Occurrence dataframe from images, deployments
+    and projects information. See https://rs.gbif.org/core/dwc_occurrence_2022-02-02.xml
+    for more information about this core. The result includes only
+    wildlife records (i.e. unidentified and duplicate images are removed).
+
+    Parameters
+    ----------
+    images : DataFrame
+        Dataframe with the bundle's images.
+    deployments : DataFrame
+        Dataframe with the bundle's deployments.
+    projects : DataFrame
+        Dataframe with the bundle's projects.
+    language : str
+        Language of the result's values. Possible values are:
+
+            - 'en' for english
+            - 'es' for spanish
+        Keep in mind that regardless of the value, terms will be kept in
+        english to comply with the Darwin Core standard.
+    remove_duplicate_kws : dict
+        Keyword arguments passed to the wiutils.remove_duplicate function.
+
+    Returns
+    -------
+    DataFrame
+        Darwin Core Occurrence dataframe.
+
+    """
+    if remove_duplicate_kws is None:
+        remove_duplicate_kws = {}
+
+    images = images.copy()
+    images = remove_unidentified(images, rank="class")
+    images = remove_duplicates(images, **remove_duplicate_kws)
+    # TODO make sure to keep images that were removed in other variable
+    # in order to get their location.
+    taxa, ranks = get_lowest_taxon(images, return_rank=True)
+
+    df = pd.merge(
+        images,
+        deployments.drop(columns=_labels.deployments.project_id),
+        on=_labels.images.deployment_id,
+        how="left",
+    )
+    df = pd.merge(df, projects, on=_labels.images.project_id, how="left")
+    df[_labels.images.date] = pd.to_datetime(df[_labels.images.date])
+
+    core = df.rename(columns=_dwc.occurrence.mapping)
+    core = core[core.columns[core.columns.isin(_dwc.occurrence.order)]]
+
+    for term, value in _dwc.event.constants.items():
+        core[term] = value
+
+    core["eventDate"] = df[_labels.images.date].dt.strftime("%Y-%m-%d")
+    core["eventTime"] = df[_labels.images.date].dt.strftime("%H:%M:%S")
+
+    core["scientificName"] = taxa
+    core["taxonRank"] = ranks
+
+    core = _translate(core, language)
+    core = core.reindex(columns=_dwc.occurrence.order)
+
+    return core
 
 
 def create_dwc_records(
@@ -283,7 +366,7 @@ def create_dwc_records(
     result["scientificName"] = taxa
     result["taxonRank"] = ranks
 
-    epithets = images[_labels.images.epithet].str.split(" ", expand=True)
+    epithets = images[_labels.images.species].str.split(" ", expand=True)
     result["specificEpithet"] = epithets[0]
     if 1 in epithets.columns:
         result["infraspecificEpithet"] = epithets[1]
