@@ -21,27 +21,11 @@ def _gs_to_https(location: pd.Series) -> pd.Series:
     return base_url + bucket + "/" + uri
 
 
-def _translate(df: pd.DataFrame, language: str) -> pd.DataFrame:
-    if language == "en":
-        return df
-    elif language in ("es",):
-        words = _dwc.nls.es.words
-    else:
-        raise ValueError("language must be one of ['en', 'es'].")
-
-    existing_columns = set(words.keys()) & set(df.columns)
-    for column in existing_columns:
-        df[column] = df[column].replace(words[column], regex=True)
-
-    return df
-
-
 def create_dwc_archive(
     cameras: pd.DataFrame,
     deployments: pd.DataFrame,
     images: pd.DataFrame,
     projects: pd.DataFrame,
-    language: str = "en",
     remove_duplicate_kws: dict = None,
 ) -> tuple:
     """
@@ -59,13 +43,6 @@ def create_dwc_archive(
         Dataframe with the bundle's cameras.
     projects : DataFrame
         Dataframe with the bundle's projects.
-    language : str
-        Language of the result's values. Possible values are:
-
-            - 'en' for english
-            - 'es' for spanish
-        Keep in mind that regardless of the value, terms will be kept in
-        english to comply with the Darwin Core standard.
     remove_duplicate_kws : dict
         Keyword arguments passed to the wiutils.remove_duplicate function.
         Used for the creation of the Occurrence Core.
@@ -82,9 +59,9 @@ def create_dwc_archive(
         Darwin Core Simple Multimedia dataframe.
 
     """
-    event = create_dwc_event(deployments, projects, language)
+    event = create_dwc_event(deployments, projects)
     occurrence = create_dwc_occurrence(
-        images, deployments, projects, language, remove_duplicate_kws
+        images, deployments, projects, remove_duplicate_kws
     )
     measurement = create_dwc_measurement(cameras, deployments)
     multimedia = create_dwc_multimedia(images)
@@ -95,7 +72,6 @@ def create_dwc_archive(
 def create_dwc_event(
     deployments: pd.DataFrame,
     projects: pd.DataFrame,
-    language: str = "en",
 ) -> pd.DataFrame:
     """
     Creates a Darwin Core Event dataframe from deployments and projects
@@ -108,13 +84,6 @@ def create_dwc_event(
         Dataframe with the bundle's deployments.
     projects : DataFrame
         Dataframe with the bundle's projects.
-    language : str
-        Language of the result's values. Possible values are:
-
-            - 'en' for english
-            - 'es' for spanish
-        Keep in mind that regardless of the value, terms will be kept in
-        english to comply with the Darwin Core standard.
 
     Returns
     -------
@@ -147,14 +116,14 @@ def create_dwc_event(
             countries.set_index("alpha-3")["alpha-2"]
         )
 
-    core = _translate(core, language)
     core = core.reindex(columns=_dwc.event.order)
 
     return core
 
 
 def create_dwc_measurement(
-    deployments: pd.DataFrame, cameras: pd.DataFrame, language: str = "en"
+    deployments: pd.DataFrame,
+    cameras: pd.DataFrame,
 ) -> pd.DataFrame:
     """
     Creates a Darwin Core Measurement or Facts dataframe from cameras and
@@ -167,13 +136,6 @@ def create_dwc_measurement(
         Dataframe with the bundle's deployments.
     cameras : DataFrame
         Dataframe with the bundle's cameras.
-    language : str
-        Language of the result's values. Possible values are:
-
-            - 'en' for english
-            - 'es' for spanish
-        Keep in mind that regardless of the value, terms will be kept in
-        english to comply with the Darwin Core standard.
 
     Returns
     -------
@@ -196,13 +158,12 @@ def create_dwc_measurement(
             temp["measurementRemarks"] = np.nan
         extension = pd.concat([extension, temp], ignore_index=True)
 
-    extension = _translate(extension, language)
     extension = extension.dropna(subset=["measurementValue"]).reset_index(drop=True)
 
     return extension
 
 
-def create_dwc_multimedia(images: pd.DataFrame, language: str = "en") -> pd.DataFrame:
+def create_dwc_multimedia(images: pd.DataFrame) -> pd.DataFrame:
     """
     Creates a Darwin Core Simple Multimedia dataframe from images
     information. See https://rs.gbif.org/extension/gbif/1.0/multimedia.xml
@@ -213,13 +174,6 @@ def create_dwc_multimedia(images: pd.DataFrame, language: str = "en") -> pd.Data
     ----------
     images : DataFrame
         Dataframe with the bundle's images.
-    language : str
-        Language of the result's values. Possible values are:
-
-            - 'en' for english
-            - 'es' for spanish
-        Keep in mind that regardless of the value, terms will be kept in
-        english to comply with the Darwin Core standard.
 
     Returns
     -------
@@ -240,7 +194,6 @@ def create_dwc_multimedia(images: pd.DataFrame, language: str = "en") -> pd.Data
         "Blank or unidentified"
     )
 
-    extension = _translate(extension, language)
     extension = extension.reindex(columns=_dwc.multimedia.order)
 
     return extension
@@ -250,7 +203,6 @@ def create_dwc_occurrence(
     images: pd.DataFrame,
     deployments: pd.DataFrame,
     projects: pd.DataFrame,
-    language: str = "en",
     remove_duplicate_kws: dict = None,
 ) -> pd.DataFrame:
     """
@@ -267,13 +219,6 @@ def create_dwc_occurrence(
         Dataframe with the bundle's deployments.
     projects : DataFrame
         Dataframe with the bundle's projects.
-    language : str
-        Language of the result's values. Possible values are:
-
-            - 'en' for english
-            - 'es' for spanish
-        Keep in mind that regardless of the value, terms will be kept in
-        english to comply with the Darwin Core standard.
     remove_duplicate_kws : dict
         Keyword arguments passed to the wiutils.remove_duplicate function.
 
@@ -323,7 +268,6 @@ def create_dwc_occurrence(
     core["specificEpithet"] = epithets[0]
     core["infraspecificEpithet"] = epithets.get(1, np.nan)
 
-    core = _translate(core, language)
     core = core.reindex(columns=_dwc.occurrence.order)
 
     return core

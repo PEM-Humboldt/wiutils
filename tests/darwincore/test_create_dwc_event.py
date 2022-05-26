@@ -38,7 +38,7 @@ def projects():
     return pd.DataFrame({"project_id": ["vkeh6gs"], "country_code": ["COL"]})
 
 
-def test_language_en(deployments, projects):
+def test_defaults(deployments, projects):
     result = create_dwc_event(deployments, projects)
     expected = pd.DataFrame(
         {
@@ -48,35 +48,6 @@ def test_language_en(deployments, projects):
             "sampleSizeValue": [1, 1, 1],
             "sampleSizeUnit": ["camera", "camera", "camera"],
             "samplingEffort": ["37 trap-nights", "30 trap-nights", "36 trap-nights"],
-            "eventDate": [
-                "2020-11-10/2020-12-17",
-                "2020-11-13/2020-12-13",
-                "2020-11-08/2020-12-14",
-            ],
-            "eventRemarks": [np.nan, np.nan, "Some description"],
-            "countryCode": ["CO", "CO", "CO"],
-            "decimalLatitude": [3.71647, 3.82742, 3.90128],
-            "decimalLongitude": [-71.79161, -71.52733, -71.81543],
-            "geodeticDatum": ["WGS84", "WGS84", "WGS84"],
-        }
-    )
-    pd.testing.assert_frame_equal(result, expected)
-
-
-def test_language_es(deployments, projects):
-    result = create_dwc_event(deployments, projects, language="es")
-    expected = pd.DataFrame(
-        {
-            "eventID": ["001", "002", "003"],
-            "parentEventID": ["90210", "90210", "10001"],
-            "samplingProtocol": ["fototrampeo", "fototrampeo", "fototrampeo"],
-            "sampleSizeValue": [1, 1, 1],
-            "sampleSizeUnit": ["cámara", "cámara", "cámara"],
-            "samplingEffort": [
-                "37 trampas-noche",
-                "30 trampas-noche",
-                "36 trampas-noche",
-            ],
             "eventDate": [
                 "2020-11-10/2020-12-17",
                 "2020-11-13/2020-12-13",
