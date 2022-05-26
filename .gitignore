@@ -22,6 +22,7 @@ var/
 
 # Docs
 docs/_build/
+site
 
 # Editor configuration
 .idea
