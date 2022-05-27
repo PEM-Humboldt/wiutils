@@ -9,15 +9,17 @@ constants = {
 }
 
 mapping = {
-    "identifier": "image_id",
-    "references": "location",
-    "created": "timestamp",
-    "creator": "recorded_by",
-    "contributor": "identified_by",
+    "deployment_id": "eventID",
+    "image_id": "identifier",
+    "location": "references",
+    "timestamp": "created",
+    "recorded_by": "creator",
+    "identified_by": "contributor",
     "license": "license",
 }
 
 order = [
+    "eventID",
     "type",
     "format",
     "identifier",
