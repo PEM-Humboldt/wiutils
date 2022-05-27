@@ -16,7 +16,7 @@ from .filtering import remove_duplicates, remove_unidentified
 def _gs_to_https(location: pd.Series) -> pd.Series:
     base_url = "https://console.cloud.google.com/storage/browser/"
     bucket = location.str.split("/").str[2]
-    uri = location.str.split("/").str[4:].str.join("/")
+    uri = location.str.split("/").str[3:].str.join("/")
 
     return base_url + bucket + "/" + uri
 
@@ -64,7 +64,7 @@ def create_dwc_archive(
         images, deployments, projects, remove_duplicate_kws
     )
     measurement = create_dwc_measurement(cameras, deployments)
-    multimedia = create_dwc_multimedia(images)
+    multimedia = create_dwc_multimedia(images, deployments)
 
     return event, occurrence, measurement, multimedia
 
@@ -163,10 +163,12 @@ def create_dwc_measurement(
     return extension
 
 
-def create_dwc_multimedia(images: pd.DataFrame) -> pd.DataFrame:
+def create_dwc_multimedia(
+    images: pd.DataFrame, deployments: pd.DataFrame
+) -> pd.DataFrame:
     """
-    Creates a Darwin Core Simple Multimedia dataframe from images
-    information. See https://rs.gbif.org/extension/gbif/1.0/multimedia.xml
+    Creates a Darwin Core Simple Multimedia dataframe from images and
+    deployments information. See https://rs.gbif.org/extension/gbif/1.0/multimedia.xml
     for more information about this extension. The result includes
     information from all the bundle's images.
 
@@ -174,6 +176,8 @@ def create_dwc_multimedia(images: pd.DataFrame) -> pd.DataFrame:
     ----------
     images : DataFrame
         Dataframe with the bundle's images.
+    deployments : DataFrame
+        Dataframe with the bundle's deployments.
 
     Returns
     -------
@@ -181,7 +185,10 @@ def create_dwc_multimedia(images: pd.DataFrame) -> pd.DataFrame:
         Darwin Core Simple Multimedia dataframe.
 
     """
-    extension = images.rename(columns=_dwc.multimedia.mapping)
+    df = pd.merge(images, deployments, on=_labels.images.deployment_id, how="left")
+    df[_labels.images.url] = _gs_to_https(df[_labels.images.url])
+
+    extension = df.rename(columns=_dwc.multimedia.mapping)
     extension = extension[
         extension.columns[extension.columns.isin(_dwc.multimedia.order)]
     ]
@@ -189,7 +196,6 @@ def create_dwc_multimedia(images: pd.DataFrame) -> pd.DataFrame:
     for term, value in _dwc.multimedia.constants.items():
         extension[term] = value
 
-    extension["location"] = _gs_to_https(extension["location"])
     extension["title"] = get_lowest_taxon(images, return_rank=False).fillna(
         "Blank or unidentified"
     )
