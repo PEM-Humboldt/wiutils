@@ -16,6 +16,7 @@ mapping = {
     "country_code": "countryCode",
     "latitude": "decimalLatitude",
     "longitude": "decimalLongitude",
+    "project_admin_organization": "institutionCode",
 }
 
 order = [
@@ -31,4 +32,5 @@ order = [
     "decimalLatitude",
     "decimalLongitude",
     "geodeticDatum",
+    "institutionCode",
 ]

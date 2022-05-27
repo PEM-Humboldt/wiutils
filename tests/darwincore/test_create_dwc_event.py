@@ -35,7 +35,13 @@ def deployments():
 
 @pytest.fixture(scope="function")
 def projects():
-    return pd.DataFrame({"project_id": ["vkeh6gs"], "country_code": ["COL"]})
+    return pd.DataFrame(
+        {
+            "project_id": ["vkeh6gs"],
+            "country_code": ["COL"],
+            "project_admin_organization": ["Instituto Humboldt"],
+        }
+    )
 
 
 def test_defaults(deployments, projects):
@@ -58,6 +64,11 @@ def test_defaults(deployments, projects):
             "decimalLatitude": [3.71647, 3.82742, 3.90128],
             "decimalLongitude": [-71.79161, -71.52733, -71.81543],
             "geodeticDatum": ["WGS84", "WGS84", "WGS84"],
+            "institutionCode": [
+                "Instituto Humboldt",
+                "Instituto Humboldt",
+                "Instituto Humboldt",
+            ],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
