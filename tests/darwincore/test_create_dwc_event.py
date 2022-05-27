@@ -61,6 +61,7 @@ def test_defaults(deployments, projects):
             ],
             "eventRemarks": [np.nan, np.nan, "Some description"],
             "countryCode": ["CO", "CO", "CO"],
+            "locationRemarks": ["Other", "Trail hiking", "Road dirt"],
             "decimalLatitude": [3.71647, 3.82742, 3.90128],
             "decimalLongitude": [-71.79161, -71.52733, -71.81543],
             "geodeticDatum": ["WGS84", "WGS84", "WGS84"],

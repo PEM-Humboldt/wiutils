@@ -30,12 +30,6 @@ mapping = [
         "remarks": "bait_description",
     },
     {
-        "type": "feature type",
-        "value": "feature_type",
-        "unit": np.nan,
-        "remarks": "feature_type_methodology",
-    },
-    {
         "type": "quiet period",
         "value": "quiet_period",
         "unit": "seconds",
