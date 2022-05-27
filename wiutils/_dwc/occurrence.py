@@ -3,6 +3,7 @@ Mapping from WI fields to DwC terms, constant values and term order for
 the Darwin Core Occurrence dataframe creation.
 """
 constants = {
+    "organismQuantityType": "individual(s)",
     "basisOfRecord": "MachineObservation",
     "preparations": "photograph",
     "kingdom": "Animalia",
@@ -13,6 +14,7 @@ mapping = {
     "deployment_id": "eventID",
     "placename": "parentEventID",
     "identified_by": "identifiedBy",
+    "uncertainty": "identificationRemarks",
     "image_id": "recordNumber",
     "recorded_by": "recordedBy",
     "number_of_objects": "organismQuantity",
