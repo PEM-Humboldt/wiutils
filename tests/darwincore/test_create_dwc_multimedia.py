@@ -46,6 +46,7 @@ def deployments():
 
 
 def test_defaults(images, deployments):
+    gcs_base_url = "https://console.cloud.google.com/storage/browser/"
     result = create_dwc_multimedia(images, deployments)
     expected = pd.DataFrame(
         {
@@ -54,9 +55,9 @@ def test_defaults(images, deployments):
             "format": ["image/jpeg", "image/jpeg", "image/jpeg"],
             "identifier": ["abc123", "def456", "hij789"],
             "references": [
-                "https://console.cloud.google.com/storage/browser/bucket/deployment/001/abc123.jpg",
-                "https://console.cloud.google.com/storage/browser/bucket/deployment/001/def456.jpg",
-                "https://console.cloud.google.com/storage/browser/bucket/deployment/002/hij789.jpg",
+                gcs_base_url + "bucket/deployment/001/abc123.jpg",
+                gcs_base_url + "bucket/deployment/001/def456.jpg",
+                gcs_base_url + "bucket/deployment/002/hij789.jpg",
             ],
             "title": ["Panthera onca", "Panthera onca", "Blank or unidentified"],
             "created": [
