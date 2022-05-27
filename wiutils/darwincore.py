@@ -254,7 +254,7 @@ def create_dwc_occurrence(
     core = df.rename(columns=_dwc.occurrence.mapping)
     core = core[core.columns[core.columns.isin(_dwc.occurrence.order)]]
 
-    for term, value in _dwc.event.constants.items():
+    for term, value in _dwc.occurrence.constants.items():
         core[term] = value
 
     core["eventDate"] = df[_labels.images.date].dt.strftime("%Y-%m-%d")
@@ -267,6 +267,7 @@ def create_dwc_occurrence(
         {_labels.images.url: "|".join}
     )
 
+    filtered = filtered.reset_index(drop=True)
     taxa, ranks = get_lowest_taxon(filtered, return_rank=True)
     epithets = filtered[_labels.images.species].str.split(" ", expand=True)
     core["scientificName"] = taxa
