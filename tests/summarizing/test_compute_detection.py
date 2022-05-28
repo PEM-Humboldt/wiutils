@@ -80,7 +80,7 @@ def test_compute_abundance_deployment(images):
                 "Zentrygon linearis",
             ],
             "deployment_id": ["001", "002", "001", "002", "001", "002"],
-            "value": [0, 3, 2, 0, 2, 1],
+            "value": [0, 3, 7, 0, 3, 1],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -101,7 +101,7 @@ def test_compute_abundance_location(images, deployments):
                 "Zentrygon linearis",
             ],
             "placename": ["AAA", "AAA", "AAA"],
-            "value": [1, 2, 3],
+            "value": [3, 7, 4],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -124,7 +124,7 @@ def test_compute_presence_deployment(images):
                 "Zentrygon linearis",
             ],
             "deployment_id": ["001", "002", "001", "002", "001", "002"],
-            "value": [0, 3, 1, 0, 1, 1],
+            "value": [0, 1, 1, 0, 1, 1],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -160,12 +160,12 @@ def test_pivot_deployment(images):
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Eira barbara",
+                "Eira",
                 "Galictis vittata",
                 "Zentrygon linearis",
             ],
-            "001": [0, 2, 2],
-            "002": [1, 0, 1],
+            "001": [0, 7, 3],
+            "002": [3, 0, 1],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -181,11 +181,11 @@ def test_pivot_location(images, deployments):
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Eira barbara",
+                "Eira",
                 "Galictis vittata",
                 "Zentrygon linearis",
             ],
-            "AAA": [1, 2, 3],
+            "AAA": [3, 7, 4],
         }
     )
     pd.testing.assert_frame_equal(result, expected)

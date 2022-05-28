@@ -173,7 +173,7 @@ def compute_detection(
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
-    result = images.groupby(["taxon", groupby_label]).size()
+    result = images.groupby(["taxon", groupby_label])[_labels.images.objects].sum()
     taxa = images["taxon"].unique()
     sites = images[groupby_label].unique()
     idx = pd.MultiIndex.from_product([taxa, sites], names=["taxon", groupby_label])
