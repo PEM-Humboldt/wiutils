@@ -1,6 +1,7 @@
 """
 Test cases for the wiutils.plotting.plot_activity_hours function.
 """
+import numpy as np
 import pandas as pd
 import pytest
 import seaborn
@@ -61,13 +62,13 @@ def images():
                 "Tremarctos",
             ],
             "species": [
-                "variegatus",
-                "variegatus",
-                "variegatus",
-                "variegatus",
-                "variegatus",
-                "variegatus",
-                "variegatus",
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
                 "ornatus",
                 "ornatus",
                 "ornatus",
@@ -84,25 +85,28 @@ def images():
                 "2020-12-05 09:02:41",
                 "2020-12-11 11:13:09",
             ],
+            "number_of_objects": [1, 1, 1, 3, 1, 1, 1, 1, 1, 2],
         }
     )
 
 
 def test_hist(images, mocker):
     mocker.patch("seaborn.histplot")
-    plot_activity_hours(images, "Bradypus variegatus", kind="hist")
+    plot_activity_hours(images, "Bradypus", kind="hist")
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
             ],
-            "hour": [8.22, 8.25, 15.27, 15.37, 15.25, 21.20, 21.23],
+            "hour": [8.22, 8.25, 15.27, 15.37, 15.37, 15.37, 15.25, 21.20, 21.23],
         }
     )
     args, kwargs = seaborn.histplot.call_args
@@ -118,8 +122,9 @@ def test_kde(images, mocker):
                 "Tremarctos ornatus",
                 "Tremarctos ornatus",
                 "Tremarctos ornatus",
+                "Tremarctos ornatus",
             ],
-            "hour": [11.02, 9.03, 11.22],
+            "hour": [11.02, 9.03, 11.22, 11.22],
         }
     )
     args, kwargs = seaborn.kdeplot.call_args
@@ -128,24 +133,39 @@ def test_kde(images, mocker):
 
 def test_multiple_names(images, mocker):
     mocker.patch("seaborn.histplot")
-    plot_activity_hours(
-        images, ["Bradypus variegatus", "Tremarctos ornatus"], kind="hist"
-    )
+    plot_activity_hours(images, ["Bradypus", "Tremarctos ornatus"], kind="hist")
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
-                "Bradypus variegatus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Bradypus",
+                "Tremarctos ornatus",
                 "Tremarctos ornatus",
                 "Tremarctos ornatus",
                 "Tremarctos ornatus",
             ],
-            "hour": [8.22, 8.25, 15.27, 15.37, 15.25, 21.20, 21.23, 11.02, 9.03, 11.22],
+            "hour": [
+                8.22,
+                8.25,
+                15.27,
+                15.37,
+                15.37,
+                15.37,
+                15.25,
+                21.20,
+                21.23,
+                11.02,
+                9.03,
+                11.22,
+                11.22,
+            ],
         }
     )
     args, kwargs = seaborn.histplot.call_args
@@ -161,7 +181,7 @@ def test_intact_input(images, mocker):
 
 def test_invalid_kind(images):
     with pytest.raises(ValueError):
-        plot_activity_hours(images, "Bradypus variegatus", kind="bar")
+        plot_activity_hours(images, "Bradypus", kind="bar")
 
 
 def test_invalid_species(images):

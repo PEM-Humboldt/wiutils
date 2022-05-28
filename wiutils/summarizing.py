@@ -86,7 +86,7 @@ def compute_count_summary(
     images = images.copy()
 
     if remove_unidentified_kws is None:
-        remove_unidentified_kws = {}
+        remove_unidentified_kws = {"rank": "class"}
     if remove_duplicates_kws is None:
         remove_duplicates_kws = {}
 
@@ -99,13 +99,17 @@ def compute_count_summary(
     )
     images = remove_duplicates(images, **remove_duplicates_kws)
 
-    result = result.join(images.groupby(groupby_label).size().rename("records"))
+    result = result.join(
+        images.groupby(groupby_label)[_labels.images.objects].sum().rename("records")
+    )
     if add_records_by_class:
         classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
             subset = images[images[_labels.images.class_] == class_]
             result = result.join(
-                subset.groupby(groupby_label).size().rename(f"records_{class_.lower()}")
+                subset.groupby(groupby_label)[_labels.images.objects]
+                .sum()
+                .rename(f"records_{class_.lower()}")
             )
 
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
@@ -169,7 +173,7 @@ def compute_detection(
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
-    result = images.groupby(["taxon", groupby_label]).size()
+    result = images.groupby(["taxon", groupby_label])[_labels.images.objects].sum()
     taxa = images["taxon"].unique()
     sites = images[groupby_label].unique()
     idx = pd.MultiIndex.from_product([taxa, sites], names=["taxon", groupby_label])
@@ -256,7 +260,7 @@ def compute_detection_history(
         pd.Grouper(key=_labels.images.deployment_id),
         pd.Grouper(key=_labels.images.date, freq=freq, origin=start),
     ]
-    result = images.groupby(groupers).size()
+    result = images.groupby(groupers)[_labels.images.objects].sum()
 
     # A new index with all the combinations of species, sites and dates
     # is created to reindex the result and to assign zeros where there
@@ -366,8 +370,12 @@ def compute_general_count(
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
-    result = images.groupby("taxon").agg({"taxon": "size", groupby_label: "nunique"})
-    result = result.rename(columns={"taxon": "images", groupby_label: f"{groupby}s"})
+    result = images.groupby("taxon").agg(
+        {_labels.images.objects: "sum", groupby_label: "nunique"}
+    )
+    result = result.rename(
+        columns={_labels.images.objects: "records", groupby_label: f"{groupby}s"}
+    )
     result = result.reset_index()
 
     if add_taxonomy:
@@ -422,7 +430,7 @@ def compute_hill_numbers(
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
-    abundance = images.groupby([groupby_label, "taxon"]).size()
+    abundance = images.groupby([groupby_label, "taxon"])[_labels.images.objects].sum()
     relative_abundance = abundance / abundance.groupby(level=0).sum()
     for site, group in relative_abundance.groupby(level=0):
         for q in q_values:

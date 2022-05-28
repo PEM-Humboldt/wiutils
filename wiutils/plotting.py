@@ -150,6 +150,12 @@ def plot_activity_hours(
         images[_labels.images.date].dt.minute / 60
     )
 
+    # Each image is duplicated by its number of objects to properly
+    # account for those images with more than one animal.
+    images = images.loc[
+        images.index.repeat(images[_labels.images.objects])
+    ].reset_index(drop=True)
+
     if polar:
         if kind in ("area", "hist"):
             ax = _plot_polar(images, "hour", hue="taxon", kind=kind, **polar_kws)
