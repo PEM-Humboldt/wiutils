@@ -83,9 +83,9 @@ def images():
                 "onca",
                 "onca",
                 "onca",
-                "pardalis",
-                "pardalis",
-                "pardalis",
+                np.nan,
+                np.nan,
+                np.nan,
                 "onca",
                 "onca",
                 "onca",
@@ -103,6 +103,7 @@ def images():
                 "2020-12-03 11:14:32",
                 "2020-12-11 07:53:07",
             ],
+            "number_of_objects": [1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1],
         }
     )
 
@@ -123,12 +124,12 @@ def test_compute_abundance(images, deployments):
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                "Leopardus pardalis",
+                "Leopardus",
+                "Leopardus",
+                "Leopardus",
+                "Leopardus",
+                "Leopardus",
+                "Leopardus",
                 "Panthera onca",
                 "Panthera onca",
                 "Panthera onca",
@@ -166,7 +167,7 @@ def test_compute_abundance(images, deployments):
                     "2020-12-08",
                 ]
             ),
-            "value": [1, 2, np.nan, 0, 0, 0, 2, 3, np.nan, 1, 1, 1],
+            "value": [2, 4, np.nan, 0, 0, 0, 2, 3, np.nan, 1, 1, 1],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -179,10 +180,10 @@ def test_compute_presence(images, deployments):
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                "Leopardus pardalis",
+                "Leopardus",
+                "Leopardus",
+                "Leopardus",
+                "Leopardus",
                 "Panthera onca",
                 "Panthera onca",
                 "Panthera onca",
@@ -208,14 +209,16 @@ def test_compute_presence(images, deployments):
 
 
 def test_date_range_images(images, deployments):
-    result = compute_detection_history(images, deployments, date_range="images", days=15)
+    result = compute_detection_history(
+        images, deployments, date_range="images", days=15
+    )
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                "Leopardus pardalis",
-                "Leopardus pardalis",
+                "Leopardus",
+                "Leopardus",
+                "Leopardus",
+                "Leopardus",
                 "Panthera onca",
                 "Panthera onca",
                 "Panthera onca",
@@ -234,7 +237,7 @@ def test_date_range_images(images, deployments):
                     "2020-12-10",
                 ]
             ),
-            "value": [3, np.nan, 0, 0, 5, np.nan, 2, 1],
+            "value": [6, np.nan, 0, 0, 5, np.nan, 2, 1],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -247,13 +250,13 @@ def test_pivot(images, deployments):
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Leopardus pardalis",
-                "Leopardus pardalis",
+                "Leopardus",
+                "Leopardus",
                 "Panthera onca",
                 "Panthera onca",
             ],
             "deployment_id": ["001", "002", "001", "002"],
-            "2020-11-25": [3.0, 0.0, 5.0, 2.0],
+            "2020-11-25": [6.0, 0.0, 5.0, 2.0],
             "2020-12-10": [np.nan, 0, np.nan, 1],
         }
     )

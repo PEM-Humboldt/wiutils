@@ -260,7 +260,7 @@ def compute_detection_history(
         pd.Grouper(key=_labels.images.deployment_id),
         pd.Grouper(key=_labels.images.date, freq=freq, origin=start),
     ]
-    result = images.groupby(groupers).size()
+    result = images.groupby(groupers)[_labels.images.objects].sum()
 
     # A new index with all the combinations of species, sites and dates
     # is created to reindex the result and to assign zeros where there
