@@ -370,8 +370,12 @@ def compute_general_count(
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
-    result = images.groupby("taxon").agg({"taxon": "size", groupby_label: "nunique"})
-    result = result.rename(columns={"taxon": "images", groupby_label: f"{groupby}s"})
+    result = images.groupby("taxon").agg(
+        {_labels.images.objects: "sum", groupby_label: "nunique"}
+    )
+    result = result.rename(
+        columns={_labels.images.objects: "records", groupby_label: f"{groupby}s"}
+    )
     result = result.reset_index()
 
     if add_taxonomy:
