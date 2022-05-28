@@ -191,6 +191,16 @@ def test_pivot_location(images, deployments):
     pd.testing.assert_frame_equal(result, expected)
 
 
+def test_invalid_groupby(images, deployments):
+    with pytest.raises(ValueError):
+        compute_detection(images, deployments, groupby="placename")
+
+
+def test_no_deployments(images):
+    with pytest.raises(ValueError):
+        compute_detection(images, groupby="location")
+
+
 def test_intact_input(images):
     images_original = images.copy()
     compute_detection(images)

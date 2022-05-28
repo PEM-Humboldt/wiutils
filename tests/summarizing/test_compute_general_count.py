@@ -42,7 +42,7 @@ def test_deployment(images):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_placename(images, deployments):
+def test_location(images, deployments):
     result = compute_general_count(images, deployments, groupby="location")
     expected = pd.DataFrame(
         {
@@ -105,6 +105,16 @@ def test_no_taxonomy(images):
         }
     )
     pd.testing.assert_frame_equal(result, expected)
+
+
+def test_invalid_groupby(images, deployments):
+    with pytest.raises(ValueError):
+        compute_general_count(images, deployments, groupby="placename")
+
+
+def test_no_deployments(images):
+    with pytest.raises(ValueError):
+        compute_general_count(images, groupby="location")
 
 
 def test_intact_input(images):
