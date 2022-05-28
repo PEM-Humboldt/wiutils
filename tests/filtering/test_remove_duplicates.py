@@ -150,6 +150,11 @@ def test_reset_index(images):
     pd.testing.assert_index_equal(result.index, expected_index)
 
 
+def test_invalid_unit(images):
+    with pytest.raises(ValueError):
+        remove_duplicates(images, interval=1, unit="day", reset_index=False)
+
+
 def test_intact_input(images):
     images_original = images.copy()
     remove_duplicates(images)
