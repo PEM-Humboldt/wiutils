@@ -199,9 +199,7 @@ def test_add_species_by_class_location(images, deployments):
 
 
 def test_remove_unidentified_kws(images):
-    result = compute_count_summary(
-        images, remove_unidentified_kws={"rank": "epithet"}
-    )
+    result = compute_count_summary(images, remove_unidentified_kws={"rank": "species"})
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "002"],

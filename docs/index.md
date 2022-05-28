@@ -98,7 +98,13 @@ Functions in `wiutils` can be grouped in seven different categories:
 | [`plot_detection_history`](reference/#wiutils.plotting.plot_detection_history)  | Plots detection history matrix for a given species.                                                 |
 
 ### Darwin Core
-
+| Function                                                                         | Description                                                                                                                                     |
+|----------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`create_dwc_archive`](reference/#wiutils.darwincore.create_dwc_archive)         | Creates a Darwin Core Archive consisting of four different cores and extensions: Event, Occurrence, Measurement or Facts and Simple Multimedia. |
+| [`create_dwc_event`](reference/#wiutils.darwincore.create_dwc_event)             | Creates a Darwin Core Event dataframe from deployments and projects information.                                                                |
+| [`create_dwc_measurement`](reference/#wiutils.darwincore.create_dwc_measurement) | Creates a Darwin Core Measurement or Facts dataframe from cameras and deployments information.                                                  |
+| [`create_dwc_multimedia`](reference/#wiutils.darwincore.create_dwc_multimedia)   | Creates a Darwin Core Simple Multimedia dataframe from images and deployments information.                                                      |
+| [`create_dwc_occurrence`](reference/#wiutils.darwincore.create_dwc_occurrence)   | Creates a Darwin Core Occurrence dataframe from images, deployments and projects information                                                    |
 
 ### Preprocessing
 | Function                                                                              | Changes an image's associated timestamp metadata for a new timestamp.                               |

@@ -22,17 +22,17 @@ def _process_groupby_arg(
     images: pd.DataFrame, deployments: pd.DataFrame, groupby: str
 ) -> tuple:
     if groupby == "deployment":
-        groupby_label = _labels.images.deployment
+        groupby_label = _labels.images.deployment_id
     elif groupby == "location":
         groupby_label = _labels.deployments.location
         if deployments is not None:
             images = pd.merge(
                 images,
                 deployments[
-                    [_labels.deployments.deployment, _labels.deployments.location]
+                    [_labels.deployments.deployment_id, _labels.deployments.location]
                 ],
-                left_on=_labels.images.deployment,
-                right_on=_labels.deployments.deployment,
+                left_on=_labels.images.deployment_id,
+                right_on=_labels.deployments.deployment_id,
                 how="left",
             )
         else:
@@ -253,7 +253,7 @@ def compute_detection_history(
     freq = pd.Timedelta(days=days)
     groupers = [
         pd.Grouper(key="taxon"),
-        pd.Grouper(key=_labels.images.deployment),
+        pd.Grouper(key=_labels.images.deployment_id),
         pd.Grouper(key=_labels.images.date, freq=freq, origin=start),
     ]
     result = images.groupby(groupers).size()
@@ -262,11 +262,11 @@ def compute_detection_history(
     # is created to reindex the result and to assign zeros where there
     # were no observations.
     species = images["taxon"].unique()
-    sites = images[_labels.images.deployment].unique()
+    sites = images[_labels.images.deployment_id].unique()
     dates = pd.date_range(start, end, freq=freq)
     idx = pd.MultiIndex.from_product(
         [species, sites, dates],
-        names=["taxon", _labels.images.deployment, _labels.images.date],
+        names=["taxon", _labels.images.deployment_id, _labels.images.date],
     )
     result = result.reindex(idx, fill_value=0)
     result.name = "value"
@@ -282,12 +282,12 @@ def compute_detection_history(
         result,
         deployments[
             [
-                _labels.images.deployment,
+                _labels.images.deployment_id,
                 _labels.deployments.start,
                 _labels.deployments.end,
             ]
         ],
-        on=_labels.images.deployment,
+        on=_labels.images.deployment_id,
         how="left",
     )
     group_start = result[_labels.images.date]
@@ -303,13 +303,13 @@ def compute_detection_history(
     result = result.drop(columns=[_labels.deployments.start, _labels.deployments.end])
 
     result = result.sort_values(
-        ["taxon", _labels.images.deployment, _labels.images.date], ignore_index=True
+        ["taxon", _labels.images.deployment_id, _labels.images.date], ignore_index=True
     )
 
     if pivot:
         result[_labels.images.date] = result[_labels.images.date].astype(str)
         result = result.pivot(
-            index=["taxon", _labels.images.deployment],
+            index=["taxon", _labels.images.deployment_id],
             columns=_labels.images.date,
             values="value",
         )

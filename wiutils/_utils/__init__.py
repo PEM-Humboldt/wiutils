@@ -1,1 +1,1 @@
-from wiutils._utils import data, language, taxonomy
+from wiutils._utils import taxonomy

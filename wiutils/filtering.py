@@ -82,13 +82,15 @@ def remove_duplicates(
     df = images.copy()
     df[_labels.images.date] = pd.to_datetime(df[_labels.images.date])
 
-    df = df.sort_values([_labels.images.deployment, "taxon", _labels.images.date])
-    delta = df.groupby([_labels.images.deployment, "taxon"])[_labels.images.date].diff()
+    df = df.sort_values([_labels.images.deployment_id, "taxon", _labels.images.date])
+    delta = df.groupby([_labels.images.deployment_id, "taxon"])[
+        _labels.images.date
+    ].diff()
     mask = (delta >= pd.Timedelta(**{unit: interval})) | (delta.isna())
 
     images_reference = images.dropna(subset=["taxon"])
     images_reference = images_reference.sort_values(
-        [_labels.images.deployment, "taxon", _labels.images.date]
+        [_labels.images.deployment_id, "taxon", _labels.images.date]
     )
     df = images_reference.loc[mask]
     df = pd.concat([df, images[images["taxon"].isna()]])
@@ -141,12 +143,12 @@ def remove_inconsistent_dates(
         df,
         deployments[
             [
-                _labels.deployments.deployment,
+                _labels.deployments.deployment_id,
                 _labels.deployments.start,
                 _labels.deployments.end,
             ]
         ],
-        on=_labels.images.deployment,
+        on=_labels.images.deployment_id,
         how="left",
     )
     df["__is_between"] = df[_labels.images.date].between(
@@ -174,7 +176,7 @@ def remove_unidentified(
         Taxonomic rank for which images that do not have an identification
         will be removed. Possible values are:
 
-            - 'epithet'
+            - 'species'
             - 'genus'
             - 'family'
             - 'order'

@@ -57,7 +57,7 @@ def get_date_ranges(
         images[_labels.images.date] = pd.to_datetime(
             images[_labels.images.date].dt.date
         )
-        dates = images.groupby(_labels.images.deployment)[_labels.images.date].agg(
+        dates = images.groupby(_labels.images.deployment_id)[_labels.images.date].agg(
             start_date="min", end_date="max"
         )
         dates["source"] = "images"
@@ -76,7 +76,7 @@ def get_date_ranges(
         dates = deployments.loc[
             :,
             [
-                _labels.deployments.deployment,
+                _labels.deployments.deployment_id,
                 _labels.deployments.start,
                 _labels.deployments.end,
             ],
@@ -161,7 +161,7 @@ def get_scientific_name(
         Series with the corresponding scientific names.
 
     """
-    names = pd.Series(np.nan, index=np.arange(len(images)), dtype=str)
+    names = pd.Series(np.nan, index=images.index, dtype=str)
 
     exclude = ["No CV Result", "Unknown"]
     has_genus = (
@@ -169,15 +169,15 @@ def get_scientific_name(
         & images[_labels.images.genus].notna()
     )
     has_epithet = (
-        ~images[_labels.images.epithet].isin(exclude)
-        & images[_labels.images.epithet].notna()
+        ~images[_labels.images.species].isin(exclude)
+        & images[_labels.images.species].notna()
     )
 
     mask = has_genus & has_epithet
     names.loc[mask] = (
         images.loc[mask, _labels.images.genus]
         + " "
-        + images.loc[mask, _labels.images.epithet]
+        + images.loc[mask, _labels.images.species]
     )
 
     if keep_genus:
