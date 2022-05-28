@@ -25,19 +25,12 @@ def _plot_polar(
     kind: str = "hist",
     fill: bool = True,
 ) -> plt.PolarAxes:
-    if hue:
-        unique_values = df[hue].unique()
-    else:
-        unique_values = [None]
-
+    unique_values = df[hue].unique()
     width = 2 * np.pi / 24
     ax = plt.subplot(polar=True)
     handles = []
     for i, value in enumerate(unique_values):
-        if hue:
-            mask = df[hue] == value
-        else:
-            mask = pd.Series(True, index=df.index)
+        mask = df[hue] == value
         subset = df[mask]
         hist, edges = np.histogram(subset[y], bins=np.arange(25), density=density)
         if kind == "area":
@@ -67,8 +60,6 @@ def _plot_polar(
                 alpha=0.75,
                 zorder=2,
             )
-        else:
-            raise ValueError("kind must be one of ['area', 'hist']")
         handles.append(handle)
 
     ax.legend()

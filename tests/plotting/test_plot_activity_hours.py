@@ -1,6 +1,8 @@
 """
 Test cases for the wiutils.plotting.plot_activity_hours function.
 """
+import matplotlib.axes
+import matplotlib.pyplot
 import numpy as np
 import pandas as pd
 import pytest
@@ -113,6 +115,33 @@ def test_hist(images, mocker):
     pd.testing.assert_frame_equal(kwargs["data"], expected, atol=1e-2)
 
 
+def test_hist_polar(images, mocker):
+    mocker.patch("matplotlib.pyplot.subplot")
+    mocker.patch("matplotlib.pyplot.thetagrids")
+    ax = matplotlib.pyplot.subplot()
+    mocker.patch.object(ax, "bar")
+    plot_activity_hours(images, "Bradypus", kind="hist", polar=True)
+    args, kwargs = ax.bar.call_args
+    expected_x = np.arange(24) * (2 * np.pi / 24)
+    np.testing.assert_array_equal(args[0], expected_x)
+    expected_y = np.histogram(
+        [8.22, 8.25, 15.27, 15.37, 15.37, 15.37, 15.25, 21.2, 21.23], bins=np.arange(25)
+    )[0]
+    np.testing.assert_array_equal(args[1], expected_y)
+
+
+def test_hist_polar_kwargs(images, mocker):
+    mocker.patch("matplotlib.pyplot.subplot")
+    mocker.patch("matplotlib.pyplot.thetagrids")
+    ax = matplotlib.pyplot.subplot()
+    mocker.patch.object(ax, "bar")
+    plot_activity_hours(
+        images, "Bradypus", kind="hist", polar=True, polar_kws={"fill": False}
+    )
+    args, kwargs = ax.bar.call_args
+    assert kwargs["fill"] is False
+
+
 def test_kde(images, mocker):
     mocker.patch("seaborn.kdeplot")
     plot_activity_hours(images, "Tremarctos ornatus", kind="kde")
@@ -129,6 +158,22 @@ def test_kde(images, mocker):
     )
     args, kwargs = seaborn.kdeplot.call_args
     pd.testing.assert_frame_equal(kwargs["data"], expected, atol=1e-2)
+
+
+def test_area_polar(images, mocker):
+    mocker.patch("matplotlib.pyplot.subplot")
+    mocker.patch("matplotlib.pyplot.thetagrids")
+    ax = matplotlib.pyplot.subplot()
+    mocker.patch.object(ax, "plot")
+    plot_activity_hours(images, "Tremarctos ornatus", kind="area", polar=True)
+    args, kwargs = ax.plot.call_args
+    width = 2 * np.pi / 24
+    expected_x = np.arange(24) * width + (width / 2)
+    expected_x = np.append(expected_x, expected_x[0])
+    np.testing.assert_array_equal(args[0], expected_x)
+    expected_y = np.histogram([11.02, 9.03, 11.22, 11.22], bins=np.arange(25))[0]
+    expected_y = np.append(expected_y, expected_y[0])
+    np.testing.assert_array_equal(args[1], expected_y)
 
 
 def test_multiple_names(images, mocker):
@@ -179,9 +224,24 @@ def test_intact_input(images, mocker):
     pd.testing.assert_frame_equal(images_original, images)
 
 
-def test_invalid_kind(images):
+def test_invalid_kind_area(images):
+    with pytest.raises(ValueError):
+        plot_activity_hours(images, "Bradypus", kind="area")
+
+
+def test_invalid_kind_other(images):
     with pytest.raises(ValueError):
         plot_activity_hours(images, "Bradypus", kind="bar")
+
+
+def test_invalid_kind_polar_kde(images):
+    with pytest.raises(ValueError):
+        plot_activity_hours(images, "Bradypus", kind="kde", polar=True)
+
+
+def test_invalid_kind_polar_other(images):
+    with pytest.raises(ValueError):
+        plot_activity_hours(images, "Bradypus", kind="bar", polar=True)
 
 
 def test_invalid_species(images):
