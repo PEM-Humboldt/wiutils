@@ -1,6 +1,7 @@
 """
 Test cases for the wiutils.summarizing.compute_hill_numbers function.
 """
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -74,7 +75,7 @@ def images():
                 "Momotus",
                 "Eira",
                 "Eira",
-                "Cuniculus",
+                np.nan,
                 "Didelphis",
                 "Didelphis",
                 "Momotus",
@@ -88,13 +89,14 @@ def images():
                 "momota",
                 "barbara",
                 "barbara",
-                "paca",
+                np.nan,
                 "marsupialis",
                 "marsupialis",
                 "momota",
                 "barbara",
                 "pardalis",
             ],
+            "number_of_objects": [2, 1, 1, 3, 1, 1, 6, 1, 1, 4, 1, 1],
         }
     )
 
@@ -112,7 +114,7 @@ def test_result_long_location(images, deployments):
         {
             "placename": ["AAA", "AAA", "AAA"],
             "q": [0, 1, 2],
-            "D": [5.0, 4.154, 3.599],
+            "D": [5.0, 3.735, 3.094],
         }
     )
     pd.testing.assert_frame_equal(result, expected, atol=1e-3)
@@ -126,8 +128,8 @@ def test_result_wide_location(images, deployments):
         {
             "placename": ["AAA"],
             "0": [5.0],
-            "1": [4.154],
-            "2": [3.599],
+            "1": [3.735],
+            "2": [3.094],
         }
     )
     pd.testing.assert_frame_equal(result, expected, atol=1e-3)
@@ -147,7 +149,7 @@ def test_result_long_multiple(images):
         {
             "deployment_id": ["001", "001", "001", "002", "002", "002"],
             "q": [0, 1, 2, 0, 1, 2],
-            "D": [3.0, 2.600, 2.333, 4.0, 3.789, 3.571],
+            "D": [3.0, 2.693, 2.528, 4.000, 3.364, 2.909],
         }
     )
     pd.testing.assert_frame_equal(result, expected, atol=1e-3)
@@ -155,7 +157,7 @@ def test_result_long_multiple(images):
 
 def test_result_wide_single(images):
     result = compute_hill_numbers(images, q_values=1, pivot=True)
-    expected = pd.DataFrame({"deployment_id": ["001", "002"], "1": [2.600, 3.789]})
+    expected = pd.DataFrame({"deployment_id": ["001", "002"], "1": [2.693, 3.364]})
     pd.testing.assert_frame_equal(result, expected, atol=1e-3)
 
 
@@ -165,8 +167,8 @@ def test_result_wide_multiple(images):
         {
             "deployment_id": ["001", "002"],
             "0": [3.0, 4.0],
-            "1": [2.600, 3.789],
-            "2": [2.333, 3.571],
+            "1": [2.693, 3.364],
+            "2": [2.528, 2.909],
         }
     )
     pd.testing.assert_frame_equal(result, expected, atol=1e-3)

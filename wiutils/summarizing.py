@@ -430,7 +430,7 @@ def compute_hill_numbers(
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
-    abundance = images.groupby([groupby_label, "taxon"]).size()
+    abundance = images.groupby([groupby_label, "taxon"])[_labels.images.objects].sum()
     relative_abundance = abundance / abundance.groupby(level=0).sum()
     for site, group in relative_abundance.groupby(level=0):
         for q in q_values:
