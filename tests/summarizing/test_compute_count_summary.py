@@ -89,6 +89,7 @@ def images():
                 "2020-12-24 13:48:12",
                 "2020-12-21 03:12:21",
             ],
+            "number_of_objects": [1, 1, 2, 1, 1, 3, 1, 1, 1],
         }
     )
 
@@ -104,9 +105,9 @@ def test_groupby_deployment(images):
         {
             "deployment_id": ["001", "002"],
             "total_images": [3, 6],
-            "identified_images": [2, 5],
-            "records": [2, 5],
-            "taxa": [1, 5],
+            "identified_images": [3, 5],
+            "records": [4, 7],
+            "taxa": [2, 5],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -118,9 +119,9 @@ def test_groupby_location(images, deployments):
         {
             "placename": ["AAA"],
             "total_images": [9],
-            "identified_images": [7],
-            "records": [7],
-            "taxa": [5],
+            "identified_images": [8],
+            "records": [11],
+            "taxa": [6],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -134,11 +135,11 @@ def test_add_records_by_class_deployment(images):
         {
             "deployment_id": ["001", "002"],
             "total_images": [3, 6],
-            "identified_images": [2, 5],
-            "records": [2, 5],
-            "records_mammalia": [2, 2],
+            "identified_images": [3, 5],
+            "records": [4, 7],
+            "records_mammalia": [4, 4],
             "records_aves": [0, 3],
-            "taxa": [1, 5],
+            "taxa": [2, 5],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -152,11 +153,11 @@ def test_add_records_by_class_location(images, deployments):
         {
             "placename": ["AAA"],
             "total_images": [9],
-            "identified_images": [7],
-            "records": [7],
-            "records_mammalia": [4],
+            "identified_images": [8],
+            "records": [11],
+            "records_mammalia": [8],
             "records_aves": [3],
-            "taxa": [5],
+            "taxa": [6],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -170,10 +171,10 @@ def test_add_species_by_class_deployment(images):
         {
             "deployment_id": ["001", "002"],
             "total_images": [3, 6],
-            "identified_images": [2, 5],
-            "records": [2, 5],
-            "taxa": [1, 5],
-            "taxa_mammalia": [1, 2],
+            "identified_images": [3, 5],
+            "records": [4, 7],
+            "taxa": [2, 5],
+            "taxa_mammalia": [2, 2],
             "taxa_aves": [0, 3],
         }
     )
@@ -188,10 +189,10 @@ def test_add_species_by_class_location(images, deployments):
         {
             "placename": ["AAA"],
             "total_images": [9],
-            "identified_images": [7],
-            "records": [7],
-            "taxa": [5],
-            "taxa_mammalia": [2],
+            "identified_images": [8],
+            "records": [11],
+            "taxa": [6],
+            "taxa_mammalia": [3],
             "taxa_aves": [3],
         }
     )
@@ -205,7 +206,7 @@ def test_remove_unidentified_kws(images):
             "deployment_id": ["001", "002"],
             "total_images": [3, 6],
             "identified_images": [2, 4],
-            "records": [2, 4],
+            "records": [2, 6],
             "taxa": [1, 4],
         }
     )
@@ -220,9 +221,9 @@ def test_remove_duplicates_kws(images):
         {
             "deployment_id": ["001", "002"],
             "total_images": [3, 6],
-            "identified_images": [2, 5],
-            "records": [1, 5],
-            "taxa": [1, 5],
+            "identified_images": [3, 5],
+            "records": [3, 7],
+            "taxa": [2, 5],
         }
     )
     pd.testing.assert_frame_equal(result, expected)

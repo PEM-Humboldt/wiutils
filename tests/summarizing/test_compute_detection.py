@@ -1,6 +1,7 @@
 """
 Test cases for the wiutils.summarizing.compute_detection function.
 """
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -15,24 +16,24 @@ def images():
             "class": [
                 "Aves",
                 "Aves",
-                "",
-                "",
+                "Mammalia",
+                "Mammalia",
                 "Aves",
                 "Mammalia",
             ],
             "order": [
                 "Columbiformes",
                 "Columbiformes",
-                "",
-                "",
+                "Carnivora",
+                "Carnivora",
                 "Columbiformes",
                 "Carnivora",
             ],
             "family": [
                 "Columbidae",
                 "Columbidae",
-                "",
-                "",
+                "Mustelidae",
+                "Mustelidae",
                 "Columbidae",
                 "Mustelidae",
             ],
@@ -50,8 +51,9 @@ def images():
                 "vittata",
                 "vittata",
                 "linearis",
-                "barbara",
+                np.nan,
             ],
+            "number_of_objects": [1, 2, 5, 2, 1, 3],
         }
     )
 
@@ -70,15 +72,15 @@ def test_compute_abundance_deployment(images):
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Eira barbara",
-                "Eira barbara",
+                "Eira",
+                "Eira",
                 "Galictis vittata",
                 "Galictis vittata",
                 "Zentrygon linearis",
                 "Zentrygon linearis",
             ],
             "deployment_id": ["001", "002", "001", "002", "001", "002"],
-            "value": [0, 1, 2, 0, 2, 1],
+            "value": [0, 3, 2, 0, 2, 1],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -94,7 +96,7 @@ def test_compute_abundance_location(images, deployments):
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Eira barbara",
+                "Eira",
                 "Galictis vittata",
                 "Zentrygon linearis",
             ],
@@ -114,15 +116,15 @@ def test_compute_presence_deployment(images):
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Eira barbara",
-                "Eira barbara",
+                "Eira",
+                "Eira",
                 "Galictis vittata",
                 "Galictis vittata",
                 "Zentrygon linearis",
                 "Zentrygon linearis",
             ],
             "deployment_id": ["001", "002", "001", "002", "001", "002"],
-            "value": [0, 1, 1, 0, 1, 1],
+            "value": [0, 3, 1, 0, 1, 1],
         }
     )
     pd.testing.assert_frame_equal(result, expected)
@@ -138,7 +140,7 @@ def test_compute_presence_location(images, deployments):
     expected = pd.DataFrame(
         {
             "taxon": [
-                "Eira barbara",
+                "Eira",
                 "Galictis vittata",
                 "Zentrygon linearis",
             ],

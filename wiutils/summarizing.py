@@ -86,7 +86,7 @@ def compute_count_summary(
     images = images.copy()
 
     if remove_unidentified_kws is None:
-        remove_unidentified_kws = {}
+        remove_unidentified_kws = {"rank": "class"}
     if remove_duplicates_kws is None:
         remove_duplicates_kws = {}
 
@@ -99,13 +99,17 @@ def compute_count_summary(
     )
     images = remove_duplicates(images, **remove_duplicates_kws)
 
-    result = result.join(images.groupby(groupby_label).size().rename("records"))
+    result = result.join(
+        images.groupby(groupby_label)[_labels.images.objects].sum().rename("records")
+    )
     if add_records_by_class:
         classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
             subset = images[images[_labels.images.class_] == class_]
             result = result.join(
-                subset.groupby(groupby_label).size().rename(f"records_{class_.lower()}")
+                subset.groupby(groupby_label)[_labels.images.objects]
+                .sum()
+                .rename(f"records_{class_.lower()}")
             )
 
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
