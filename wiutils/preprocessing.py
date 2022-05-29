@@ -23,7 +23,7 @@ def change_image_timestamp(
     image_path: Union[str, pathlib.Path],
     output_path: Union[str, pathlib.Path],
     timestamp: Union[str, datetime.datetime, pd.Timestamp] = None,
-    offset: pd.DateOffset = None,
+    offset: Union[pd.DateOffset, pd.Timedelta] = None,
     direction: str = None,
 ) -> None:
     """
@@ -39,9 +39,10 @@ def change_image_timestamp(
         Relative or absolute path of the output image.
     timestamp : str, datetime.datetime or pd.Timestamp
         New timestamp to write to the image's metadata.
-    offset : DateOffset
-        Offset to add to or subtract from the original image's timestamp.
-        This argument only has effect when no timestamp is specified
+    offset : DateOffset or Timedelta
+        Offset or Timedelta to add to (if positive) or subtract from (if
+        negative) the original image's timestamp. This argument only has
+         effect when no timestamp is specified.
     direction : str
         Possible values are:
 
@@ -69,12 +70,7 @@ def change_image_timestamp(
     else:
         timestamp = exif[_get_exif_code("DateTime")]
         timestamp = pd.Timestamp(timestamp.replace(":", "-", 2))
-        if direction == "forward":
-            timestamp += offset
-        elif direction == "backward":
-            timestamp -= offset
-        else:
-            raise ValueError("direction must be one of ['forward', 'backward']")
+        timestamp += offset
 
     exif[_get_exif_code("DateTime")] = timestamp.strftime("%Y:%m:%d %H:%M:%S")
     exif[_get_exif_code("DateTimeOriginal")] = timestamp.strftime("%Y:%m:%d %H:%M:%S")
