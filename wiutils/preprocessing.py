@@ -16,15 +16,12 @@ def _get_exif_code(tag: str) -> int:
         if value == tag:
             return key
 
-    raise ValueError(f"{tag} is not a valid Exif tag.")
-
 
 def change_image_timestamp(
     image_path: Union[str, pathlib.Path],
     output_path: Union[str, pathlib.Path],
     timestamp: Union[str, datetime.datetime, pd.Timestamp] = None,
     offset: Union[pd.DateOffset, pd.Timedelta] = None,
-    direction: str = None,
 ) -> None:
     """
     Changes an image's associated timestamp metadata for a new timestamp.
@@ -43,13 +40,6 @@ def change_image_timestamp(
         Offset or Timedelta to add to (if positive) or subtract from (if
         negative) the original image's timestamp. This argument only has
          effect when no timestamp is specified.
-    direction : str
-        Possible values are:
-
-            * 'forward': to add the offset to the original timestamp.
-            * 'backward': to subtract the offset from the original
-            timestamp.
-        This argument only has effect when an offset is specified.
 
     Returns
     -------
