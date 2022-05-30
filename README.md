@@ -1,4 +1,9 @@
 # wiutils
+
+![](https://img.shields.io/pypi/pyversions/wiutils)
+![](https://img.shields.io/pypi/v/wiutils?color=blue)
+![](https://img.shields.io/conda/vn/conda-forge/wiutils?color=blue)
+
 `wiutils` has several utilities for exploring and manipulating (filtering, plotting and summarizing) information from [Wildlife Insights](https://www.wildlifeinsights.org/) projects. These functions are useful to compute basic statistics, prepare the information for further analysis (*e.g.* occupancy models) and translate it into other standards (*i.e.* Darwin Core) that facilitate its publication on biodiversity information centers (*e.g.* GBIF).
 
 ## Installation
