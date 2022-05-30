@@ -112,10 +112,7 @@ def convert_video_to_images(
     if image_format not in ("jpeg", "png"):
         raise ValueError("image_format must be one of ['jpeg', 'png'].")
 
-    if image_format == "jpeg":
-        ext = "jpg"
-    else:
-        ext = image_format
+    ext = "jpg" if image_format == "jpeg" else image_format
 
     if timestamp is not None:
         start = pd.Timestamp(timestamp)
@@ -124,7 +121,7 @@ def convert_video_to_images(
         try:
             start = info["format"]["tags"]["creation_time"]
         except KeyError:
-            raise Exception(f"{video_path.as_posix()} does not have a creation date.")
+            raise KeyError(f"{video_path.as_posix()} does not have a creation date.")
         start = pd.Timestamp(start)
 
     video = cv2.VideoCapture(video_path.as_posix())
