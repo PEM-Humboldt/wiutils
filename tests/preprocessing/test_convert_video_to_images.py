@@ -43,9 +43,9 @@ def test_timestamp(mocker):
         "video.mp4", "folder", timestamp="2021-05-31 17:08:42", offset=1
     )
     call_args = image.save.call_args_list
-    assert call_args[0].kwargs["exif"][36867] == "2021:05:31 17:08:42"
-    assert call_args[1].kwargs["exif"][36867] == "2021:05:31 17:08:43"
-    assert call_args[2].kwargs["exif"][36867] == "2021:05:31 17:08:44"
+    assert call_args[0][1]["exif"][36867] == "2021:05:31 17:08:42"
+    assert call_args[1][1]["exif"][36867] == "2021:05:31 17:08:43"
+    assert call_args[2][1]["exif"][36867] == "2021:05:31 17:08:44"
 
 
 def test_automatic_timestamp(mocker):
@@ -57,9 +57,9 @@ def test_automatic_timestamp(mocker):
     image = patch_image(mocker)
     convert_video_to_images("video.mp4", "folder", offset=1)
     call_args = image.save.call_args_list
-    assert call_args[0].kwargs["exif"][36867] == "2021:05:31 15:24:01"
-    assert call_args[1].kwargs["exif"][36867] == "2021:05:31 15:24:02"
-    assert call_args[2].kwargs["exif"][36867] == "2021:05:31 15:24:03"
+    assert call_args[0][1]["exif"][36867] == "2021:05:31 15:24:01"
+    assert call_args[1][1]["exif"][36867] == "2021:05:31 15:24:02"
+    assert call_args[2][1]["exif"][36867] == "2021:05:31 15:24:03"
 
 
 def test_no_creation_time(mocker):
