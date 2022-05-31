@@ -174,6 +174,16 @@ def test_result_wide_multiple(images):
     pd.testing.assert_frame_equal(result, expected, atol=1e-3)
 
 
+def test_invalid_groupby(images, deployments):
+    with pytest.raises(ValueError):
+        compute_hill_numbers(images, deployments, groupby="placename")
+
+
+def test_no_deployments(images):
+    with pytest.raises(ValueError):
+        compute_hill_numbers(images, groupby="location")
+
+
 def test_intact_input(images):
     images_original = images.copy()
     compute_hill_numbers(images, q_values=[0, 1, 2])

@@ -229,7 +229,19 @@ def test_remove_duplicates_kws(images):
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_intact_input(images):
+def test_invalid_groupby(images, deployments):
+    with pytest.raises(ValueError):
+        compute_count_summary(images, deployments, groupby="placename")
+
+
+def test_no_deployments(images):
+    with pytest.raises(ValueError):
+        compute_count_summary(images, groupby="location")
+
+
+def test_intact_input(images, deployments):
     images_original = images.copy()
+    deployments_original = deployments.copy()
     compute_count_summary(images)
     pd.testing.assert_frame_equal(images_original, images)
+    pd.testing.assert_frame_equal(deployments_original, deployments)

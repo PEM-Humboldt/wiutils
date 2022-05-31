@@ -16,15 +16,12 @@ def _get_exif_code(tag: str) -> int:
         if value == tag:
             return key
 
-    raise ValueError(f"{tag} is not a valid Exif tag.")
-
 
 def change_image_timestamp(
     image_path: Union[str, pathlib.Path],
     output_path: Union[str, pathlib.Path],
     timestamp: Union[str, datetime.datetime, pd.Timestamp] = None,
-    offset: pd.DateOffset = None,
-    direction: str = None,
+    offset: Union[pd.DateOffset, pd.Timedelta] = None,
 ) -> None:
     """
     Changes an image's associated timestamp metadata for a new timestamp.
@@ -39,16 +36,10 @@ def change_image_timestamp(
         Relative or absolute path of the output image.
     timestamp : str, datetime.datetime or pd.Timestamp
         New timestamp to write to the image's metadata.
-    offset : DateOffset
-        Offset to add to or subtract from the original image's timestamp.
-        This argument only has effect when no timestamp is specified
-    direction : str
-        Possible values are:
-
-            * 'forward': to add the offset to the original timestamp.
-            * 'backward': to subtract the offset from the original
-            timestamp.
-        This argument only has effect when an offset is specified.
+    offset : DateOffset or Timedelta
+        Offset or Timedelta to add to (if positive) or subtract from (if
+        negative) the original image's timestamp. This argument only has
+         effect when no timestamp is specified.
 
     Returns
     -------
@@ -69,12 +60,7 @@ def change_image_timestamp(
     else:
         timestamp = exif[_get_exif_code("DateTime")]
         timestamp = pd.Timestamp(timestamp.replace(":", "-", 2))
-        if direction == "forward":
-            timestamp += offset
-        elif direction == "backward":
-            timestamp -= offset
-        else:
-            raise ValueError("direction must be one of ['forward', 'backward']")
+        timestamp += offset
 
     exif[_get_exif_code("DateTime")] = timestamp.strftime("%Y:%m:%d %H:%M:%S")
     exif[_get_exif_code("DateTimeOriginal")] = timestamp.strftime("%Y:%m:%d %H:%M:%S")
@@ -126,10 +112,7 @@ def convert_video_to_images(
     if image_format not in ("jpeg", "png"):
         raise ValueError("image_format must be one of ['jpeg', 'png'].")
 
-    if image_format == "jpeg":
-        ext = "jpg"
-    else:
-        ext = image_format
+    ext = "jpg" if image_format == "jpeg" else image_format
 
     if timestamp is not None:
         start = pd.Timestamp(timestamp)
@@ -138,7 +121,7 @@ def convert_video_to_images(
         try:
             start = info["format"]["tags"]["creation_time"]
         except KeyError:
-            raise Exception(f"{video_path.as_posix()} does not have a creation date.")
+            raise KeyError(f"{video_path.as_posix()} does not have a creation date.")
         start = pd.Timestamp(start)
 
     video = cv2.VideoCapture(video_path.as_posix())

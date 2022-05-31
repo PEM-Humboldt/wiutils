@@ -263,6 +263,11 @@ def test_pivot(images, deployments):
     pd.testing.assert_frame_equal(result, expected)
 
 
+def test_invalid_date_range(images, deployments):
+    with pytest.raises(ValueError):
+        compute_detection_history(images, deployments, date_range="project")
+
+
 def test_intact_input(images, deployments):
     images_original = images.copy()
     deployments_original = deployments.copy()
