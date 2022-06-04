@@ -26,7 +26,9 @@ def test_discard_genus(images):
 
 def test_keep_genus(images):
     result = get_scientific_name(images, keep_genus=True)
-    expected = pd.Series(["Dasyprocta fuliginosa", np.nan, np.nan, np.nan, "Odocoileus"])
+    expected = pd.Series(
+        ["Dasyprocta fuliginosa", np.nan, np.nan, np.nan, "Odocoileus"]
+    )
     pd.testing.assert_series_equal(result, expected)
 
 
