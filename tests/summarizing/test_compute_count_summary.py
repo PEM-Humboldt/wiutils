@@ -110,7 +110,7 @@ def test_groupby_deployment(images):
             "taxa": [2, 5],
         }
     )
-    pd.testing.assert_frame_equal(result, expected)
+    pd.testing.assert_frame_equal(result, expected, check_dtype=False)
 
 
 def test_groupby_location(images, deployments):
@@ -124,7 +124,7 @@ def test_groupby_location(images, deployments):
             "taxa": [6],
         }
     )
-    pd.testing.assert_frame_equal(result, expected)
+    pd.testing.assert_frame_equal(result, expected, check_dtype=False)
 
 
 def test_add_records_by_class_deployment(images):
@@ -142,7 +142,7 @@ def test_add_records_by_class_deployment(images):
             "taxa": [2, 5],
         }
     )
-    pd.testing.assert_frame_equal(result, expected)
+    pd.testing.assert_frame_equal(result, expected, check_dtype=False)
 
 
 def test_add_records_by_class_location(images, deployments):
@@ -160,7 +160,7 @@ def test_add_records_by_class_location(images, deployments):
             "taxa": [6],
         }
     )
-    pd.testing.assert_frame_equal(result, expected)
+    pd.testing.assert_frame_equal(result, expected, check_dtype=False)
 
 
 def test_add_species_by_class_deployment(images):
@@ -178,7 +178,7 @@ def test_add_species_by_class_deployment(images):
             "taxa_aves": [0, 3],
         }
     )
-    pd.testing.assert_frame_equal(result, expected)
+    pd.testing.assert_frame_equal(result, expected, check_dtype=False)
 
 
 def test_add_species_by_class_location(images, deployments):
@@ -196,7 +196,7 @@ def test_add_species_by_class_location(images, deployments):
             "taxa_aves": [3],
         }
     )
-    pd.testing.assert_frame_equal(result, expected)
+    pd.testing.assert_frame_equal(result, expected, check_dtype=False)
 
 
 def test_remove_unidentified_kws(images):
@@ -210,7 +210,7 @@ def test_remove_unidentified_kws(images):
             "taxa": [1, 4],
         }
     )
-    pd.testing.assert_frame_equal(result, expected)
+    pd.testing.assert_frame_equal(result, expected, check_dtype=False)
 
 
 def test_remove_duplicates_kws(images):
@@ -226,7 +226,7 @@ def test_remove_duplicates_kws(images):
             "taxa": [2, 5],
         }
     )
-    pd.testing.assert_frame_equal(result, expected)
+    pd.testing.assert_frame_equal(result, expected, check_dtype=False)
 
 
 def test_invalid_groupby(images, deployments):
