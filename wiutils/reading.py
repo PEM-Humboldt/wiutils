@@ -19,7 +19,7 @@ def _read_file(path: Union[str, pathlib.Path], name, **kwargs) -> pd.DataFrame:
         if not path.suffix == ".zip":
             raise ValueError("path must be either a folder or a .zip file.")
         with zipfile.ZipFile(path) as z:
-            path = z.open(os.path.join(path.stem, f"{name}.csv"))
+            path = z.open(f"{path.stem}/{name}.csv"))
     else:
         path = path.joinpath(f"{name}.csv")
 
