@@ -236,10 +236,10 @@ def create_dwc_occurrence(
     """
     if remove_duplicate_kws is None:
         remove_duplicate_kws = {}
-    remove_duplicate_kws.update(dict(reset_index=False))
+    remove_duplicate_kws.update({"reset_index": False})
 
     images = images.copy()
-    images = remove_unidentified(images, rank="class")
+    images = remove_unidentified(images, rank="class", reset_index=True)
     filtered = remove_duplicates(images, **remove_duplicate_kws)
 
     df = pd.merge(

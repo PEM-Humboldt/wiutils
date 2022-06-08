@@ -9,7 +9,7 @@ from .extraction import get_lowest_taxon, get_scientific_name
 
 
 def remove_domestic(
-    images: pd.DataFrame, broad: bool = False, reset_index: bool = True
+    images: pd.DataFrame, broad: bool = False, reset_index: bool = False
 ) -> pd.DataFrame:
     """
     Removes images where the identification corresponds to a domestic
@@ -56,7 +56,7 @@ def remove_duplicates(
     images: pd.DataFrame,
     interval: int = 30,
     unit: str = "minutes",
-    reset_index: bool = True,
+    reset_index: bool = False,
 ) -> pd.DataFrame:
     """
     Removes duplicate records (images) from the same taxon in the same
@@ -120,7 +120,7 @@ def remove_duplicates(
 
 
 def remove_inconsistent_dates(
-    images: pd.DataFrame, deployments: pd.DataFrame, reset_index: bool = True
+    images: pd.DataFrame, deployments: pd.DataFrame, reset_index: bool = False
 ) -> pd.DataFrame:
     """
     Removes images where the timestamp is outside the date range of the
@@ -178,7 +178,7 @@ def remove_inconsistent_dates(
 
 
 def remove_unidentified(
-    images: pd.DataFrame, rank: str = "genus", reset_index: bool = True
+    images: pd.DataFrame, rank: str = "genus", reset_index: bool = False
 ) -> pd.DataFrame:
     """
     Removes unidentified (up to a specific taxonomic rank) images.

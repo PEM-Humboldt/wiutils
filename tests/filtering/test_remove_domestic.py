@@ -73,7 +73,7 @@ def images():
 
 
 def test_no_broad(images):
-    result = remove_domestic(images, broad=False)
+    result = remove_domestic(images, broad=False, reset_index=True)
     expected = pd.DataFrame(
         {
             "deployment_id": [
@@ -110,7 +110,7 @@ def test_no_broad(images):
 
 
 def test_broad(images):
-    result = remove_domestic(images, broad=True)
+    result = remove_domestic(images, broad=True, reset_index=True)
     expected = pd.DataFrame(
         {
             "deployment_id": [

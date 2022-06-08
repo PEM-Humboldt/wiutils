@@ -90,6 +90,9 @@ def compute_count_summary(
     if remove_duplicates_kws is None:
         remove_duplicates_kws = {}
 
+    remove_unidentified_kws.update({"reset_index": True})
+    remove_duplicates_kws.update({"reset_index": True})
+
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     result = pd.DataFrame(index=sorted(images[groupby_label].unique()))
     result = result.join(images.groupby(groupby_label).size().rename("total_images"))
