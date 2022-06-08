@@ -24,6 +24,7 @@ def images():
                 "002",
                 "002",
                 "002",
+                "002",
             ],
             "genus": [
                 "Homo",
@@ -37,12 +38,13 @@ def images():
                 "Canis",
                 "Bos",
                 np.nan,
+                "Canis",
             ],
             "species": [
                 "sapiens",
                 "ibis",
                 np.nan,
-                "gallus",
+                "gallus domesticus",
                 np.nan,
                 "platyrhynchos domesticus",
                 "onca",
@@ -50,6 +52,7 @@ def images():
                 "familiaris",
                 "taurus",
                 np.nan,
+                "lupus",
             ],
             "timestamp": [
                 "2020-12-01 10:13:13",
@@ -63,13 +66,51 @@ def images():
                 "2020-12-01 14:08:21",
                 "2020-12-01 19:21:34",
                 "2020-12-01 21:01:43",
+                "2020-12-03 15:21:02",
             ],
         }
     )
 
 
-def test_defaults(images):
-    result = remove_domestic(images)
+def test_no_broad(images):
+    result = remove_domestic(images, broad=False)
+    expected = pd.DataFrame(
+        {
+            "deployment_id": [
+                "001",
+                "001",
+                "001",
+                "001",
+                "002",
+                "002",
+                "002",
+            ],
+            "genus": [
+                "Bubulcus",
+                "Dasyprocta",
+                "Equus",
+                "Panthera",
+                "Tremarctos",
+                np.nan,
+                "Canis",
+            ],
+            "species": ["ibis", np.nan, np.nan, "onca", "ornatus", np.nan, "lupus"],
+            "timestamp": [
+                "2020-12-01 10:15:05",
+                "2020-12-01 10:16:46",
+                "2020-12-03 08:15:57",
+                "2020-12-01 10:14:04",
+                "2020-12-01 14:08:21",
+                "2020-12-01 21:01:43",
+                "2020-12-03 15:21:02",
+            ],
+        }
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+
+def test_broad(images):
+    result = remove_domestic(images, broad=True)
     expected = pd.DataFrame(
         {
             "deployment_id": [
@@ -94,8 +135,8 @@ def test_defaults(images):
 
 
 def test_keep_index(images):
-    result = remove_domestic(images, reset_index=False)
-    expected_index = pd.Index([1, 2, 6, 7, 10], dtype="int64")
+    result = remove_domestic(images, broad=False, reset_index=False)
+    expected_index = pd.Index([1, 2, 4, 6, 7, 10, 11], dtype="int64")
     pd.testing.assert_index_equal(result.index, expected_index)
 
 
