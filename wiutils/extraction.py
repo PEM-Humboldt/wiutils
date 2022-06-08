@@ -67,6 +67,7 @@ def get_date_ranges(
         if deployments is None:
             raise ValueError("deployments DataFrame must be provided.")
         deployments = deployments.copy()
+        deployments = deployments.sort_values(_labels.deployments.deployment_id)
         deployments[_labels.deployments.start] = pd.to_datetime(
             deployments[_labels.deployments.start]
         )
