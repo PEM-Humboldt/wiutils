@@ -12,7 +12,7 @@ Here is a quick overview of the different extraction functions and their descrip
 | [`get_scientific_name`](/reference/#wiutils.extraction.get_scientific_name) | Gets the scientific name of each image by concatenating their respective genus and specific epithet. |
 
 
-For every snippet of code showed here, we will assume you have already ran the following code:
+For every snippet of code showed here, we will assume you have already run the following code:
 
 ```python
 import wiutils
