@@ -109,7 +109,7 @@ def remove_duplicates(
     )
     df = images_reference.loc[mask]
     df = pd.concat([df, images[images["taxon"].isna()]])
-    df = df.sort_index()
+    df = df.reindex(images.index.intersection(df.index))
 
     if reset_index:
         df = df.reset_index(drop=True)
