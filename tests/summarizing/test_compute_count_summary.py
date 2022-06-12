@@ -163,10 +163,8 @@ def test_add_records_by_class_location(images, deployments):
     pd.testing.assert_frame_equal(result, expected, check_dtype=False)
 
 
-def test_add_species_by_class_deployment(images):
-    result = compute_count_summary(
-        images, groupby="deployment", add_species_by_class=True
-    )
+def test_add_taxa_by_class_deployment(images):
+    result = compute_count_summary(images, groupby="deployment", add_taxa_by_class=True)
     expected = pd.DataFrame(
         {
             "deployment_id": ["001", "002"],
@@ -181,9 +179,9 @@ def test_add_species_by_class_deployment(images):
     pd.testing.assert_frame_equal(result, expected, check_dtype=False)
 
 
-def test_add_species_by_class_location(images, deployments):
+def test_add_taxa_by_class_location(images, deployments):
     result = compute_count_summary(
-        images, deployments, groupby="location", add_species_by_class=True
+        images, deployments, groupby="location", add_taxa_by_class=True
     )
     expected = pd.DataFrame(
         {

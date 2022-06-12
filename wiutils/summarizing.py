@@ -48,7 +48,7 @@ def compute_count_summary(
     deployments: pd.DataFrame = None,
     groupby: str = "deployment",
     add_records_by_class: bool = False,
-    add_species_by_class: bool = False,
+    add_taxa_by_class: bool = False,
     remove_unidentified_kws: dict = None,
     remove_duplicates_kws: dict = None,
 ) -> pd.DataFrame:
@@ -68,10 +68,10 @@ def compute_count_summary(
             - 'deployment' to group by deployment (deployment_id)
             - 'location' to group by location (placename)
     add_records_by_class : bool
-        Whether to add number of independent records discriminated by
-        taxonomic class.
-    add_species_by_class : bool
-        Whether to add number of species discriminated by taxonomic class.
+        Whether to add number of independent records (i.e. number of
+        individuals after duplicate image removal).
+    add_taxa_by_class : bool
+        Whether to add number of unique taxa.
     remove_unidentified_kws : dict
         Keyword arguments for the wiutils.remove_unidentified function.
     remove_duplicates_kws : dict
@@ -119,7 +119,7 @@ def compute_count_summary(
     result = result.join(
         images.groupby(groupby_label)["taxon"].nunique().rename("taxa")
     )
-    if add_species_by_class:
+    if add_taxa_by_class:
         classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
             subset = images[images[_labels.images.class_] == class_]
