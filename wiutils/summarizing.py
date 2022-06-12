@@ -239,6 +239,8 @@ def compute_detection_history(
     images = images.copy()
     deployments = deployments.copy()
 
+    images = remove_unidentified(images, rank="class", reset_index=True)
+
     images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
     images[_labels.images.date] = pd.to_datetime(images[_labels.images.date].dt.date)
     deployments[_labels.deployments.start] = pd.to_datetime(
