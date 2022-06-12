@@ -380,7 +380,7 @@ def compute_general_count(
         {_labels.images.objects: "sum", groupby_label: "nunique"}
     )
     result = result.rename(
-        columns={_labels.images.objects: "records", groupby_label: f"{groupby}s"}
+        columns={_labels.images.objects: "n", groupby_label: f"{groupby}s"}
     )
     result = result.reset_index()
 
