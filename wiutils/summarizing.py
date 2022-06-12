@@ -173,6 +173,7 @@ def compute_detection(
 
     """
     images = images.copy()
+    images = remove_unidentified(images, rank="class", reset_index=True)
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
