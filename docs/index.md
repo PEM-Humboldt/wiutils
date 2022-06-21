@@ -114,7 +114,7 @@ Functions in `wiutils` can be grouped in seven different categories:
 | [`reduce_image_size`](reference/#wiutils.preprocessing.reduce_image_size)             | Reduces image file size by resampling using a given factor.                                         |
 
 ## User guide
-Head to the [user guide](guide/index.md) to see usage examples and explanations for the different functions.
+Head to the [user guide](guide/reading.md) to see usage examples and explanations for the different functions.
 
 ## Reference
 Head to the [reference](reference.md) to see all available functions.

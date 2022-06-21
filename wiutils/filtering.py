@@ -5,19 +5,28 @@ import numpy as np
 import pandas as pd
 
 from . import _domestic, _labels, _utils
-from .extraction import get_lowest_taxon
+from .extraction import get_lowest_taxon, get_scientific_name
 
 
-def remove_domestic(images: pd.DataFrame, reset_index: bool = True) -> pd.DataFrame:
+def remove_domestic(
+    images: pd.DataFrame, broad: bool = False, reset_index: bool = False
+) -> pd.DataFrame:
     """
     Removes images where the identification corresponds to a domestic
-    species. See wiutils/_domestic for a list of the genera considered
-    as domestic.
+    species. See wiutils/_domestic.py for a list of the species
+    considered as domestic.
 
     Parameters
     ----------
     images : DataFrame
         DataFrame with the project's images.
+    broad : bool
+        Whether to use a broader strategy when removing domestic species.
+        A broader strategy takes the genera from the list of domestic
+        species and removes the images where the genus identification
+        is in that list. Otherwise, the scientific name for each image
+        is extracted and the images where the scientific name is in the
+        list of domestic species are removed.
     reset_index : bool
         Whether to reset the index of the resulting DataFrame. If True,
         the index will be numeric from 0 to the length of the result.
@@ -29,7 +38,13 @@ def remove_domestic(images: pd.DataFrame, reset_index: bool = True) -> pd.DataFr
 
     """
     images = images.copy()
-    images = images[~images[_labels.images.genus].isin(_domestic.genera)]
+
+    if broad:
+        genera = pd.Series(_domestic.species).str.split(" ").str[0].drop_duplicates()
+        images = images[~images[_labels.images.genus].isin(genera)]
+    else:
+        names = get_scientific_name(images, keep_genus=False)
+        images = images[~names.isin(_domestic.species)]
 
     if reset_index:
         images = images.reset_index(drop=True)
@@ -41,7 +56,7 @@ def remove_duplicates(
     images: pd.DataFrame,
     interval: int = 30,
     unit: str = "minutes",
-    reset_index: bool = True,
+    reset_index: bool = False,
 ) -> pd.DataFrame:
     """
     Removes duplicate records (images) from the same taxon in the same
@@ -94,7 +109,7 @@ def remove_duplicates(
     )
     df = images_reference.loc[mask]
     df = pd.concat([df, images[images["taxon"].isna()]])
-    df = df.sort_index()
+    df = df.reindex(images.index.intersection(df.index))
 
     if reset_index:
         df = df.reset_index(drop=True)
@@ -105,7 +120,7 @@ def remove_duplicates(
 
 
 def remove_inconsistent_dates(
-    images: pd.DataFrame, deployments: pd.DataFrame, reset_index: bool = True
+    images: pd.DataFrame, deployments: pd.DataFrame, reset_index: bool = False
 ) -> pd.DataFrame:
     """
     Removes images where the timestamp is outside the date range of the
@@ -163,7 +178,7 @@ def remove_inconsistent_dates(
 
 
 def remove_unidentified(
-    images: pd.DataFrame, rank: str = "genus", reset_index: bool = True
+    images: pd.DataFrame, rank: str = "genus", reset_index: bool = False
 ) -> pd.DataFrame:
     """
     Removes unidentified (up to a specific taxonomic rank) images.
@@ -181,6 +196,7 @@ def remove_unidentified(
             - 'family'
             - 'order'
             - 'class'
+
         For example, if rank is 'family', all images where the family
         (and therefore the inferior ranks - genus and epithet -) were
         not identified will be removed.

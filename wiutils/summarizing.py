@@ -48,7 +48,7 @@ def compute_count_summary(
     deployments: pd.DataFrame = None,
     groupby: str = "deployment",
     add_records_by_class: bool = False,
-    add_species_by_class: bool = False,
+    add_taxa_by_class: bool = False,
     remove_unidentified_kws: dict = None,
     remove_duplicates_kws: dict = None,
 ) -> pd.DataFrame:
@@ -68,10 +68,10 @@ def compute_count_summary(
             - 'deployment' to group by deployment (deployment_id)
             - 'location' to group by location (placename)
     add_records_by_class : bool
-        Whether to add number of independent records discriminated by
-        taxonomic class.
-    add_species_by_class : bool
-        Whether to add number of species discriminated by taxonomic class.
+        Whether to add number of independent records (i.e. number of
+        individuals after duplicate image removal).
+    add_taxa_by_class : bool
+        Whether to add number of unique taxa.
     remove_unidentified_kws : dict
         Keyword arguments for the wiutils.remove_unidentified function.
     remove_duplicates_kws : dict
@@ -89,6 +89,9 @@ def compute_count_summary(
         remove_unidentified_kws = {"rank": "class"}
     if remove_duplicates_kws is None:
         remove_duplicates_kws = {}
+
+    remove_unidentified_kws.update({"reset_index": True})
+    remove_duplicates_kws.update({"reset_index": True})
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     result = pd.DataFrame(index=sorted(images[groupby_label].unique()))
@@ -116,7 +119,7 @@ def compute_count_summary(
     result = result.join(
         images.groupby(groupby_label)["taxon"].nunique().rename("taxa")
     )
-    if add_species_by_class:
+    if add_taxa_by_class:
         classes = images[_labels.images.class_].dropna().unique()
         for class_ in classes:
             subset = images[images[_labels.images.class_] == class_]
@@ -170,6 +173,7 @@ def compute_detection(
 
     """
     images = images.copy()
+    images = remove_unidentified(images, rank="class", reset_index=True)
 
     images, groupby_label = _process_groupby_arg(images, deployments, groupby)
     images["taxon"] = get_lowest_taxon(images, return_rank=False)
@@ -235,6 +239,8 @@ def compute_detection_history(
     """
     images = images.copy()
     deployments = deployments.copy()
+
+    images = remove_unidentified(images, rank="class", reset_index=True)
 
     images[_labels.images.date] = pd.to_datetime(images[_labels.images.date])
     images[_labels.images.date] = pd.to_datetime(images[_labels.images.date].dt.date)
@@ -374,7 +380,7 @@ def compute_general_count(
         {_labels.images.objects: "sum", groupby_label: "nunique"}
     )
     result = result.rename(
-        columns={_labels.images.objects: "records", groupby_label: f"{groupby}s"}
+        columns={_labels.images.objects: "n", groupby_label: f"{groupby}s"}
     )
     result = result.reset_index()
 

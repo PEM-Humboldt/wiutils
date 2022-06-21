@@ -42,7 +42,7 @@ def compute_taxonomic_rank(images: pd.DataFrame) -> pd.Series:
     # Because there is no column for infraspecific epithet, it is assumed
     # that all the records with two words on the species column has
     # a subspecies rank.
-    words = images[_labels.images.species].str.split(" ").str.len()
+    words = images[_labels.images.species].astype("object").str.split(" ").str.len()
     ranks.loc[words == 2] = "subspecies"
 
     return ranks

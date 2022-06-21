@@ -35,7 +35,7 @@ def test_deployment(images):
     expected = pd.DataFrame(
         {
             "taxon": ["Canidae", "Eira barbara", "Panthera onca"],
-            "records": [4, 3, 1],
+            "n": [4, 3, 1],
             "deployments": [1, 2, 1],
         }
     )
@@ -47,7 +47,7 @@ def test_location(images, deployments):
     expected = pd.DataFrame(
         {
             "taxon": ["Canidae", "Eira barbara", "Panthera onca"],
-            "records": [4, 3, 1],
+            "n": [4, 3, 1],
             "locations": [1, 1, 1],
         }
     )
@@ -61,7 +61,7 @@ def test_rank_class(images):
     expected = pd.DataFrame(
         {
             "taxon": ["Canidae", "Eira barbara", "Panthera onca"],
-            "records": [4, 3, 1],
+            "n": [4, 3, 1],
             "deployments": [1, 2, 1],
             "class": ["Mammalia", "Mammalia", "Mammalia"],
             "order": ["Carnivora", "Carnivora", "Carnivora"],
@@ -80,7 +80,7 @@ def test_rank_family(images):
     expected = pd.DataFrame(
         {
             "taxon": ["Canidae", "Eira barbara", "Panthera onca"],
-            "records": [4, 3, 1],
+            "n": [4, 3, 1],
             "deployments": [1, 2, 1],
             "family": ["Canidae", "Mustelidae", "Felidae"],
             "genus": [np.nan, "Eira", "Panthera"],
@@ -100,7 +100,7 @@ def test_no_taxonomy(images):
     expected = pd.DataFrame(
         {
             "taxon": ["Canidae", "Eira barbara", "Panthera onca"],
-            "records": [4, 3, 1],
+            "n": [4, 3, 1],
             "deployments": [1, 2, 1],
         }
     )
