@@ -39,3 +39,22 @@ If you add any new depedency to the project, make sure to run tox as follows so 
 ```shell
 tox -r
 ```
+
+## Code coverage
+We make sure the code coverage is 100%. Ideally, when implementing new features or making changes, you should make sure that the code coverage is still 100%. For this, run the coverage for the tests:
+```shell
+coverage run -m pytest tests/
+```
+
+And then run the report:
+```shell
+coverage report -m -i
+```
+
+## Code style
+We use pre-commit hooks to make sure new changes adhere to different coding guidelines. You need to install these hooks just once (ideally before doing any commit) by running:
+```shell
+pre-commit install
+```
+
+After that, every commit you try to make will run the hooks before committing the changes. If the hooks modified your changes, you'll have to add those files and commit again.
