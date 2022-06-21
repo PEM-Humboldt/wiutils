@@ -44,6 +44,10 @@ As you can see, all the date ranges except for one are identical. The `CTCAJ1437
 ## Plotting activity hours
 Because each image has an associated time, it is possible to explore the circadian activity of a specific species (or taxon). The `plot_activity_functions` offers multiple ways visualizing this activity for one or more species.
 
+!!! note
+
+    For the activity hour plots, observations (*i.e.* the sum of the `number_of_objects` field in the images dataframe) are grouped into 24 one-hour bins.
+
 The `kind` parameter lets you specify one of the following type of plots:
 
 - `"kde"`: Kernel Density Estimate (only works when `polar=False`).
