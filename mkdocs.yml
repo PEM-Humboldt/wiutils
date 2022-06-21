@@ -5,14 +5,9 @@ copyright: Copyright &copy; 2021-2022 Programa de Evaluación y Monitoreo de la 
 theme:
   name: material
   palette:
-    - scheme: default
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to dark mode
-    - scheme: slate
-      toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to light mode
+    scheme: humboldt
+extra_css:
+  - stylesheets/extra.css
 
 nav:
   - Getting started: index.md
