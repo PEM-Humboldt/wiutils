@@ -117,11 +117,11 @@ def create_dwc_event(
     core = core.reindex(columns=_dwc.event.order)
 
     # Update March 23' version
-    core['continent'
+    core[['continent',
             'country',
             'county',
-            'maximumElevationInMeters'
-            'minimumElevationInMeters'] = None
+            'maximumElevationInMeters',
+            'minimumElevationInMeters']] = None
 
     core['eventID'] = core['parentEventID']
 
@@ -131,7 +131,7 @@ def create_dwc_event(
        'minimumElevationInMeters', 'maximumElevationInMeters',
        'decimalLongitude', 'decimalLatitude', 'geodeticDatum',
        'eventRemarks']]
-    
+
     return core
 
 def create_dwc_measurement(
@@ -292,21 +292,23 @@ def create_dwc_occurrence(
 
     core["type"] = 'Imagen'
 
-    core['dateIdentified'
-            'collectionCode'
-            'occurrenceID'
-            'scientificNameAuthorship'] = None
+    core[['dateIdentified',
+            'collectionCode',
+            'occurrenceID',
+            'scientificNameAuthorship']] = None
+    
+    core['eventID'] = core['parentEventID']
 
     core['accessRights'] = projects['metadata_license'].values[0]
     
-    core = core[['eventID', 'parentEventID', 'eventDate', 'eventTime', 'identifiedBy',
-                'identificationRemarks', 'recordNumber', 'recordedBy',
-                'organismQuantity', 'organismQuantityType', 'sex', 'lifeStage',
-                'preparations', 'associatedMedia', 'occurrenceRemarks', 'organismID',
-                'institutionCode', 'basisOfRecord', 'taxonID', 'scientificName',
-                'kingdom', 'phylum', 'class', 'order', 'family', 'genus',
-                'specificEpithet', 'infraspecificEpithet', 'taxonRank',
-                'vernacularName']]
-
+    core = core[[
+                'occurrenceID', 'eventID', 'basisOfRecord', 'type', 'institutionCode',
+                'collectionCode', 'recordNumber', 'recordedBy', 'organismQuantity',
+                'organismQuantityType', 'preparations', 'eventDate', 'eventTime',
+                'identifiedBy', 'dateIdentified', 'scientificName', 'kingdom', 'phylum',
+                'class', 'order', 'family', 'genus', 'specificEpithet',
+                'infraspecificEpithet', 'taxonRank', 'scientificNameAuthorship',
+                'vernacularName', 'accessRights', 'associatedMedia'
+                ]]
 
     return core
