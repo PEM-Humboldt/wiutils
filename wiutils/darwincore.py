@@ -20,7 +20,6 @@ def _gs_to_https(location: pd.Series) -> pd.Series:
 
     return base_url + bucket + "/" + uri
 
-
 def create_dwc_archive(
     cameras: pd.DataFrame,
     deployments: pd.DataFrame,
@@ -67,7 +66,6 @@ def create_dwc_archive(
     multimedia = create_dwc_multimedia(images, deployments)
 
     return event, occurrence, measurement, multimedia
-
 
 def create_dwc_event(
     deployments: pd.DataFrame,
@@ -118,8 +116,23 @@ def create_dwc_event(
 
     core = core.reindex(columns=_dwc.event.order)
 
-    return core
+    # Update March 23' version
+    core[['continent'
+            'country',
+            'county',
+            'maximumElevationInMeters'
+            'minimumElevationInMeters']] = None
 
+    core['eventID'] = core['parentEventID']
+
+    core = core[['eventID', 'institutionCode', 'sampleSizeValue', 'sampleSizeUnit',
+       'samplingProtocol', 'samplingEffort', 'eventDate', 'continent',
+       'country', 'countryCode',  'county',
+       'minimumElevationInMeters', 'maximumElevationInMeters',
+       'decimalLongitude', 'decimalLatitude', 'geodeticDatum',
+       'eventRemarks']]
+    
+    return core
 
 def create_dwc_measurement(
     deployments: pd.DataFrame,
@@ -162,7 +175,6 @@ def create_dwc_measurement(
 
     return extension
 
-
 def create_dwc_multimedia(
     images: pd.DataFrame, deployments: pd.DataFrame
 ) -> pd.DataFrame:
@@ -203,7 +215,6 @@ def create_dwc_multimedia(
     extension = extension.reindex(columns=_dwc.multimedia.order)
 
     return extension
-
 
 def create_dwc_occurrence(
     images: pd.DataFrame,
@@ -276,5 +287,26 @@ def create_dwc_occurrence(
     core["infraspecificEpithet"] = epithets.get(1, np.nan)
 
     core = core.reindex(columns=_dwc.occurrence.order)
+
+    #Update March 23' version
+
+    core["type"] = 'Imagen'
+
+    core[['dateIdentified'
+            'collectionCode'
+            'occurrenceID'
+            'scientificNameAuthorship']] = None
+
+    core['accessRights'] = projects['metadata_license'].values[0]
+    
+    core = core[['eventID', 'parentEventID', 'eventDate', 'eventTime', 'identifiedBy',
+                'identificationRemarks', 'recordNumber', 'recordedBy',
+                'organismQuantity', 'organismQuantityType', 'sex', 'lifeStage',
+                'preparations', 'associatedMedia', 'occurrenceRemarks', 'organismID',
+                'institutionCode', 'basisOfRecord', 'taxonID', 'scientificName',
+                'kingdom', 'phylum', 'class', 'order', 'family', 'genus',
+                'specificEpithet', 'infraspecificEpithet', 'taxonRank',
+                'vernacularName']]
+
 
     return core
