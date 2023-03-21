@@ -117,11 +117,11 @@ def create_dwc_event(
     core = core.reindex(columns=_dwc.event.order)
 
     # Update March 23' version
-    core[['continent'
+    core['continent'
             'country',
             'county',
             'maximumElevationInMeters'
-            'minimumElevationInMeters']] = None
+            'minimumElevationInMeters'] = None
 
     core['eventID'] = core['parentEventID']
 
@@ -292,10 +292,10 @@ def create_dwc_occurrence(
 
     core["type"] = 'Imagen'
 
-    core[['dateIdentified'
+    core['dateIdentified'
             'collectionCode'
             'occurrenceID'
-            'scientificNameAuthorship']] = None
+            'scientificNameAuthorship'] = None
 
     core['accessRights'] = projects['metadata_license'].values[0]
     
