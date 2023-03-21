@@ -12,7 +12,6 @@ from . import _dwc, _labels
 from .extraction import get_lowest_taxon
 from .filtering import remove_duplicates, remove_unidentified
 
-
 def _gs_to_https(location: pd.Series) -> pd.Series:
     base_url = "https://console.cloud.google.com/storage/browser/"
     bucket = location.str.split("/").str[2]
